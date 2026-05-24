@@ -1,4 +1,5 @@
-#include "oxide.hpp"
+#include "tensor.hpp"
+#include "backend.hpp"
 
 #include <string>
 #include <algorithm>
@@ -6,26 +7,30 @@
 
 namespace ox {
 
-
-    Tensor::Tensor(Backend& _backend, int _size, float value):
+    
+    template <typename d_type>
+    Tensor<d_type>::Tensor(Backend& _backend, int _size, d_type value):
         backend(&_backend), size(_size) {
 
         create_buffer();
         std::fill(ptr, ptr + size, value);
     }
 
-    Tensor::~Tensor() {
+    template <typename d_type>
+    Tensor<d_type>::~Tensor() {
         if (buffer) {buffer->release();}
     }
 
-    Tensor::Tensor(const Tensor& other):
+    template <typename d_type>
+    Tensor<d_type>::Tensor(const Tensor<d_type>& other):
         backend(other.backend), size(other.size) {
         
         create_buffer();
-        std::memcpy(ptr, other.ptr, size * sizeof(float));
+        std::memcpy(ptr, other.ptr, size * sizeof(d_type));
     }
 
-    Tensor::Tensor(Tensor&& other):
+    template <typename d_type>
+    Tensor<d_type>::Tensor(Tensor<d_type>&& other):
     backend(other.backend), buffer(other.buffer), ptr(other.ptr), size(other.size) {
 
         other.buffer = nullptr;
@@ -33,19 +38,21 @@ namespace ox {
         other.size = 0;
     }
 
-    Tensor& Tensor::operator=(const Tensor& other) {
+    template <typename d_type>
+    Tensor<d_type>& Tensor<d_type>::operator=(const Tensor<d_type>& other) {
         if (this == &other) {return *this;}
         if (buffer) {buffer->release();}
 
         backend = other.backend;
         size = other.size;
         create_buffer();
-        std::memcpy(ptr, other.ptr, size * sizeof(float));
+        std::memcpy(ptr, other.ptr, size * sizeof(d_type));
 
         return *this;
     }
 
-    Tensor& Tensor::operator=(Tensor&& other) {
+    template <typename d_type>
+    Tensor<d_type>& Tensor<d_type>::operator=(Tensor<d_type>&& other) {
         if (this == &other) {return *this;}
         if (buffer) {buffer->release();}
 
@@ -61,12 +68,14 @@ namespace ox {
         return *this;
     }
 
-    void Tensor::create_buffer() {
+    template <typename d_type>
+    void Tensor<d_type>::create_buffer() {
         buffer = backend->new_buffer(size);
-        ptr = static_cast<float*>(buffer->contents());
+        ptr = static_cast<d_type*>(buffer->contents());
     }
 
-    float Tensor::operator[](int index) const {
+    template <typename d_type>
+    d_type Tensor<d_type>::operator[](int index) const {
         if (!buffer) {
             backend->log("Oxide: cannot access null tensor after move operation."); backend->abort();
         }
@@ -77,7 +86,8 @@ namespace ox {
         return ptr[index];
     }
 
-    float& Tensor::operator[](int index) {
+    template <typename d_type>
+    d_type& Tensor<d_type>::operator[](int index) {
         if (!buffer) {
             backend->log("Oxide: cannot access null tensor after move operation."); backend->abort();
         }
@@ -88,23 +98,28 @@ namespace ox {
         return ptr[index];
     }
 
-    Backend* Tensor::get_backend() const {
+    template <typename d_type>
+    Backend* Tensor<d_type>::get_backend() const {
         return backend;
     }
 
-    float* Tensor::get_ptr() const {
+    template <typename d_type>
+    d_type* Tensor<d_type>::get_ptr() const {
         return ptr;
     }
 
-    MTL::Buffer* Tensor::get_buffer() const {
+    template <typename d_type>
+    MTL::Buffer* Tensor<d_type>::get_buffer() const {
         return buffer;
     }
 
-    int Tensor::get_size() const {
+    template <typename d_type>
+    int Tensor<d_type>::get_size() const {
         return size;
     }
 
-    std::string Tensor::get_string() const {
+    template <typename d_type>
+    std::string Tensor<d_type>::get_string() const {
         std::string str = "[";
         for (int i = 0; i < size; i++) {
             str += std::to_string(ptr[i]);
@@ -115,11 +130,8 @@ namespace ox {
     }
 
 
-    Tensor rand(Backend& backend, int size) {
-        Tensor out(backend, size, 0);
-        backend.rand(out.get_ptr(), size);
-        return out;
-    }
+    template class Tensor<int32>;
+    template class Tensor<float32>;
 
 
 }

@@ -1,12 +1,12 @@
 COMPILER = g++
 COMPFLAG = -std=c++23
 
-INCLUDE = -Imetal-cpp
+INCLUDE = -Iexternal/metal-cpp -Iexternal/nanobind/include -Isrc/include
 
 LDFLAGS = -framework Metal \
 		  -framework Foundation
 
-SRC = src/backend.cpp src/tensor.cpp src/dispatcher.cpp main.cpp
+SRC = src/backend.cpp src/dispatcher.cpp src/functions.cpp src/tensor.cpp src/typeutil.cpp main.cpp
 OUT = main
 
 

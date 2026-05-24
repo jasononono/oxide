@@ -1,4 +1,4 @@
-#include "oxide.hpp"
+#include "dispatcher.hpp"
 
 
 namespace ox {
@@ -35,21 +35,6 @@ namespace ox {
 
         encoder->release();
         cmd->release();
-    }
-    
-    Tensor binary_add(Dispatcher& dispatcher, const Tensor& a, const Tensor& b) {
-        if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
-            dispatcher.get_backend()->log("Oxide: backend mismatch");
-            dispatcher.get_backend()->abort();
-        }
-        if (a.get_size() != b.get_size()) {
-            dispatcher.get_backend()->log("Oxide: tensor sizes must be the same.");
-            dispatcher.get_backend()->abort();
-        }
-
-        Tensor out(*dispatcher.get_backend(), a.get_size(), 0);
-        dispatcher.binary_operand("add", a.get_size(), a.get_buffer(), b.get_buffer(), out.get_buffer());
-        return out;
     }
 
 

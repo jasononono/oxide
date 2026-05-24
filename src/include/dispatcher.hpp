@@ -1,0 +1,25 @@
+#pragma once
+
+#include "backend.hpp"
+
+#include <string>
+
+
+namespace ox {
+
+
+    // collection of functions that launch gpu tasks
+    // called by wrapper functions (which requires the dispatcher object)
+    class Dispatcher {
+        Backend* backend = nullptr;
+
+        public:
+            Dispatcher(Backend& _backend);
+
+            Backend* get_backend() const;
+
+            void binary_operand(const std::string& function, int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out);
+    };
+
+
+}

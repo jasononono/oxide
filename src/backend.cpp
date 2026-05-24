@@ -2,10 +2,10 @@
 #define MTL_PRIVATE_IMPLEMENTATION
 
 
-#include "oxide.hpp"
+#include "backend.hpp"
+#include "typeutil.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <Metal/Metal.hpp>
 
 
@@ -33,7 +33,8 @@ namespace ox {
         random.generator =  std::mt19937(random.device());
 
         init_shader("src/shader.metal");
-        load_shader("add");
+        load_shader(with_type<int32>("add"));
+        load_shader(with_type<float32>("add"));
     }
 
     Backend::~Backend() {}

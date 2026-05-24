@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <random>
 #include <unordered_map>
 #include <Metal/Metal.hpp>
@@ -66,50 +65,4 @@ namespace ox {
     };
 
 
-    // tensor class for storage only (contains only a linear size reference)
-    class Tensor {
-        Backend* backend = nullptr;
-        float* ptr = nullptr;
-        MTL::Buffer* buffer = nullptr;
-        int size = 0;
-        
-        public:
-            Tensor(Backend& _backend, int _size, float value);
-
-            ~Tensor();
-            Tensor(const Tensor& other);
-            Tensor(Tensor&& other);
-            Tensor& operator=(const Tensor& other);
-            Tensor& operator=(Tensor&& other);
-
-            void create_buffer(); // create buffer based on size attribute
-            
-            float operator[](int index) const;
-            float& operator[](int index);
-
-            Backend* get_backend() const;
-            float* get_ptr() const;
-            MTL::Buffer* get_buffer() const;
-            int get_size() const;
-            std::string get_string() const;
-    };
-
-
-    // collection of functions that launch gpu tasks
-    // called by wrapper functions (which requires the dispatcher object)
-    class Dispatcher {
-        Backend* backend = nullptr;
-
-        public:
-            Dispatcher(Backend& _backend);
-
-            Backend* get_backend() const;
-
-            void binary_operand(const std::string& function, int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out);
-    };
-
-    Tensor binary_add(Dispatcher& dispatcher, const Tensor& a, const Tensor& b); // elementwise local operation (e.g. a + b)
-
-
-     Tensor rand(Backend& backend, int size); // generate tensor filled with random floats
 }
