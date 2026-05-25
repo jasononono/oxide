@@ -19,6 +19,7 @@ namespace ox {
             Backend* get_backend() const;
 
             void binary_operand(const std::string& function, int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out);
+            void unary_operand(const std::string& function, int size, MTL::Buffer* a, MTL::Buffer* b);
     };
 
 

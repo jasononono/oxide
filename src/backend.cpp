@@ -33,8 +33,6 @@ namespace ox {
         random.generator =  std::mt19937(random.device());
 
         init_shader("src/shader.metal");
-        load_shader(with_type<int32>("add"));
-        load_shader(with_type<float32>("add"));
     }
 
     Backend::~Backend() {}
@@ -71,7 +69,7 @@ namespace ox {
     void Backend::load_shader(const std::string& name) {
         MTL::Function* function = shader.library->newFunction(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
         if (!function) {
-            log("Oxide: shader function '" + name + "' not found in source."); abort();
+            log("Oxide: shader function '" + name + "' does not exist."); abort();
         }
 
         shader.pipeline[name] = metal.device->newComputePipelineState(function, &error);
@@ -84,7 +82,7 @@ namespace ox {
 
     NS::UInteger Backend::set_cps(MTL::ComputeCommandEncoder* encoder, const std::string& name) {
         if (!shader.pipeline.count(name)) {
-            log("Oxide: shader function '" + name + "' does not exist."); abort();
+            load_shader(name);
         }
         encoder->setComputePipelineState(shader.pipeline.at(name));
         return shader.pipeline.at(name)->maxTotalThreadsPerThreadgroup();
