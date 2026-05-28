@@ -1,7 +1,7 @@
 #include "typeutil.hpp"
 
 
-namespace ox {
+namespace oxide {
 
 
     template<>

@@ -4,7 +4,7 @@
 #include "typeutil.hpp"
 
 
-namespace ox {
+namespace oxide {
 
 
     // tensor class for storage only (contains only a linear size reference)
@@ -13,10 +13,10 @@ namespace ox {
         Backend* backend = nullptr;
         d_type* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
-        int size = 0;
+        unsigned int size = 0;
         
         public:
-            Tensor(Backend& _backend, int _size, d_type value);
+            Tensor(Backend& _backend, unsigned int _size, d_type value);
 
             ~Tensor();
             Tensor(const Tensor& other);
@@ -32,8 +32,29 @@ namespace ox {
             Backend* get_backend() const;
             d_type* get_ptr() const;
             MTL::Buffer* get_buffer() const;
-            int get_size() const;
+            unsigned int get_size() const;
             std::string get_string() const;
+    };
+
+
+    template <typename d_type>
+    class TensorView {
+        Backend* backend = nullptr;
+        Tensor<d_type>* base = nullptr;
+
+        unsigned int ndim;
+        unsigned int offset = 0;
+        std::vector<unsigned int> shape;
+        std::vector<unsigned int> strides;
+
+        public:
+            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base);
+            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<unsigned int>& _strides);
+
+            d_type operator[](const std::vector<int>& indices) const;
+            d_type& operator[](const std::vector<int>& indices);
+
+            unsigned int get_buffer_idx(const std::vector<int>& indices) const;
     };
 
 

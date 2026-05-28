@@ -5,11 +5,11 @@
 #include <algorithm>
 
 
-namespace ox {
+namespace oxide {
 
     
     template <typename d_type>
-    Tensor<d_type>::Tensor(Backend& _backend, int _size, d_type value):
+    Tensor<d_type>::Tensor(Backend& _backend, unsigned int _size, d_type value):
         backend(&_backend), size(_size) {
 
         create_buffer();
@@ -77,11 +77,11 @@ namespace ox {
     template <typename d_type>
     d_type Tensor<d_type>::operator[](int index) const {
         if (!buffer) {
-            backend->log("Oxide: cannot access null tensor after move operation."); backend->abort();
+            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
         }
         if (index < 0) {index += size;}
         if (index < 0 || index >= size) {
-            backend->log("Oxide: tensor index out of range"); backend->abort();
+            backend->log("Oxide: buffer index out of range"); backend->abort();
         }
         return ptr[index];
     }
@@ -89,11 +89,11 @@ namespace ox {
     template <typename d_type>
     d_type& Tensor<d_type>::operator[](int index) {
         if (!buffer) {
-            backend->log("Oxide: cannot access null tensor after move operation."); backend->abort();
+            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
         }
         if (index < 0) {index += size;}
         if (index < 0 || index >= size) {
-            backend->log("Oxide: tensor index out of range"); backend->abort();
+            backend->log("Oxide: buffer index out of range"); backend->abort();
         }
         return ptr[index];
     }
@@ -114,7 +114,7 @@ namespace ox {
     }
 
     template <typename d_type>
-    int Tensor<d_type>::get_size() const {
+    unsigned int Tensor<d_type>::get_size() const {
         return size;
     }
 
@@ -129,9 +129,78 @@ namespace ox {
         return str;
     }
 
-
     template class Tensor<int32>;
     template class Tensor<float32>;
+
+
+    template <typename d_type>
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base):
+    backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), strides(ndim) {
+        unsigned int size = 1;
+        for (int i : shape) {size *= i;}
+        if (size != base->get_size()) {
+            backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
+        }
+
+        strides[ndim - 1] = 1;
+        for (int i = ndim - 2; i >= 0; i--) {
+            strides[i] = strides[i + 1] * shape[i + 1];
+        }
+    }
+
+    template <typename d_type>
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<unsigned int>& _strides):
+    backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
+        unsigned int size;
+        for (int i : shape) {size *= i;}
+        if (size != base->get_size()) {
+            backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
+        }
+    }
+
+    template <typename d_type>
+    d_type TensorView<d_type>::operator[](const std::vector<int>& indices) const {
+        return base->get_ptr()[get_buffer_idx(indices)];
+    }
+
+    template <typename d_type>
+    d_type& TensorView<d_type>::operator[](const std::vector<int>& indices) {
+        return base->get_ptr()[get_buffer_idx(indices)];
+    }
+
+    template <typename d_type>
+    unsigned int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
+        if (!base) {
+            backend->log("Oxide: base missing from indexed tensor view"); backend->abort();
+        }
+        if (!base->get_buffer()) {
+            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
+        }
+
+        if (indices.size() != ndim) {
+            backend->log("Oxide: indexing dimensions does not match tensor dimensions"); backend->abort();
+        }
+        unsigned int buf_index = 0, idx;
+        for (int i = 0; i < ndim; i++) {
+            if (indices[i] >= 0) {
+                idx = indices[i];
+            } else {
+                idx = shape[i] + indices[i];
+            }
+            if (idx < 0 || idx >= shape[i]) {
+                backend->log("Oxide: tensor index out of range"); backend->abort();
+            }
+            buf_index += idx * strides[i];
+        }
+        if (buf_index < 0 || buf_index >= base->get_size()) {
+            backend->log("Oxide: buffer index out of range"); backend->abort();
+        }
+
+        return buf_index;
+    }
+
+    template class TensorView<int32>;
+    template class TensorView<float32>;
 
 
 }

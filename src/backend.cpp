@@ -9,7 +9,7 @@
 #include <Metal/Metal.hpp>
 
 
-namespace ox {
+namespace oxide {
 
 
     Metal::~Metal() {

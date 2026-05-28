@@ -3,16 +3,19 @@
 
 
 void run() {
-    ox::Backend backend;
-    ox::Dispatcher dispatcher(backend);
+    oxide::Backend backend;
+    oxide::Dispatcher dispatcher(backend);
 
-    ox::Tensor<float32> a = rand_float(backend, 10);
-    ox::Tensor<float32> b = rand_float(backend, 10);
-    ox::Tensor<float32> out = ox::binary_add(dispatcher, a, b);
+    oxide::Tensor<float32> a = rand_float(backend, 10);
+    oxide::Tensor<float32> b = rand_float(backend, 10);
+    oxide::Tensor<float32> out = oxide::binary_add(dispatcher, a, b);
 
     std::cout << "a:   " << a.get_string() << std::endl;
     std::cout << "b:   " << b.get_string() << std::endl;
     std::cout << "out: " << out.get_string() << std::endl;
+
+    oxide::TensorView<float32> av(backend, {2, 5}, &a);
+    std::cout << av[{1, 4}] << std::endl;
     
 }
 

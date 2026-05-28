@@ -8,7 +8,7 @@ typedef int32_t int32;
 typedef float float32;
 
 
-namespace ox {
+namespace oxide {
 
 
     template <typename d_type>

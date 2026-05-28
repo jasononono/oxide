@@ -5,7 +5,7 @@
 #include <string>
 
 
-namespace ox {
+namespace oxide {
 
 
     // collection of functions that launch gpu tasks

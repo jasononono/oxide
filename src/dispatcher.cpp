@@ -1,7 +1,7 @@
 #include "dispatcher.hpp"
 
 
-namespace ox {
+namespace oxide {
 
 
     Dispatcher::Dispatcher(Backend& _backend):

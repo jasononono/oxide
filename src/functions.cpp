@@ -2,7 +2,7 @@
 #include "typeutil.hpp"
 
 
-namespace ox {
+namespace oxide {
 
 
     template <typename d_type>

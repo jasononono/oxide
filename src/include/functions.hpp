@@ -5,7 +5,7 @@
 #include "dispatcher.hpp"
 
 
-namespace ox {
+namespace oxide {
 
 
     template <typename d_type>

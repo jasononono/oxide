@@ -6,7 +6,7 @@
 #include <Metal/Metal.hpp>
 
 
-namespace ox {
+namespace oxide {
 
 
     // pointers to gpu processes
