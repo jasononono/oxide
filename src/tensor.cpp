@@ -76,25 +76,13 @@ namespace oxide {
 
     template <typename d_type>
     d_type Tensor<d_type>::operator[](int index) const {
-        if (!buffer) {
-            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
-        }
-        if (index < 0) {index += size;}
-        if (index < 0 || index >= size) {
-            backend->log("Oxide: buffer index out of range"); backend->abort();
-        }
+        check_buffer();
         return ptr[index];
     }
 
     template <typename d_type>
     d_type& Tensor<d_type>::operator[](int index) {
-        if (!buffer) {
-            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
-        }
-        if (index < 0) {index += size;}
-        if (index < 0 || index >= size) {
-            backend->log("Oxide: buffer index out of range"); backend->abort();
-        }
+        check_buffer();
         return ptr[index];
     }
 
@@ -105,11 +93,13 @@ namespace oxide {
 
     template <typename d_type>
     d_type* Tensor<d_type>::get_ptr() const {
+        check_buffer();
         return ptr;
     }
 
     template <typename d_type>
     MTL::Buffer* Tensor<d_type>::get_buffer() const {
+        check_buffer();
         return buffer;
     }
 
@@ -120,6 +110,7 @@ namespace oxide {
 
     template <typename d_type>
     std::string Tensor<d_type>::get_string() const {
+        check_buffer();
         std::string str = "[";
         for (int i = 0; i < size; i++) {
             str += std::to_string(ptr[i]);
@@ -129,6 +120,13 @@ namespace oxide {
         return str;
     }
 
+    template <typename d_type>
+    void Tensor<d_type>::check_buffer() const {
+        if (!buffer) {
+            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
+        }
+    }
+
     template class Tensor<int32>;
     template class Tensor<float32>;
 
@@ -136,8 +134,7 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), strides(ndim) {
-        unsigned int size = 1;
-        for (int i : shape) {size *= i;}
+        unsigned int size = parse_shape(_backend, shape);
         if (size != base->get_size()) {
             backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
         }
@@ -149,10 +146,9 @@ namespace oxide {
     }
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<unsigned int>& _strides):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
-        unsigned int size;
-        for (int i : shape) {size *= i;}
+        unsigned int size = parse_shape(_backend, shape);
         if (size != base->get_size()) {
             backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
         }
@@ -169,18 +165,13 @@ namespace oxide {
     }
 
     template <typename d_type>
-    unsigned int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
-        if (!base) {
-            backend->log("Oxide: base missing from indexed tensor view"); backend->abort();
-        }
-        if (!base->get_buffer()) {
-            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
-        }
-
+    int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
+        check_base();
         if (indices.size() != ndim) {
             backend->log("Oxide: indexing dimensions does not match tensor dimensions"); backend->abort();
         }
-        unsigned int buf_index = 0, idx;
+
+        int buf_index = 0, idx;
         for (int i = 0; i < ndim; i++) {
             if (indices[i] >= 0) {
                 idx = indices[i];
@@ -188,19 +179,89 @@ namespace oxide {
                 idx = shape[i] + indices[i];
             }
             if (idx < 0 || idx >= shape[i]) {
-                backend->log("Oxide: tensor index out of range"); backend->abort();
+                backend->log("Oxide: index out of range"); backend->abort();
             }
             buf_index += idx * strides[i];
-        }
-        if (buf_index < 0 || buf_index >= base->get_size()) {
-            backend->log("Oxide: buffer index out of range"); backend->abort();
         }
 
         return buf_index;
     }
 
+    template <typename d_type>
+    Backend* TensorView<d_type>::get_backend() const {
+        return backend;
+    }
+
+    template <typename d_type>
+    Tensor<d_type>* TensorView<d_type>::get_base() const {
+        check_base();
+        return base;
+    }
+
+    template <typename d_type>
+    unsigned int TensorView<d_type>::get_ndim() const {
+        return ndim;
+    }
+
+    template <typename d_type>
+    unsigned int TensorView<d_type>::get_offset() const {
+        return offset;
+    }
+    
+    template <typename d_type>
+    std::vector<unsigned int> TensorView<d_type>::get_shape() const {
+        return shape;
+    }
+
+    template <typename d_type>
+    std::vector<int> TensorView<d_type>::get_strides() const {
+        return strides;
+    }
+
+    template <typename d_type>
+    std::string TensorView<d_type>::get_string() const {
+        std::string str(ndim, '[');
+        std::vector<int> indices(ndim, 0);
+        
+        while (!indices.empty()) {
+            str += std::to_string((*this)[indices]);
+            while (indices.back() == shape[indices.size() - 1] - 1) {
+                str += ']';
+                indices.pop_back();
+            }
+            if (indices.size() == 0) {break;}
+            str += ", ";
+            indices.back()++;
+            while (indices.size() < ndim) {
+                str += '[';
+                indices.push_back(0);
+            }
+        }
+
+        return str;
+    }
+
+    template <typename d_type>
+    void TensorView<d_type>::check_base() const {
+        if (!base) {
+            backend->log("Oxide: base missing during tensor view operation"); backend->abort();
+        }
+    }
+
     template class TensorView<int32>;
     template class TensorView<float32>;
+
+
+    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape) {
+        unsigned int size = 1;
+        for (unsigned int i : shape) {
+            if (i <= 0) {
+                backend.log("Oxide: dimension must be greater than 0"); backend.abort();
+            }
+            size *= i;
+        }
+        return size;
+    }
 
 
 }

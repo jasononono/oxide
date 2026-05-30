@@ -92,13 +92,6 @@ namespace oxide {
         return metal.device->newBuffer(size * sizeof(float), MTL::ResourceStorageModeShared);
     }
 
-    void Backend::rand(float* start, int size) {
-        std::uniform_real_distribution<float> dist(0, 1);
-        for (int i = 0; i < size; i++) {
-            *(start + i) = dist(random.generator);
-        }
-    }
-
     MTL::CommandBuffer* Backend::new_cmd_buffer() {
         MTL::CommandBuffer* cmd = metal.queue->commandBuffer();
         if (!cmd) {
@@ -123,6 +116,10 @@ namespace oxide {
 
     void Backend::abort() {
         throw std::runtime_error(error_log);
+    }
+
+    Random* Backend::get_random() {
+        return &random;
     }
 
 

@@ -6,16 +6,17 @@ void run() {
     oxide::Backend backend;
     oxide::Dispatcher dispatcher(backend);
 
-    oxide::Tensor<float32> a = rand_float(backend, 10);
-    oxide::Tensor<float32> b = rand_float(backend, 10);
-    oxide::Tensor<float32> out = oxide::binary_add(dispatcher, a, b);
+    oxide::TensorView<float32> a = oxide::rand<float32>(backend, {2, 5}, 0, 1);
+    oxide::TensorView<float32> b = oxide::rand<float32>(backend, {2, 5}, 0, 1);
+    oxide::TensorView<float32> out = oxide::binary_add(dispatcher, a, b);
 
     std::cout << "a:   " << a.get_string() << std::endl;
     std::cout << "b:   " << b.get_string() << std::endl;
     std::cout << "out: " << out.get_string() << std::endl;
 
-    oxide::TensorView<float32> av(backend, {2, 5}, &a);
-    std::cout << av[{1, 4}] << std::endl;
+    delete a.get_base();
+    delete b.get_base();
+    delete out.get_base(); // do auto memory deallocation later lol
     
 }
 

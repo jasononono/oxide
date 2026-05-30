@@ -6,48 +6,67 @@ namespace oxide {
 
 
     template <typename d_type>
-    Tensor<d_type> binary_add(Dispatcher& dispatcher, const Tensor<d_type>& a, const Tensor<d_type>& b) {
+    TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("Oxide: backend mismatch");
             dispatcher.get_backend()->abort();
         }
-        if (a.get_size() != b.get_size()) {
-            dispatcher.get_backend()->log("Oxide: tensor sizes must be the same.");
+        if (a.get_base()->get_size() != b.get_base()->get_size()) {
+            dispatcher.get_backend()->log("Oxide: tensor sizes must be the same");
             dispatcher.get_backend()->abort();
         }
 
-        Tensor<d_type> out(*dispatcher.get_backend(), a.get_size(), 0);
-        dispatcher.binary_operand(with_type<d_type>("add"), a.get_size(), a.get_buffer(), b.get_buffer(), out.get_buffer());
-        return out;
+        Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), a.get_base()->get_size(), 0);
+        dispatcher.binary_operand(with_type<d_type>("add"), a.get_base()->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer());
+        return TensorView<d_type>(*dispatcher.get_backend(), a.get_shape(), out);
     }
 
-    template Tensor<int32> binary_add(Dispatcher& dispatcher, const Tensor<int32>& a, const Tensor<int32>& b);
-    template Tensor<float32> binary_add(Dispatcher& dispatcher, const Tensor<float32>& a, const Tensor<float32>& b);
+    template TensorView<int32> binary_add(Dispatcher& dispatcher, const TensorView<int32>& a, const TensorView<int32>& b);
+    template TensorView<float32> binary_add(Dispatcher& dispatcher, const TensorView<float32>& a, const TensorView<float32>& b);
 
 
     template <typename d_type>
-    Tensor<d_type>& unary_add(Dispatcher& dispatcher, Tensor<d_type>& a, const Tensor<d_type>& b) {
+    TensorView<d_type>& unary_add(Dispatcher& dispatcher, TensorView<d_type>& a, const TensorView<d_type>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("Oxide: backend mismatch");
             dispatcher.get_backend()->abort();
         }
-        if (a.get_size() != b.get_size()) {
+        if (a.get_base()->get_size() != b.get_base()->get_size()) {
             dispatcher.get_backend()->log("Oxide: tensor sizes must be the same.");
             dispatcher.get_backend()->abort();
         }
 
-        dispatcher.unary_operand(with_type<d_type>("uadd"), a.get_size(), a.get_buffer(), b.get_buffer());
+        dispatcher.unary_operand(with_type<d_type>("uadd"), a.get_base()->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer());
         return a;
     }
 
-    template Tensor<int32>& unary_add(Dispatcher& dispatcher, Tensor<int32>& a, const Tensor<int32>& b);
-    template Tensor<float32>& unary_add(Dispatcher& dispatcher, Tensor<float32>& a, const Tensor<float32>& b);
+    template TensorView<int32>& unary_add(Dispatcher& dispatcher, TensorView<int32>& a, const TensorView<int32>& b);
+    template TensorView<float32>& unary_add(Dispatcher& dispatcher, TensorView<float32>& a, const TensorView<float32>& b);
 
 
-    Tensor<float32> rand_float(Backend& backend, int size) {
-        Tensor<float32> out(backend, size, 0);
-        backend.rand(out.get_ptr(), size);
-        return out;
+    template <>
+    TensorView<int32> rand(Backend& backend, const std::vector<unsigned int>& shape, int32 a, int32 b) {
+        unsigned int size = parse_shape(backend, shape);
+        Tensor<int32>* out = new Tensor<int32>(backend, size, 0);
+
+        std::uniform_int_distribution<int32> dist(a, b);
+        for (int i = 0; i < size; i++) {
+            out->get_ptr()[i] = dist(backend.get_random()->generator);
+        }
+
+        return TensorView<int32>(backend, shape, out);
+    }
+    template <>
+    TensorView<float32> rand(Backend& backend, const std::vector<unsigned int>& shape, float32 a, float32 b) {
+        unsigned int size = parse_shape(backend, shape);
+        Tensor<float32>* out = new Tensor<float32>(backend, size, 0);
+
+        std::uniform_real_distribution<float32> dist(a, b);
+        for (int i = 0; i < size; i++) {
+            out->get_ptr()[i] = dist(backend.get_random()->generator);
+        }
+
+        return TensorView<float32>(backend, shape, out);
     }
 
 

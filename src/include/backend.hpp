@@ -53,8 +53,6 @@ namespace oxide {
             void load_shader(const std::string& name); // load individual functions inside shader source file
             NS::UInteger set_cps(MTL::ComputeCommandEncoder* encoder, const std::string& name); // returns cps max threads
 
-            void rand(float* start, int size); // fill a chunk of memory with random floats from 0-1
-
             MTL::Buffer* new_buffer(int size); // create new shared resource buffer
             MTL::CommandBuffer* new_cmd_buffer(); // create single-use command buffer
 
@@ -62,6 +60,8 @@ namespace oxide {
             void log(const std::string& message); // log error message
             void log_metal(); // automatically log metal error description if applicable
             void abort(); // throw runtime error
+
+            Random* get_random();
     };
 
 

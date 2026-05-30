@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stack>
 #include "backend.hpp"
 #include "typeutil.hpp"
 
@@ -34,6 +35,8 @@ namespace oxide {
             MTL::Buffer* get_buffer() const;
             unsigned int get_size() const;
             std::string get_string() const;
+
+            void check_buffer() const;
     };
 
 
@@ -45,17 +48,29 @@ namespace oxide {
         unsigned int ndim;
         unsigned int offset = 0;
         std::vector<unsigned int> shape;
-        std::vector<unsigned int> strides;
+        std::vector<int> strides;
 
         public:
             TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base);
-            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<unsigned int>& _strides);
+            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides);
 
             d_type operator[](const std::vector<int>& indices) const;
             d_type& operator[](const std::vector<int>& indices);
 
-            unsigned int get_buffer_idx(const std::vector<int>& indices) const;
+            int get_buffer_idx(const std::vector<int>& indices) const;
+
+            Backend* get_backend() const;
+            Tensor<d_type>* get_base() const;
+            unsigned int get_ndim() const;
+            unsigned int get_offset() const;
+            std::vector<unsigned int> get_shape() const;
+            std::vector<int> get_strides() const;
+            std::string get_string() const;
+
+            void check_base() const;
     };
+
+    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape);
 
 
 }
