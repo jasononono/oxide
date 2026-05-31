@@ -32,7 +32,6 @@ namespace oxide {
     template <typename d_type>
     Tensor<d_type>::Tensor(Tensor<d_type>&& other):
     backend(other.backend), buffer(other.buffer), ptr(other.ptr), size(other.size) {
-
         other.buffer = nullptr;
         other.ptr = nullptr;
         other.size = 0;
@@ -134,6 +133,11 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), strides(ndim) {
+        if (backend != base->get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
+
         unsigned int size = parse_shape(_backend, shape);
         if (size != base->get_size()) {
             backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
@@ -148,6 +152,11 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
+        if (backend != base->get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
+
         unsigned int size = parse_shape(_backend, shape);
         if (size != base->get_size()) {
             backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
@@ -225,11 +234,11 @@ namespace oxide {
         
         while (!indices.empty()) {
             str += std::to_string((*this)[indices]);
-            while (indices.back() == shape[indices.size() - 1] - 1) {
+            while (!indices.empty() && indices.back() == shape[indices.size() - 1] - 1) {
                 str += ']';
                 indices.pop_back();
             }
-            if (indices.size() == 0) {break;}
+            if (indices.empty()) {break;}
             str += ", ";
             indices.back()++;
             while (indices.size() < ndim) {
@@ -237,7 +246,6 @@ namespace oxide {
                 indices.push_back(0);
             }
         }
-
         return str;
     }
 
