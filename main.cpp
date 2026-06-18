@@ -3,7 +3,7 @@
 
 
 void run() {
-    oxide::Backend backend;
+    oxide::Backend backend = oxide::new_backend();
     oxide::Dispatcher dispatcher(backend);
 
     oxide::TensorView<float32> a = oxide::filled<float32>(backend, {2, 5}, 6.7);
@@ -19,10 +19,7 @@ void run() {
     oxide::TensorView<float32> bv = oxide::reshape(b, {10, 1});
     std::cout << "bv:  " << bv.get_string() << std::endl;
 
-    delete a.get_base();
-    delete b.get_base();
-    delete out.get_base(); // do auto memory deallocation later lol
-    
+    oxide::free_backend(backend);
 }
 
 

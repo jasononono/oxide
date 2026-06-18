@@ -14,6 +14,8 @@ namespace oxide {
         Backend* backend = nullptr;
         d_type* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
+        TensorMemory memory_reference;
+
         unsigned int size = 0;
         
         public:
@@ -35,8 +37,9 @@ namespace oxide {
             MTL::Buffer* get_buffer() const;
             unsigned int get_size() const;
             std::string get_string() const;
+            TensorMemory get_memory_reference() const;
 
-            void check_buffer() const;
+            void check_buffer() const; // throws error if buffer is null
     };
 
 
@@ -44,6 +47,7 @@ namespace oxide {
     class TensorView {
         Backend* backend = nullptr;
         Tensor<d_type>* base = nullptr;
+        TensorMemory memory_reference;
 
         unsigned int ndim;
         unsigned int offset = 0;
@@ -57,7 +61,7 @@ namespace oxide {
             d_type operator[](const std::vector<int>& indices) const;
             d_type& operator[](const std::vector<int>& indices);
 
-            int get_buffer_idx(const std::vector<int>& indices) const;
+            int get_buffer_idx(const std::vector<int>& indices) const; // convert indices into buffer offset index
 
             Backend* get_backend() const;
             Tensor<d_type>* get_base() const;
@@ -67,10 +71,11 @@ namespace oxide {
             std::vector<int> get_strides() const;
             std::string get_string() const;
 
-            void check_base() const;
+            void check_base() const; // throws error if base is null
     };
+    
 
-    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape);
+    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape); // throws error if shape is invalid, then returns accumulative size
 
 
 }

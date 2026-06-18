@@ -4,6 +4,7 @@
 
 #include "backend.hpp"
 #include "typeutil.hpp"
+#include "tensor.hpp"
 
 #include <fstream>
 #include <Metal/Metal.hpp>
@@ -26,10 +27,25 @@ namespace oxide {
     }
 
 
-    Backend::Backend() {
-        error = nullptr;
-        init_metal();
+    TensorMemory::TensorMemory(): tensor_type(typeid(void)) {}
 
+    TensorMemory::TensorMemory(void* _address, std::type_index _tensor_type): address(_address), tensor_type(_tensor_type) {}
+
+    bool TensorMemory::operator==(const TensorMemory& other) const {
+        return address == other.address && tensor_type == other.tensor_type;
+    }
+
+
+    std::size_t TensorMemoryHash::operator()(const TensorMemory &x) const {
+        return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type);
+    }
+
+
+    Backend::Backend():
+    error(nullptr) {
+        
+        init_metal();
+        
         random.generator =  std::mt19937(random.device());
 
         init_shader("src/shader.metal");
@@ -118,8 +134,28 @@ namespace oxide {
         throw std::runtime_error(error_log);
     }
 
-    Random* Backend::get_random() {
-        return &random;
+    std::mt19937& Backend::random_generate() {
+        return random.generator;
+    }
+
+    TensorMemory Backend::memory_register(void* address, std::type_index tensor_type) {
+        TensorMemory tensor_memory(address, tensor_type);
+        memory.registered[tensor_memory] = std::unordered_set<TensorMemory, TensorMemoryHash>();
+        return tensor_memory;
+    }
+
+    TensorMemory Backend::memory_register(TensorMemory parent_memory, void* address, std::type_index tensor_type) {
+        TensorMemory tensor_memory(address, tensor_type);
+        memory.registered[parent_memory].insert(tensor_memory);
+        return tensor_memory;
+    }
+
+    std::vector<TensorMemory> Backend::memory_get_tensors() {
+        std::vector<TensorMemory> tensors;
+        for (const std::pair<const TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>> p : memory.registered) {
+            tensors.push_back(p.first);
+        }
+        return tensors;
     }
 
 

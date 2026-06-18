@@ -51,7 +51,7 @@ namespace oxide {
 
         std::uniform_int_distribution<int32> dist(a, b);
         for (int i = 0; i < size; i++) {
-            out->get_ptr()[i] = dist(backend.get_random()->generator);
+            out->get_ptr()[i] = dist(backend.random_generate());
         }
 
         return TensorView<int32>(backend, shape, out);
@@ -63,7 +63,7 @@ namespace oxide {
 
         std::uniform_real_distribution<float32> dist(a, b);
         for (int i = 0; i < size; i++) {
-            out->get_ptr()[i] = dist(backend.get_random()->generator);
+            out->get_ptr()[i] = dist(backend.random_generate());
         }
 
         return TensorView<float32>(backend, shape, out);

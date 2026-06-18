@@ -6,7 +6,7 @@ INCLUDE = -Iexternal/metal-cpp -Iexternal/nanobind/include -Isrc/include
 LDFLAGS = -framework Metal \
 		  -framework Foundation
 
-SRC = src/backend.cpp src/dispatcher.cpp src/functions.cpp src/tensor.cpp src/typeutil.cpp main.cpp
+SRC = src/backend.cpp src/dispatcher.cpp src/functions.cpp src/tensor.cpp src/typeutil.cpp src/oxide.cpp main.cpp
 OUT = main
 
 

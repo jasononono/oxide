@@ -3,6 +3,8 @@
 #include <string>
 #include <random>
 #include <unordered_map>
+#include <unordered_set>
+#include <typeindex>
 #include <Metal/Metal.hpp>
 
 
@@ -34,12 +36,37 @@ namespace oxide {
     };
 
 
+    // wrapper class for any type, used for memory management and registration
+    struct TensorMemory {
+        void* address = nullptr;
+        std::type_index tensor_type;
+        
+        TensorMemory();
+        TensorMemory(void* _address, std::type_index _tensor_type);
+
+        bool operator==(const TensorMemory& other) const;
+    };
+
+
+    // hasher for TensorMemory
+    struct TensorMemoryHash {
+        std::size_t operator()(const TensorMemory &x) const;
+    };
+
+
+    // auto memory management data and things
+    struct Memory {
+        std::unordered_map<TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>, TensorMemoryHash> registered;
+    };
+
+
     // bundled metadata, pointers, basic metal utilities
     // must be passed when communicating with metal framework
     class Backend {
         Metal metal;
         Shader shader;
         Random random;
+        Memory memory;
         NS::Error* error = nullptr; // automatically points to error struct upon exception
         std::string error_log; // printed upon abort
         
@@ -61,7 +88,11 @@ namespace oxide {
             void log_metal(); // automatically log metal error description if applicable
             void abort(); // throw runtime error
 
-            Random* get_random();
+            std::mt19937& random_generate();
+
+            TensorMemory memory_register(void* address, std::type_index tensor_type);
+            TensorMemory memory_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);
+            std::vector<TensorMemory> memory_get_tensors();
     };
 
 

@@ -11,9 +11,11 @@ namespace oxide {
     template <typename d_type>
     Tensor<d_type>::Tensor(Backend& _backend, unsigned int _size, d_type value):
         backend(&_backend), size(_size) {
-
+        
         create_buffer();
         std::fill(ptr, ptr + size, value);
+
+        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
     }
 
     template <typename d_type>
@@ -27,6 +29,8 @@ namespace oxide {
         
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(d_type));
+
+        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
     }
 
     template <typename d_type>
@@ -35,6 +39,8 @@ namespace oxide {
         other.buffer = nullptr;
         other.ptr = nullptr;
         other.size = 0;
+
+        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
     }
 
     template <typename d_type>
@@ -47,6 +53,7 @@ namespace oxide {
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(d_type));
 
+        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
         return *this;
     }
 
@@ -64,6 +71,7 @@ namespace oxide {
         other.ptr = nullptr;
         other.size = 0;
 
+        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
         return *this;
     }
 
@@ -120,6 +128,11 @@ namespace oxide {
     }
 
     template <typename d_type>
+    TensorMemory Tensor<d_type>::get_memory_reference() const {
+        return memory_reference;
+    }
+
+    template <typename d_type>
     void Tensor<d_type>::check_buffer() const {
         if (!buffer) {
             backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
@@ -147,11 +160,14 @@ namespace oxide {
         for (int i = ndim - 2; i >= 0; i--) {
             strides[i] = strides[i + 1] * shape[i + 1];
         }
+
+        memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(Tensor<d_type>));
     }
 
     template <typename d_type>
     TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
+        
         if (backend != base->get_backend()) {
             backend->log("Oxide: backend mismatch");
             backend->abort();
@@ -161,6 +177,8 @@ namespace oxide {
         if (size != base->get_size()) {
             backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
         }
+
+        memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(Tensor<d_type>));
     }
 
     template <typename d_type>
