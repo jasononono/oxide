@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "typeutil.hpp"
 #include "tensor.hpp"
 #include "dispatcher.hpp"

@@ -236,12 +236,12 @@ namespace oxide {
     }
     
     template <typename d_type>
-    std::vector<unsigned int> TensorView<d_type>::get_shape() const {
+    const std::vector<unsigned int>& TensorView<d_type>::get_shape() const {
         return shape;
     }
 
     template <typename d_type>
-    std::vector<int> TensorView<d_type>::get_strides() const {
+    const std::vector<int>& TensorView<d_type>::get_strides() const {
         return strides;
     }
 
@@ -279,6 +279,10 @@ namespace oxide {
 
 
     unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape) {
+        if (shape.size() > MAXDIMS) {
+            backend.log("Oxide: tensor max dimensions exceeded"); backend.abort();
+        }
+        
         unsigned int size = 1;
         for (unsigned int i : shape) {
             if (i <= 0) {

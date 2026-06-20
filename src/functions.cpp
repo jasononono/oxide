@@ -5,20 +5,58 @@
 namespace oxide {
 
 
-    template <typename d_type>
+    template <typename d_type> // DOES NOT SUPPORT OFFSET YET
     TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("Oxide: backend mismatch");
             dispatcher.get_backend()->abort();
         }
-        if (a.get_base()->get_size() != b.get_base()->get_size()) {
-            dispatcher.get_backend()->log("Oxide: tensor sizes must be the same");
-            dispatcher.get_backend()->abort();
+        a.check_base(); b.check_base();
+        
+        unsigned int ndim = std::max(a.get_ndim(), b.get_ndim());
+        std::vector<unsigned int> out_shape(ndim);
+        unsigned int size = 1;
+        std::vector<int> a_strides(ndim), b_strides(ndim);
+        unsigned int idx, a_idx, b_idx;
+        
+        for (int i = 0; i < ndim; i++) {
+            idx = ndim - i - 1;
+            a_idx = a.get_ndim() - i - 1;
+            b_idx = b.get_ndim() - i - 1;
+
+            if (i >= a.get_ndim()) {
+                out_shape[idx] = b.get_shape()[b_idx];
+                a_strides[idx] = 0;
+                b_strides[idx] = b.get_strides()[b_idx];
+            } else if (i >= b.get_ndim()) {
+                out_shape[idx] = a.get_shape()[a_idx];
+                a_strides[idx] = a.get_strides()[a_idx];
+                b_strides[idx] = 0;
+            } else if (a.get_shape()[a_idx] == 1) {
+                out_shape[idx] = b.get_shape()[b_idx];
+                a_strides[idx] = 0;
+                b_strides[idx] = b.get_strides()[b_idx];
+            } else if (b.get_shape()[b_idx] == 1) {
+                out_shape[idx] = a.get_shape()[a_idx];
+                a_strides[idx] = a.get_strides()[a_idx];
+                b_strides[idx] = 0;
+            } else if (a.get_shape()[a_idx] == b.get_shape()[b_idx]) {
+                out_shape[idx] = a.get_shape()[a_idx];
+                a_strides[idx] = a.get_strides()[a_idx];
+                b_strides[idx] = b.get_strides()[b_idx];
+            } else {
+                dispatcher.get_backend()->log("Oxide: tensors cannot be broadcasted");
+                dispatcher.get_backend()->abort();
+            }
+
+            size *= out_shape[ndim - i - 1];
         }
 
-        Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), a.get_base()->get_size(), 0);
-        dispatcher.binary_operand(with_type<d_type>("add"), a.get_base()->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer());
-        return TensorView<d_type>(*dispatcher.get_backend(), a.get_shape(), out);
+        Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), size, 0);
+        TensorView<d_type> view(*dispatcher.get_backend(), out_shape, out);
+
+        dispatcher.binary_operand(with_type<d_type>("add"), out->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, b_strides, view.get_strides());
+        return view;
     }
 
     template TensorView<int32> binary_add(Dispatcher& dispatcher, const TensorView<int32>& a, const TensorView<int32>& b);
