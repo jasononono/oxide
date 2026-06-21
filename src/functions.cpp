@@ -49,13 +49,13 @@ namespace oxide {
                 dispatcher.get_backend()->abort();
             }
 
-            size *= out_shape[ndim - i - 1];
+            size *= out_shape[idx];
         }
 
         Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), size, 0);
         TensorView<d_type> view(*dispatcher.get_backend(), out_shape, out);
 
-        dispatcher.binary_operand(with_type<d_type>("add"), out->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, b_strides, view.get_strides());
+        dispatcher.binary_operand(with_type<d_type>("add"), out->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
         return view;
     }
 
@@ -81,6 +81,12 @@ namespace oxide {
     template TensorView<int32>& unary_add(Dispatcher& dispatcher, TensorView<int32>& a, const TensorView<int32>& b);
     template TensorView<float32>& unary_add(Dispatcher& dispatcher, TensorView<float32>& a, const TensorView<float32>& b);
 
+
+    template <typename d_type>
+    TensorView<d_type> rand(Backend& backend, const std::vector<unsigned int>& shape, d_type a, d_type b) {
+        backend.log("Oxide: rand() is not supported for this data type");
+        backend.abort();
+    }
 
     template <>
     TensorView<int32> rand(Backend& backend, const std::vector<unsigned int>& shape, int32 a, int32 b) {

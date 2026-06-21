@@ -15,13 +15,15 @@ kernel void name( \
     device d_type* out [[buffer(2)]], \
     constant uint& ndim [[buffer(3)]], \
     constant int* a_strides [[buffer(4)]], \
-    constant int* b_strides [[buffer(5)]], \
-    constant int* out_strides [[buffer(6)]], \
+    constant uint& a_offset [[buffer(5)]], \
+    constant int* b_strides [[buffer(6)]], \
+    constant uint& b_offset [[buffer(7)]], \
+    constant int* out_strides [[buffer(8)]], \
     uint id [[thread_position_in_grid]] \
 ) { \
     uint out_idx = id; \
-    uint a_idx = 0; \
-    uint b_idx = 0; \
+    uint a_idx = a_offset; \
+    uint b_idx = b_offset; \
     uint coord; \
 \
     for (uint i = 0; i < ndim; i++) { \

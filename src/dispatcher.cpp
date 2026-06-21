@@ -13,7 +13,7 @@ namespace oxide {
     }
 
 
-    void Dispatcher::binary_operand(const std::string& function, unsigned int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out, unsigned int ndim, const std::vector<int>& a_strides, const std::vector<int>& b_strides, const std::vector<int>& out_strides) {
+    void Dispatcher::binary_operand(const std::string& function, unsigned int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out, unsigned int ndim, const std::vector<int>& a_strides, unsigned int a_offset, const std::vector<int>& b_strides, unsigned int b_offset, const std::vector<int>& out_strides) {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();
         MTL::ComputeCommandEncoder* encoder = cmd->computeCommandEncoder();
         if (!encoder) {
@@ -26,8 +26,10 @@ namespace oxide {
         encoder->setBuffer(out, 0, 2);
         encoder->setBytes(&ndim, sizeof(unsigned int), 3);
         encoder->setBytes(a_strides.data(), a_strides.size() * sizeof(unsigned int), 4);
-        encoder->setBytes(b_strides.data(), b_strides.size() * sizeof(unsigned int), 5);
-        encoder->setBytes(out_strides.data(), out_strides.size() * sizeof(unsigned int), 6);
+        encoder->setBytes(&a_offset, sizeof(unsigned int), 5);
+        encoder->setBytes(b_strides.data(), b_strides.size() * sizeof(unsigned int), 6);
+        encoder->setBytes(&b_offset, sizeof(unsigned int), 7);
+        encoder->setBytes(out_strides.data(), out_strides.size() * sizeof(unsigned int), 8);
 
         if (max_threads > size) {max_threads = size;}
         MTL::Size threads(max_threads, 1, 1);
