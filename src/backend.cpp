@@ -35,6 +35,10 @@ namespace oxide {
         return address == other.address && tensor_type == other.tensor_type;
     }
 
+    bool TensorMemory::valid() const {
+        return address == nullptr;
+    }
+
 
     std::size_t TensorMemoryHash::operator()(const TensorMemory &x) const {
         return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type);
@@ -141,6 +145,7 @@ namespace oxide {
     TensorMemory Backend::memory_register(void* address, std::type_index tensor_type) {
         TensorMemory tensor_memory(address, tensor_type);
         memory.registered[tensor_memory] = std::unordered_set<TensorMemory, TensorMemoryHash>();
+        memory.tensors.push_back(tensor_memory);
         return tensor_memory;
     }
 
@@ -150,12 +155,21 @@ namespace oxide {
         return tensor_memory;
     }
 
-    std::vector<TensorMemory> Backend::memory_get_tensors() {
-        std::vector<TensorMemory> tensors;
-        for (const std::pair<const TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>> p : memory.registered) {
-            tensors.push_back(p.first);
-        }
-        return tensors;
+    void Backend::memory_unregister(TensorMemory parent_memory, TensorMemory view_memory) {
+        memory.registered[parent_memory].erase(view_memory);
+    }
+
+    const std::vector<TensorMemory>& Backend::get_tensors() const {
+        return memory.tensors;
+    }
+
+    const std::unordered_set<TensorMemory, TensorMemoryHash>& Backend::memory_tied(TensorMemory key) const {
+        return memory.registered.at(key);
+    }
+
+    void Backend::memory_delete(TensorMemory tensor_memory) {
+        memory.registered.erase(tensor_memory);
+        memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), tensor_memory));
     }
 
 

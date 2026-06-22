@@ -4,6 +4,7 @@
 #include <random>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
 #include <typeindex>
 #include <Metal/Metal.hpp>
 
@@ -45,6 +46,7 @@ namespace oxide {
         TensorMemory(void* _address, std::type_index _tensor_type);
 
         bool operator==(const TensorMemory& other) const;
+        bool valid() const;
     };
 
 
@@ -57,6 +59,7 @@ namespace oxide {
     // auto memory management data and things
     struct Memory {
         std::unordered_map<TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>, TensorMemoryHash> registered;
+        std::vector<TensorMemory> tensors;
     };
 
 
@@ -92,7 +95,10 @@ namespace oxide {
 
             TensorMemory memory_register(void* address, std::type_index tensor_type);
             TensorMemory memory_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);
-            std::vector<TensorMemory> memory_get_tensors();
+            void memory_unregister(TensorMemory parent_memory, TensorMemory view_memory);
+            const std::vector<TensorMemory>& get_tensors() const;
+            const std::unordered_set<TensorMemory, TensorMemoryHash>& memory_tied(TensorMemory key) const;
+            void memory_delete(TensorMemory tensor_memory);
     };
 
 

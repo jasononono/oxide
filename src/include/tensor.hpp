@@ -14,7 +14,7 @@ namespace oxide {
         Backend* backend = nullptr;
         d_type* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
-        TensorMemory memory_reference;
+        TensorMemory memory_reference = TensorMemory();
 
         unsigned int size = 0;
         
@@ -47,9 +47,9 @@ namespace oxide {
     class TensorView {
         Backend* backend = nullptr;
         Tensor<d_type>* base = nullptr;
-        TensorMemory memory_reference;
+        TensorMemory memory_reference = TensorMemory();
 
-        unsigned int ndim;
+        unsigned int ndim, size;
         unsigned int offset = 0;
         std::vector<unsigned int> shape;
         std::vector<int> strides;
@@ -57,6 +57,12 @@ namespace oxide {
         public:
             TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base);
             TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides);
+
+            ~TensorView();
+            TensorView(const TensorView& other);
+            TensorView(TensorView&& other);
+            TensorView& operator=(const TensorView& other);
+            TensorView& operator=(TensorView&& other);
 
             d_type operator[](const std::vector<int>& indices) const;
             d_type& operator[](const std::vector<int>& indices);
@@ -66,6 +72,7 @@ namespace oxide {
             Backend* get_backend() const;
             Tensor<d_type>* get_base() const;
             unsigned int get_ndim() const;
+            unsigned int get_size() const;
             unsigned int get_offset() const;
             const std::vector<unsigned int>& get_shape() const;
             const std::vector<int>& get_strides() const;

@@ -44,8 +44,8 @@ namespace oxide {
         cmd->release();
     }
 
-    
-    void Dispatcher::unary_operand(const std::string& function, int size, MTL::Buffer* a, MTL::Buffer* b) {
+
+    void Dispatcher::unary_operand(const std::string& function, unsigned int size, MTL::Buffer* a, MTL::Buffer* b, unsigned int ndim, const std::vector<int>& a_strides, unsigned int a_offset, const std::vector<int>& b_strides, unsigned int b_offset) {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();
         MTL::ComputeCommandEncoder* encoder = cmd->computeCommandEncoder();
         if (!encoder) {
@@ -55,7 +55,13 @@ namespace oxide {
         NS::UInteger max_threads = backend->set_cps(encoder, function);
         encoder->setBuffer(a, 0, 0);
         encoder->setBuffer(b, 0, 1);
+        encoder->setBytes(&ndim, sizeof(unsigned int), 2);
+        encoder->setBytes(a_strides.data(), a_strides.size() * sizeof(unsigned int), 3);
+        encoder->setBytes(&a_offset, sizeof(unsigned int), 4);
+        encoder->setBytes(b_strides.data(), b_strides.size() * sizeof(unsigned int), 5);
+        encoder->setBytes(&b_offset, sizeof(unsigned int), 6);
 
+        size -= a_offset;
         if (max_threads > size) {max_threads = size;}
         MTL::Size threads(max_threads, 1, 1);
         MTL::Size grid_size = MTL::Size(size, 1, 1);
@@ -68,6 +74,6 @@ namespace oxide {
         encoder->release();
         cmd->release();
     }
-
+    
 
 }

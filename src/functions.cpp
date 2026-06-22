@@ -5,7 +5,7 @@
 namespace oxide {
 
 
-    template <typename d_type> // DOES NOT SUPPORT OFFSET YET
+    template <typename d_type>
     TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("Oxide: backend mismatch");
@@ -55,7 +55,7 @@ namespace oxide {
         Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), size, 0);
         TensorView<d_type> view(*dispatcher.get_backend(), out_shape, out);
 
-        dispatcher.binary_operand(with_type<d_type>("add"), out->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
+        dispatcher.binary_operand(with_type<d_type>("add"), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
         return view;
     }
 
@@ -69,12 +69,34 @@ namespace oxide {
             dispatcher.get_backend()->log("Oxide: backend mismatch");
             dispatcher.get_backend()->abort();
         }
-        if (a.get_base()->get_size() != b.get_base()->get_size()) {
-            dispatcher.get_backend()->log("Oxide: tensor sizes must be the same.");
+        a.check_base(); b.check_base();
+        
+        if (b.get_ndim() > a.get_ndim()) {
+            dispatcher.get_backend()->log("Oxide: tensors cannot be broadcasted");
             dispatcher.get_backend()->abort();
         }
 
-        dispatcher.unary_operand(with_type<d_type>("uadd"), a.get_base()->get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer());
+        std::vector<int> b_strides(a.get_ndim());
+        unsigned int idx, b_idx;
+
+        
+        for (int i = 0; i < a.get_ndim(); i++) {
+            idx = a.get_ndim() - i - 1;
+            b_idx = b.get_ndim() - i - 1;
+
+            if (i >= b.get_ndim()) {
+                b_strides[idx] = 0;
+            } else if (b.get_shape()[b_idx] == 1) {
+                b_strides[idx] = 0;
+            } else if (a.get_shape()[idx] == b.get_shape()[b_idx]) {
+                b_strides[idx] = b.get_strides()[b_idx];
+            } else {
+                dispatcher.get_backend()->log("Oxide: tensors cannot be broadcasted");
+                dispatcher.get_backend()->abort();
+            }
+        }
+
+        dispatcher.unary_operand(with_type<d_type>("uadd"), a.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), a.get_ndim(), a.get_strides(), a.get_offset(), b_strides, b.get_offset());
         return a;
     }
 

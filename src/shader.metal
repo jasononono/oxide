@@ -36,13 +36,30 @@ kernel void name( \
     out[id] = a[a_idx] op b[b_idx]; \
 }
 
+
 #define unary_op(d_type, name, op) \
 kernel void name( \
     device d_type* a [[buffer(0)]], \
     const device d_type* b [[buffer(1)]], \
+    constant uint& ndim [[buffer(2)]], \
+    constant int* a_strides [[buffer(3)]], \
+    constant uint& a_offset [[buffer(4)]], \
+    constant int* b_strides [[buffer(5)]], \
+    constant uint& b_offset [[buffer(6)]], \
     uint id [[thread_position_in_grid]] \
 ) { \
-    a[id] op b[id]; \
+    uint a_idx = id; \
+    uint b_idx = b_offset; \
+    uint coord; \
+\
+    for (uint i = 0; i < ndim; i++) { \
+        coord = a_idx / a_strides[i]; \
+        a_idx %= a_strides[i]; \
+        b_idx += coord * b_strides[i]; \
+    } \
+\
+    a_idx += id + a_offset; \
+    a[a_idx] op b[b_idx]; \
 }
 
 

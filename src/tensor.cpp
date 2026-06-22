@@ -3,6 +3,7 @@
 
 #include <string>
 #include <algorithm>
+#include <iostream>
 
 
 namespace oxide {
@@ -25,7 +26,11 @@ namespace oxide {
 
     template <typename d_type>
     Tensor<d_type>::Tensor(const Tensor<d_type>& other):
-        backend(other.backend), size(other.size) {
+        size(other.size) {
+        if (backend != other.get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
         
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(d_type));
@@ -35,25 +40,26 @@ namespace oxide {
 
     template <typename d_type>
     Tensor<d_type>::Tensor(Tensor<d_type>&& other):
-    backend(other.backend), buffer(other.buffer), ptr(other.ptr), size(other.size) {
+    backend(other.backend), buffer(other.buffer), ptr(other.ptr), size(other.size), memory_reference(other.memory_reference) {
         other.buffer = nullptr;
         other.ptr = nullptr;
         other.size = 0;
-
-        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
+        other.memory_reference = TensorMemory();
     }
 
     template <typename d_type>
     Tensor<d_type>& Tensor<d_type>::operator=(const Tensor<d_type>& other) {
         if (this == &other) {return *this;}
+        if (backend != other.get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
         if (buffer) {buffer->release();}
 
-        backend = other.backend;
         size = other.size;
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(d_type));
 
-        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
         return *this;
     }
 
@@ -66,12 +72,13 @@ namespace oxide {
         buffer = other.buffer;
         ptr = other.ptr;
         size = other.size;
+        memory_reference = other.memory_reference;
 
         other.buffer = nullptr;
         other.ptr = nullptr;
         other.size = 0;
+        other.memory_reference = TensorMemory();
 
-        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
         return *this;
     }
 
@@ -151,34 +158,88 @@ namespace oxide {
             backend->abort();
         }
 
-        unsigned int size = parse_shape(_backend, shape);
-        if (size != base->get_size()) {
-            backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
-        }
+        size = parse_shape(_backend, shape);
 
         strides[ndim - 1] = 1;
         for (int i = ndim - 2; i >= 0; i--) {
             strides[i] = strides[i + 1] * shape[i + 1];
         }
 
-        memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(Tensor<d_type>));
+        if (base) {
+            memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(TensorView<d_type>));
+        }
     }
 
     template <typename d_type>
     TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
-        
-        if (backend != base->get_backend()) {
+        size = parse_shape(_backend, shape);
+        if (base) {
+            memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(TensorView<d_type>));
+        }
+    }
+
+    template <typename d_type>
+    TensorView<d_type>::~TensorView() {
+        if (base && memory_reference.valid()) {
+            backend->memory_unregister(base->get_memory_reference(), memory_reference);
+        }
+    }
+
+    template <typename d_type>
+    TensorView<d_type>::TensorView(const TensorView<d_type>& other):
+    base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
+        if (backend != other.get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
+        if (base) {
+            memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(TensorView<d_type>));
+        }
+    }
+
+    template <typename d_type>
+    TensorView<d_type>::TensorView(TensorView<d_type>&& other):
+    backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides), memory_reference(other.memory_reference) {
+        other.base = nullptr;
+        other.memory_reference = TensorMemory();
+    }
+
+    template <typename d_type>
+    TensorView<d_type>& TensorView<d_type>::operator=(const TensorView<d_type>& other) {
+        if (this == &other) {return *this;}
+        if (backend != other.get_backend()) {
             backend->log("Oxide: backend mismatch");
             backend->abort();
         }
 
-        unsigned int size = parse_shape(_backend, shape);
-        if (size != base->get_size()) {
-            backend->log("Oxide: shape is not the same size as buffer"); backend->abort();
-        }
+        base = other.base;
+        ndim = other.ndim;
+        size = other.size;
+        offset = other.offset;
+        shape = other.shape;
+        strides = other.strides;
 
-        memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(Tensor<d_type>));
+        return *this;
+    }
+
+    template <typename d_type>
+    TensorView<d_type>& TensorView<d_type>::operator=(TensorView<d_type>&& other) {
+        if (this == &other) {return *this;}
+
+        backend = other.backend;
+        base = other.base;
+        ndim = other.ndim;
+        size = other.size;
+        offset = other.offset;
+        shape = other.shape;
+        strides = other.strides;
+        memory_reference = other.memory_reference;
+
+        other.base = nullptr;
+        other.memory_reference = TensorMemory();
+
+        return *this;
     }
 
     template <typename d_type>
@@ -231,6 +292,11 @@ namespace oxide {
     }
 
     template <typename d_type>
+    unsigned int TensorView<d_type>::get_size() const {
+        return size;
+    }
+
+    template <typename d_type>
     unsigned int TensorView<d_type>::get_offset() const {
         return offset;
     }
@@ -271,6 +337,10 @@ namespace oxide {
     void TensorView<d_type>::check_base() const {
         if (!base) {
             backend->log("Oxide: base missing during tensor view operation"); backend->abort();
+        }
+        if (backend != base->get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
         }
     }
 
