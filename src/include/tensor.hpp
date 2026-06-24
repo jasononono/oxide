@@ -10,7 +10,7 @@ namespace oxide {
 
     // tensor class for storage only (contains only a linear size reference)
     template <typename d_type>
-    class Tensor {
+    class TensorData {
         Backend* backend = nullptr;
         d_type* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
@@ -19,13 +19,13 @@ namespace oxide {
         unsigned int size = 0;
         
         public:
-            Tensor(Backend& _backend, unsigned int _size, d_type value);
+            TensorData(Backend& _backend, unsigned int _size, d_type value);
 
-            ~Tensor();
-            Tensor(const Tensor& other);
-            Tensor(Tensor&& other);
-            Tensor& operator=(const Tensor& other);
-            Tensor& operator=(Tensor&& other);
+            ~TensorData();
+            TensorData(const TensorData& other);
+            TensorData(TensorData&& other);
+            TensorData& operator=(const TensorData& other);
+            TensorData& operator=(TensorData&& other);
 
             void create_buffer(); // create buffer based on size attribute
             
@@ -46,7 +46,7 @@ namespace oxide {
     template <typename d_type>
     class TensorView {
         Backend* backend = nullptr;
-        Tensor<d_type>* base = nullptr;
+        TensorData<d_type>* base = nullptr;
         TensorMemory memory_reference = TensorMemory();
 
         unsigned int ndim, size;
@@ -55,8 +55,8 @@ namespace oxide {
         std::vector<int> strides;
 
         public:
-            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base);
-            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides);
+            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base);
+            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides);
 
             ~TensorView();
             TensorView(const TensorView& other);
@@ -69,8 +69,11 @@ namespace oxide {
 
             int get_buffer_idx(const std::vector<int>& indices) const; // convert indices into buffer offset index
 
+            void set_shape(const std::vector<unsigned int>& _shape);
+            void set_shape(const std::vector<unsigned int>& _shape, const std::vector<int>& _strides, unsigned int _offset);
+
             Backend* get_backend() const;
-            Tensor<d_type>* get_base() const;
+            TensorData<d_type>* get_base() const;
             unsigned int get_ndim() const;
             unsigned int get_size() const;
             unsigned int get_offset() const;

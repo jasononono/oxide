@@ -52,7 +52,7 @@ namespace oxide {
             size *= out_shape[idx];
         }
 
-        Tensor<d_type>* out = new Tensor<d_type>(*dispatcher.get_backend(), size, 0);
+        TensorData<d_type>* out = new TensorData<d_type>(*dispatcher.get_backend(), size, 0);
         TensorView<d_type> view(*dispatcher.get_backend(), out_shape, out);
 
         dispatcher.binary_operand(with_type<d_type>("add"), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
@@ -113,7 +113,7 @@ namespace oxide {
     template <>
     TensorView<int32> rand(Backend& backend, const std::vector<unsigned int>& shape, int32 a, int32 b) {
         unsigned int size = parse_shape(backend, shape);
-        Tensor<int32>* out = new Tensor<int32>(backend, size, int32());
+        TensorData<int32>* out = new TensorData<int32>(backend, size, int32());
 
         std::uniform_int_distribution<int32> dist(a, b);
         for (int i = 0; i < size; i++) {
@@ -125,7 +125,7 @@ namespace oxide {
     template <>
     TensorView<float32> rand(Backend& backend, const std::vector<unsigned int>& shape, float32 a, float32 b) {
         unsigned int size = parse_shape(backend, shape);
-        Tensor<float32>* out = new Tensor<float32>(backend, size, float32());
+        TensorData<float32>* out = new TensorData<float32>(backend, size, float32());
 
         std::uniform_real_distribution<float32> dist(a, b);
         for (int i = 0; i < size; i++) {
@@ -139,7 +139,7 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type> filled(Backend& backend, const std::vector<unsigned int>& shape, d_type value) {
         unsigned int size = parse_shape(backend, shape);
-        Tensor<d_type>* out = new Tensor<d_type>(backend, size, value);
+        TensorData<d_type>* out = new TensorData<d_type>(backend, size, value);
         return TensorView<d_type>(backend, shape, out);
     }
 
@@ -177,6 +177,25 @@ namespace oxide {
 
     template TensorView<int32> reshape(const TensorView<int32>& view, const std::vector<unsigned int>& shape);
     template TensorView<float32> reshape(const TensorView<float32>& view, const std::vector<unsigned int>& shape);
+
+
+    template <typename d_type>
+    TensorView<d_type> ravel(const TensorView<d_type>& view) {
+        return TensorView<d_type>(*view.get_backend(), {view.get_size()}, view.get_base());
+    }
+
+    template TensorView<int32> ravel(const TensorView<int32>& view);
+    template TensorView<float32> ravel(const TensorView<float32>& view);
+
+
+    template <typename d_type>
+    TensorView<d_type>& flatten(TensorView<d_type>& view) {
+        view.set_shape({view.get_size()});
+        return view;
+    }
+
+    template TensorView<int32>& flatten(TensorView<int32>& view);
+    template TensorView<float32>& flatten(TensorView<float32>& view);
 
 
 }

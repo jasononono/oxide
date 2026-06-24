@@ -36,7 +36,7 @@ namespace oxide {
     TensorView<d_type> ravel(const TensorView<d_type>& view);
 
     template <typename d_type>
-    TensorView<d_type> flatten(const TensorView<d_type>& view);
+    TensorView<d_type>& flatten(TensorView<d_type>& view);
 
     template <typename d_type>
     TensorView<d_type> transpose(const TensorView<d_type>& view, const std::vector<unsigned int>& order);

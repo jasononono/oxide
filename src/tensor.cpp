@@ -10,22 +10,22 @@ namespace oxide {
 
     
     template <typename d_type>
-    Tensor<d_type>::Tensor(Backend& _backend, unsigned int _size, d_type value):
+    TensorData<d_type>::TensorData(Backend& _backend, unsigned int _size, d_type value):
         backend(&_backend), size(_size) {
         
         create_buffer();
         std::fill(ptr, ptr + size, value);
 
-        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
+        memory_reference = backend->memory_register(this, typeid(TensorData<d_type>));
     }
 
     template <typename d_type>
-    Tensor<d_type>::~Tensor() {
+    TensorData<d_type>::~TensorData() {
         if (buffer) {buffer->release();}
     }
 
     template <typename d_type>
-    Tensor<d_type>::Tensor(const Tensor<d_type>& other):
+    TensorData<d_type>::TensorData(const TensorData<d_type>& other):
         size(other.size) {
         if (backend != other.get_backend()) {
             backend->log("Oxide: backend mismatch");
@@ -35,11 +35,11 @@ namespace oxide {
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(d_type));
 
-        memory_reference = backend->memory_register(this, typeid(Tensor<d_type>));
+        memory_reference = backend->memory_register(this, typeid(TensorData<d_type>));
     }
 
     template <typename d_type>
-    Tensor<d_type>::Tensor(Tensor<d_type>&& other):
+    TensorData<d_type>::TensorData(TensorData<d_type>&& other):
     backend(other.backend), buffer(other.buffer), ptr(other.ptr), size(other.size), memory_reference(other.memory_reference) {
         other.buffer = nullptr;
         other.ptr = nullptr;
@@ -48,7 +48,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    Tensor<d_type>& Tensor<d_type>::operator=(const Tensor<d_type>& other) {
+    TensorData<d_type>& TensorData<d_type>::operator=(const TensorData<d_type>& other) {
         if (this == &other) {return *this;}
         if (backend != other.get_backend()) {
             backend->log("Oxide: backend mismatch");
@@ -64,7 +64,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    Tensor<d_type>& Tensor<d_type>::operator=(Tensor<d_type>&& other) {
+    TensorData<d_type>& TensorData<d_type>::operator=(TensorData<d_type>&& other) {
         if (this == &other) {return *this;}
         if (buffer) {buffer->release();}
 
@@ -83,47 +83,47 @@ namespace oxide {
     }
 
     template <typename d_type>
-    void Tensor<d_type>::create_buffer() {
+    void TensorData<d_type>::create_buffer() {
         buffer = backend->new_buffer(size);
         ptr = static_cast<d_type*>(buffer->contents());
     }
 
     template <typename d_type>
-    d_type Tensor<d_type>::operator[](int index) const {
+    d_type TensorData<d_type>::operator[](int index) const {
         check_buffer();
         return ptr[index];
     }
 
     template <typename d_type>
-    d_type& Tensor<d_type>::operator[](int index) {
+    d_type& TensorData<d_type>::operator[](int index) {
         check_buffer();
         return ptr[index];
     }
 
     template <typename d_type>
-    Backend* Tensor<d_type>::get_backend() const {
+    Backend* TensorData<d_type>::get_backend() const {
         return backend;
     }
 
     template <typename d_type>
-    d_type* Tensor<d_type>::get_ptr() const {
+    d_type* TensorData<d_type>::get_ptr() const {
         check_buffer();
         return ptr;
     }
 
     template <typename d_type>
-    MTL::Buffer* Tensor<d_type>::get_buffer() const {
+    MTL::Buffer* TensorData<d_type>::get_buffer() const {
         check_buffer();
         return buffer;
     }
 
     template <typename d_type>
-    unsigned int Tensor<d_type>::get_size() const {
+    unsigned int TensorData<d_type>::get_size() const {
         return size;
     }
 
     template <typename d_type>
-    std::string Tensor<d_type>::get_string() const {
+    std::string TensorData<d_type>::get_string() const {
         check_buffer();
         std::string str = "[";
         for (int i = 0; i < size; i++) {
@@ -135,35 +135,30 @@ namespace oxide {
     }
 
     template <typename d_type>
-    TensorMemory Tensor<d_type>::get_memory_reference() const {
+    TensorMemory TensorData<d_type>::get_memory_reference() const {
         return memory_reference;
     }
 
     template <typename d_type>
-    void Tensor<d_type>::check_buffer() const {
+    void TensorData<d_type>::check_buffer() const {
         if (!buffer) {
             backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
         }
     }
 
-    template class Tensor<int32>;
-    template class Tensor<float32>;
+    template class TensorData<int32>;
+    template class TensorData<float32>;
 
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), strides(ndim) {
         if (backend != base->get_backend()) {
             backend->log("Oxide: backend mismatch");
             backend->abort();
         }
 
-        size = parse_shape(_backend, shape);
-
-        strides[ndim - 1] = 1;
-        for (int i = ndim - 2; i >= 0; i--) {
-            strides[i] = strides[i + 1] * shape[i + 1];
-        }
+        set_shape(_shape);
 
         if (base) {
             memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(TensorView<d_type>));
@@ -171,9 +166,15 @@ namespace oxide {
     }
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, Tensor<d_type>* _base, int _offset, const std::vector<int>& _strides):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
-        size = parse_shape(_backend, shape);
+        if (backend != base->get_backend()) {
+            backend->log("Oxide: backend mismatch");
+            backend->abort();
+        }
+
+        set_shape(_shape, _strides, _offset);
+
         if (base) {
             memory_reference = backend->memory_register(base->get_memory_reference(), this, typeid(TensorView<d_type>));
         }
@@ -253,6 +254,33 @@ namespace oxide {
     }
 
     template <typename d_type>
+    void TensorView<d_type>::set_shape(const std::vector<unsigned int>& _shape) {
+        shape = _shape;
+        size = parse_shape(*backend, shape);
+        ndim = shape.size();
+        strides = std::vector<int>(ndim);
+
+        strides[ndim - 1] = 1;
+        for (int i = ndim - 2; i >= 0; i--) {
+            strides[i] = strides[i + 1] * shape[i + 1];
+        }
+    }
+
+    template <typename d_type>
+    void TensorView<d_type>::set_shape(const std::vector<unsigned int>& _shape, const std::vector<int>& _strides, unsigned int _offset) {
+        shape = _shape;
+        size = parse_shape(*backend, shape);
+        ndim = shape.size();
+        strides = _strides;
+        offset = _offset;
+
+        if (strides.size() != ndim) {
+            backend->log("Oxide: tensor strides must have the same dimensions as shape");
+            backend->abort();
+        }
+    }
+
+    template <typename d_type>
     int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
         check_base();
         if (indices.size() != ndim) {
@@ -281,7 +309,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    Tensor<d_type>* TensorView<d_type>::get_base() const {
+    TensorData<d_type>* TensorView<d_type>::get_base() const {
         check_base();
         return base;
     }
@@ -350,7 +378,12 @@ namespace oxide {
 
     unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape) {
         if (shape.size() > MAXDIMS) {
-            backend.log("Oxide: tensor max dimensions exceeded"); backend.abort();
+            backend.log("Oxide: tensor max dimensions exceeded");
+            backend.abort();
+        }
+        if (shape.size() == 0) {
+            backend.log("Oxide: tensor shape must not be empty");
+            backend.abort();
         }
         
         unsigned int size = 1;

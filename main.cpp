@@ -3,7 +3,7 @@
 
 
 void run() {
-    oxide::Backend backend = oxide::new_backend();
+    oxide::Backend backend;
     oxide::Dispatcher dispatcher(backend);
     
 
@@ -15,6 +15,7 @@ void run() {
     std::cout << "b:   " << b.get_string() << std::endl;
 
     oxide::unary_add(dispatcher, a, b);
+    oxide::flatten<oxide::float32>(a);
     std::cout << "a2:  " << a.get_string() << std::endl;
 
     

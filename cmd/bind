@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+cmake -B python/build -DRELEASE=ON
+cmake --build python/build
+
+cp python/build/core.cpython-313-darwin.so python/oxide/core.so
