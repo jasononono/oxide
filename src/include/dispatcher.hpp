@@ -18,8 +18,8 @@ namespace oxide {
 
             Backend* get_backend() const;
 
-            void binary_operand(const std::string& function, unsigned int size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out, unsigned int ndim, const std::vector<int>& a_strides, unsigned int a_offset, const std::vector<int>& b_strides, unsigned int b_offset, const std::vector<int>& out_strides);
-            void unary_operand(const std::string& function, unsigned int size, MTL::Buffer* a, MTL::Buffer* b, unsigned int ndim, const std::vector<int>& a_strides, unsigned int a_offset, const std::vector<int>& b_strides, unsigned int b_offset);
+            void binary_operand(const std::string& function, uint size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out, uint ndim, const std::vector<int>& a_strides, uint a_offset, const std::vector<int>& b_strides, uint b_offset, const std::vector<int>& out_strides);
+            void unary_operand(const std::string& function, uint size, MTL::Buffer* a, MTL::Buffer* b, uint ndim, const std::vector<int>& a_strides, uint a_offset, const std::vector<int>& b_strides, uint b_offset);
     };
 
 

@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <typeindex>
+#include <vector>
 #include <Metal/Metal.hpp>
 
 

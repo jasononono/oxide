@@ -16,10 +16,10 @@ namespace oxide {
         MTL::Buffer* buffer = nullptr;
         TensorMemory memory_reference = TensorMemory();
 
-        unsigned int size = 0;
+        uint size = 0;
         
         public:
-            TensorData(Backend& _backend, unsigned int _size, d_type value);
+            TensorData(Backend& _backend, uint _size, d_type value);
 
             ~TensorData();
             TensorData(const TensorData& other);
@@ -35,7 +35,7 @@ namespace oxide {
             Backend* get_backend() const;
             d_type* get_ptr() const;
             MTL::Buffer* get_buffer() const;
-            unsigned int get_size() const;
+            uint get_size() const;
             std::string get_string() const;
             TensorMemory get_memory_reference() const;
 
@@ -49,14 +49,14 @@ namespace oxide {
         TensorData<d_type>* base = nullptr;
         TensorMemory memory_reference = TensorMemory();
 
-        unsigned int ndim, size;
-        unsigned int offset = 0;
-        std::vector<unsigned int> shape;
+        uint ndim, size;
+        uint offset = 0;
+        std::vector<uint> shape;
         std::vector<int> strides;
 
         public:
-            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base);
-            TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides);
+            TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base);
+            TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides);
 
             ~TensorView();
             TensorView(const TensorView& other);
@@ -66,18 +66,21 @@ namespace oxide {
 
             d_type operator[](const std::vector<int>& indices) const;
             d_type& operator[](const std::vector<int>& indices);
+            
+            d_type get_element(const std::vector<int>& indices);
+            void set_element(const std::vector<int>& indices, d_type value);
 
             int get_buffer_idx(const std::vector<int>& indices) const; // convert indices into buffer offset index
 
-            void set_shape(const std::vector<unsigned int>& _shape);
-            void set_shape(const std::vector<unsigned int>& _shape, const std::vector<int>& _strides, unsigned int _offset);
+            void set_shape(const std::vector<uint>& _shape);
+            void set_shape(const std::vector<uint>& _shape, const std::vector<int>& _strides, uint _offset);
 
             Backend* get_backend() const;
             TensorData<d_type>* get_base() const;
-            unsigned int get_ndim() const;
-            unsigned int get_size() const;
-            unsigned int get_offset() const;
-            const std::vector<unsigned int>& get_shape() const;
+            uint get_ndim() const;
+            uint get_size() const;
+            uint get_offset() const;
+            const std::vector<uint>& get_shape() const;
             const std::vector<int>& get_strides() const;
             std::string get_string() const;
 
@@ -85,7 +88,7 @@ namespace oxide {
     };
     
 
-    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape); // throws error if shape is invalid, then returns accumulative size
+    uint parse_shape(Backend& backend, const std::vector<uint>& shape); // throws error if shape is invalid, then returns accumulative size
 
 
 }

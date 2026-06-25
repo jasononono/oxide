@@ -10,7 +10,7 @@ namespace oxide {
 
     
     template <typename d_type>
-    TensorData<d_type>::TensorData(Backend& _backend, unsigned int _size, d_type value):
+    TensorData<d_type>::TensorData(Backend& _backend, uint _size, d_type value):
         backend(&_backend), size(_size) {
         
         create_buffer();
@@ -118,7 +118,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    unsigned int TensorData<d_type>::get_size() const {
+    uint TensorData<d_type>::get_size() const {
         return size;
     }
 
@@ -151,7 +151,7 @@ namespace oxide {
 
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), strides(ndim) {
         if (backend != base->get_backend()) {
             backend->log("Oxide: backend mismatch");
@@ -166,7 +166,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<unsigned int>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
         if (backend != base->get_backend()) {
             backend->log("Oxide: backend mismatch");
@@ -254,7 +254,17 @@ namespace oxide {
     }
 
     template <typename d_type>
-    void TensorView<d_type>::set_shape(const std::vector<unsigned int>& _shape) {
+    d_type TensorView<d_type>::get_element(const std::vector<int>& indices) {
+        return (*this)[indices];
+    }
+
+    template <typename d_type>
+    void TensorView<d_type>::set_element(const std::vector<int>& indices, d_type value) {
+        (*this)[indices] = value;
+    }
+
+    template <typename d_type>
+    void TensorView<d_type>::set_shape(const std::vector<uint>& _shape) {
         shape = _shape;
         size = parse_shape(*backend, shape);
         ndim = shape.size();
@@ -267,7 +277,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    void TensorView<d_type>::set_shape(const std::vector<unsigned int>& _shape, const std::vector<int>& _strides, unsigned int _offset) {
+    void TensorView<d_type>::set_shape(const std::vector<uint>& _shape, const std::vector<int>& _strides, uint _offset) {
         shape = _shape;
         size = parse_shape(*backend, shape);
         ndim = shape.size();
@@ -315,22 +325,22 @@ namespace oxide {
     }
 
     template <typename d_type>
-    unsigned int TensorView<d_type>::get_ndim() const {
+    uint TensorView<d_type>::get_ndim() const {
         return ndim;
     }
 
     template <typename d_type>
-    unsigned int TensorView<d_type>::get_size() const {
+    uint TensorView<d_type>::get_size() const {
         return size;
     }
 
     template <typename d_type>
-    unsigned int TensorView<d_type>::get_offset() const {
+    uint TensorView<d_type>::get_offset() const {
         return offset;
     }
     
     template <typename d_type>
-    const std::vector<unsigned int>& TensorView<d_type>::get_shape() const {
+    const std::vector<uint>& TensorView<d_type>::get_shape() const {
         return shape;
     }
 
@@ -376,7 +386,7 @@ namespace oxide {
     template class TensorView<float32>;
 
 
-    unsigned int parse_shape(Backend& backend, const std::vector<unsigned int>& shape) {
+    uint parse_shape(Backend& backend, const std::vector<uint>& shape) {
         if (shape.size() > MAXDIMS) {
             backend.log("Oxide: tensor max dimensions exceeded");
             backend.abort();
@@ -386,8 +396,8 @@ namespace oxide {
             backend.abort();
         }
         
-        unsigned int size = 1;
-        for (unsigned int i : shape) {
+        uint size = 1;
+        for (uint i : shape) {
             if (i <= 0) {
                 backend.log("Oxide: dimension must be greater than 0"); backend.abort();
             }

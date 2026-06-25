@@ -13,11 +13,11 @@ namespace oxide {
         }
         a.check_base(); b.check_base();
         
-        unsigned int ndim = std::max(a.get_ndim(), b.get_ndim());
-        std::vector<unsigned int> out_shape(ndim);
-        unsigned int size = 1;
+        uint ndim = std::max(a.get_ndim(), b.get_ndim());
+        std::vector<uint> out_shape(ndim);
+        uint size = 1;
         std::vector<int> a_strides(ndim), b_strides(ndim);
-        unsigned int idx, a_idx, b_idx;
+        uint idx, a_idx, b_idx;
         
         for (int i = 0; i < ndim; i++) {
             idx = ndim - i - 1;
@@ -77,7 +77,7 @@ namespace oxide {
         }
 
         std::vector<int> b_strides(a.get_ndim());
-        unsigned int idx, b_idx;
+        uint idx, b_idx;
 
         
         for (int i = 0; i < a.get_ndim(); i++) {
@@ -105,14 +105,14 @@ namespace oxide {
 
 
     template <typename d_type>
-    TensorView<d_type> rand(Backend& backend, const std::vector<unsigned int>& shape, d_type a, d_type b) {
+    TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b) {
         backend.log("Oxide: rand() is not supported for this data type");
         backend.abort();
     }
 
     template <>
-    TensorView<int32> rand(Backend& backend, const std::vector<unsigned int>& shape, int32 a, int32 b) {
-        unsigned int size = parse_shape(backend, shape);
+    TensorView<int32> rand(Backend& backend, const std::vector<uint>& shape, int32 a, int32 b) {
+        uint size = parse_shape(backend, shape);
         TensorData<int32>* out = new TensorData<int32>(backend, size, int32());
 
         std::uniform_int_distribution<int32> dist(a, b);
@@ -123,8 +123,8 @@ namespace oxide {
         return TensorView<int32>(backend, shape, out);
     }
     template <>
-    TensorView<float32> rand(Backend& backend, const std::vector<unsigned int>& shape, float32 a, float32 b) {
-        unsigned int size = parse_shape(backend, shape);
+    TensorView<float32> rand(Backend& backend, const std::vector<uint>& shape, float32 a, float32 b) {
+        uint size = parse_shape(backend, shape);
         TensorData<float32>* out = new TensorData<float32>(backend, size, float32());
 
         std::uniform_real_distribution<float32> dist(a, b);
@@ -137,37 +137,37 @@ namespace oxide {
 
 
     template <typename d_type>
-    TensorView<d_type> filled(Backend& backend, const std::vector<unsigned int>& shape, d_type value) {
-        unsigned int size = parse_shape(backend, shape);
+    TensorView<d_type> filled(Backend& backend, const std::vector<uint>& shape, d_type value) {
+        uint size = parse_shape(backend, shape);
         TensorData<d_type>* out = new TensorData<d_type>(backend, size, value);
         return TensorView<d_type>(backend, shape, out);
     }
 
-    template TensorView<int32> filled(Backend& backend, const std::vector<unsigned int>& shape, int32 value);
-    template TensorView<float32> filled(Backend& backend, const std::vector<unsigned int>& shape, float32 value);
+    template TensorView<int32> filled(Backend& backend, const std::vector<uint>& shape, int32 value);
+    template TensorView<float32> filled(Backend& backend, const std::vector<uint>& shape, float32 value);
 
 
     template <typename d_type>
-    TensorView<d_type> zeros(Backend& backend, const std::vector<unsigned int>& shape) {
+    TensorView<d_type> zeros(Backend& backend, const std::vector<uint>& shape) {
         return filled<d_type>(backend, shape, 0);
     }
 
-    template TensorView<int32> zeros(Backend& backend, const std::vector<unsigned int>& shape);
-    template TensorView<float32> zeros(Backend& backend, const std::vector<unsigned int>& shape);
+    template TensorView<int32> zeros(Backend& backend, const std::vector<uint>& shape);
+    template TensorView<float32> zeros(Backend& backend, const std::vector<uint>& shape);
 
 
     template <typename d_type>
-    TensorView<d_type> ones(Backend& backend, const std::vector<unsigned int>& shape) {
+    TensorView<d_type> ones(Backend& backend, const std::vector<uint>& shape) {
         return filled<d_type>(backend, shape, 1);
     }
 
-    template TensorView<int32> ones(Backend& backend, const std::vector<unsigned int>& shape);
-    template TensorView<float32> ones(Backend& backend, const std::vector<unsigned int>& shape);
+    template TensorView<int32> ones(Backend& backend, const std::vector<uint>& shape);
+    template TensorView<float32> ones(Backend& backend, const std::vector<uint>& shape);
 
 
     template <typename d_type>
-    TensorView<d_type> reshape(const TensorView<d_type>& view, const std::vector<unsigned int>& shape) {
-        unsigned int size = parse_shape(*view.get_backend(), shape);
+    TensorView<d_type> reshape(const TensorView<d_type>& view, const std::vector<uint>& shape) {
+        uint size = parse_shape(*view.get_backend(), shape);
         if (size != parse_shape(*view.get_backend(), view.get_shape())) {
             view.get_backend()->log("Oxide: reshaped total size must be the same"); view.get_backend()->abort();
         }
@@ -175,8 +175,8 @@ namespace oxide {
         return TensorView<d_type>(*view.get_backend(), shape, view.get_base());
     }
 
-    template TensorView<int32> reshape(const TensorView<int32>& view, const std::vector<unsigned int>& shape);
-    template TensorView<float32> reshape(const TensorView<float32>& view, const std::vector<unsigned int>& shape);
+    template TensorView<int32> reshape(const TensorView<int32>& view, const std::vector<uint>& shape);
+    template TensorView<float32> reshape(const TensorView<float32>& view, const std::vector<uint>& shape);
 
 
     template <typename d_type>
@@ -196,6 +196,47 @@ namespace oxide {
 
     template TensorView<int32>& flatten(TensorView<int32>& view);
     template TensorView<float32>& flatten(TensorView<float32>& view);
+
+
+    template <typename d_type>
+    TensorView<d_type> transpose(const TensorView<d_type>& view, const std::vector<uint>& order) {
+        if (order.size() != view.get_ndim()) {
+            view.get_backend()->log("Oxide: transposed order must have the same size as tensor shape (ndim)");
+            view.get_backend()->abort();
+        }
+        
+        std::vector<int> strides(order.size());
+        std::vector<uint> shape(order.size());
+        std::vector<bool> used(order.size(), false);
+
+        for (int i = 0; i < order.size(); i++) {
+            if (order[i] >= order.size()) {
+                view.get_backend()->log("Oxide: transposed order is invalid");
+                view.get_backend()->abort();
+            }
+            if (used[order[i]]) {
+                view.get_backend()->log("Oxide: duplicated element in transposed order");
+                view.get_backend()->abort();
+            }
+
+            used[order[i]] = true;
+            strides[i] = view.get_strides()[order[i]];
+            shape[i] = view.get_shape()[order[i]];
+        }
+
+        return TensorView<d_type>(*view.get_backend(), shape, view.get_base(), 0, strides);
+    }
+
+    template TensorView<int32> transpose(const TensorView<int32>& view, const std::vector<uint>& order);
+    template TensorView<float32> transpose(const TensorView<float32>& view, const std::vector<uint>& order);
+
+
+    // try using gpu for as_type???
+
+    // template <typename d_type_old, typename d_type_new>
+    // TensorView<d_type_new> as_type(const TensorView<d_type_old>& view) {
+    //     return view;
+    // }
 
 
 }

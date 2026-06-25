@@ -7,10 +7,13 @@
 namespace oxide {
 
 
+    using uint = unsigned int; // not an oxide data type
+
     typedef int32_t int32;
     typedef float float32;
+    typedef uint32_t uint32;
 
-    const unsigned int MAXDIMS = 32;
+    const uint MAXDIMS = 32;
 
     
     template <typename d_type>
