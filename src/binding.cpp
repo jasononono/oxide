@@ -1,4 +1,6 @@
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/string.h>
 #include "oxide.hpp"
 
 
@@ -27,6 +29,8 @@ NB_MODULE(core, m) {
         m.def("binary_add", &oxide::binary_add<oxide::float32>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         // m.def("unary_add", &oxide::binary_add, nb::arg("dispatcher"), nb::arg('a'), nb::arg('b'));
 
+        m.def("make_view", &oxide::make_view<oxide::int32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
+        m.def("make_view", &oxide::make_view<oxide::float32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
         // m.def("rand", &oxide::rand,)
     }
  
@@ -38,31 +42,31 @@ NB_MODULE(core, m) {
 
     // tensor.hpp
     {
-        auto c = nb::class_<oxide::TensorView<oxide::int32>>(m, "TensorView");
-        c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*>());
-        c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*, int, const std::vector<int>&>());
-        c.def("get_element", &oxide::TensorView<oxide::int32>::get_element, nb::arg("indices"));
-        c.def("set_element", &oxide::TensorView<oxide::int32>::set_element, nb::arg("indices"), nb::arg("value"));
-        c.def("get_ndim", &oxide::TensorView<oxide::int32>::get_ndim);
-        c.def("get_size", &oxide::TensorView<oxide::int32>::get_size);
-        c.def("get_offset", &oxide::TensorView<oxide::int32>::get_offset);
-        c.def("get_shape", &oxide::TensorView<oxide::int32>::get_shape);
-        c.def("get_strides", 
+        auto c1 = nb::class_<oxide::TensorView<oxide::int32>>(m, "TensorView_int32");
+        c1.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*>());
+        c1.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*, int, const std::vector<int>&>());
+        c1.def("get_element", &oxide::TensorView<oxide::int32>::get_element, nb::arg("indices"));
+        c1.def("set_element", &oxide::TensorView<oxide::int32>::set_element, nb::arg("indices"), nb::arg("value"));
+        c1.def("get_ndim", &oxide::TensorView<oxide::int32>::get_ndim);
+        c1.def("get_size", &oxide::TensorView<oxide::int32>::get_size);
+        c1.def("get_offset", &oxide::TensorView<oxide::int32>::get_offset);
+        c1.def("get_shape", &oxide::TensorView<oxide::int32>::get_shape);
+        c1.def("get_strides", 
         &oxide::TensorView<oxide::int32>::get_strides);
-        c.def("get_string", &oxide::TensorView<oxide::int32>::get_string);
+        c1.def("get_string", &oxide::TensorView<oxide::int32>::get_string);
 
-        auto c = nb::class_<oxide::TensorView<oxide::float32>>(m, "TensorView");
-        c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*>());
-        c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*, int, const std::vector<int>&>());
-        c.def("get_element", &oxide::TensorView<oxide::float32>::get_element, nb::arg("indices"));
-        c.def("set_element", &oxide::TensorView<oxide::float32>::set_element, nb::arg("indices"), nb::arg("value"));
-        c.def("get_ndim", &oxide::TensorView<oxide::float32>::get_ndim);
-        c.def("get_size", &oxide::TensorView<oxide::float32>::get_size);
-        c.def("get_offset", &oxide::TensorView<oxide::float32>::get_offset);
-        c.def("get_shape", &oxide::TensorView<oxide::float32>::get_shape);
-        c.def("get_strides", 
+        auto c2 = nb::class_<oxide::TensorView<oxide::float32>>(m, "TensorView_float32");
+        c2.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*>());
+        c2.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*, int, const std::vector<int>&>());
+        c2.def("get_element", &oxide::TensorView<oxide::float32>::get_element, nb::arg("indices"));
+        c2.def("set_element", &oxide::TensorView<oxide::float32>::set_element, nb::arg("indices"), nb::arg("value"));
+        c2.def("get_ndim", &oxide::TensorView<oxide::float32>::get_ndim);
+        c2.def("get_size", &oxide::TensorView<oxide::float32>::get_size);
+        c2.def("get_offset", &oxide::TensorView<oxide::float32>::get_offset);
+        c2.def("get_shape", &oxide::TensorView<oxide::float32>::get_shape);
+        c2.def("get_strides", 
         &oxide::TensorView<oxide::float32>::get_strides);
-        c.def("get_string", &oxide::TensorView<oxide::float32>::get_string);
+        c2.def("get_string", &oxide::TensorView<oxide::float32>::get_string);
     }
 
 

@@ -105,6 +105,23 @@ namespace oxide {
 
 
     template <typename d_type>
+    TensorView<d_type> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<d_type>& data) {
+        uint size = parse_shape(backend, shape);
+        if (size != data.size()) {
+            backend.log("Oxide: data size must be compatible with tensor shape");
+            backend.abort();
+        }
+        
+        TensorData<d_type>* out = new TensorData<d_type>(backend, size, d_type());
+        std::memcpy(out->get_ptr(), data.data(), sizeof(d_type) * data.size());
+        return TensorView<d_type>(backend, shape, out);
+    }
+
+    template TensorView<int32> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<int32>& data);
+    template TensorView<float32> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<float32>& data);
+
+
+    template <typename d_type>
     TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b) {
         backend.log("Oxide: rand() is not supported for this data type");
         backend.abort();
