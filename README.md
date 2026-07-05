@@ -1,4 +1,4 @@
-My attempt at making a GPU array computing library thing, but for MacOS hooray!!!
+My attempt at making a GPU array computing library thing for macos. Giving numpy some of that gpu shenanigans is a good idea trust
 
 Inspirations from: numpy, mlx, and forge (https://github.com/kellen-sun/Forge)
 

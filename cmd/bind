@@ -3,4 +3,4 @@
 cmake -B python/build -DRELEASE=ON
 cmake --build python/build
 
-cp python/build/core.cpython-313-darwin.so python/oxide/core.so
+cp python/build/core.cpython-313-darwin.so python/py_oxide/core.cpython-313-darwin.so

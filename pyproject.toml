@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=82", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-oxide"
+version = "0.0.0"
+description = "lets give numpy some of that gpu shenanigans"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    
+]
+
+[tool.setuptools]
+package-dir = {"" = "python"}
+packages = ["py_oxide"]
+
+[tool.setuptools.package-data]
+"py_oxide" = ["*.so"]

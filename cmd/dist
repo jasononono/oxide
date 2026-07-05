@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+rm -rf dist/*
+python -m build
+pip3 install $(ls dist/*.whl) --force-reinstall

@@ -7,4 +7,5 @@
 
 build/
 python/build/
+python/py_oxide.egg-info
 external/

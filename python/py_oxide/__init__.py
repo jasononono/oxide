@@ -1,3 +1,7 @@
+# python things are currently very unsafe
+# literally 0 type checking bruh
+
+
 from . import system, core
 from .tensor import *
 from typing import Iterable
@@ -34,13 +38,3 @@ def tensor(iterable):
 
 def add(a, b):
     return Tensor(core.binary_add(system.dispatcher, a.ctensor, b.ctensor))
-
-
-
-# python things are currently very unsafe
-# literally 0 type checking bruh
-
-a = tensor([1, 2, 3])
-b = tensor([2, 3, 4])
-print(a, b)
-print(add(a, b))
