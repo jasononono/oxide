@@ -31,7 +31,9 @@ NB_MODULE(core, m) {
 
         m.def("make_view", &oxide::make_view<oxide::int32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
         m.def("make_view", &oxide::make_view<oxide::float32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
-        // m.def("rand", &oxide::rand,)
+
+        m.def("rand_int32", &oxide::rand<oxide::int32>, nb::arg("backend"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
+        m.def("rand_float32", &oxide::rand<oxide::float32>, nb::arg("backend"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
     }
  
     // oxide.hpp

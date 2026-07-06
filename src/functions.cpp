@@ -139,7 +139,7 @@ namespace oxide {
 
         return TensorView<int32>(backend, shape, out);
     }
-    template <>
+    template <> //TODO: gpu random init
     TensorView<float32> rand(Backend& backend, const std::vector<uint>& shape, float32 a, float32 b) {
         uint size = parse_shape(backend, shape);
         TensorData<float32>* out = new TensorData<float32>(backend, size, float32());

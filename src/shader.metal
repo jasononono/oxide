@@ -8,7 +8,7 @@ typedef float float32;
 #define MAXDIMS 32;
 
 
-#define binary_op(d_type, name, op) \
+#define binary_op(d_type, name, op) \ // TODO: optimize these for common cases
 kernel void name( \
     const device d_type* a [[buffer(0)]], \
     const device d_type* b [[buffer(1)]], \
