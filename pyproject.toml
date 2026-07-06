@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "py-oxide"
-version = "0.0.0"
-description = "lets give numpy some of that gpu shenanigans"
+version = "0.0.1"
+description = ""
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

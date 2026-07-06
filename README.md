@@ -7,14 +7,19 @@ Giving me access to these GPU shenanigans is an equally good idea as installing 
 I lowkey linked 2 functions so far, so here is all the functionality
 
 ```python
-  import py_oxide as ox
+import py_oxide as ox
 
-  a = ox.tensor([[1, 2, 3], [4, 5, 6]])
-  print(a.shape) # [2, 3]
-  b = ox.tensor([[6, 7, 6], [7, 6, 7]])
-  print(b[1, 2]) # 7
-  print(ox.add(a, b)) # [[7, 9, 9], [11, 11, 13]]
-  c = ox.rand(shape=[6, 7, 8], a=10, b=20, d_type=ox.float32)
+a = ox.tensor([[1, 2, 3], [4, 5, 6]])
+print(a.shape) # [2, 3]
+b = ox.tensor([[6, 7, 6], [7, 6, 7]])
+print(b[1, 2]) # 7
+print(ox.add(a, b)) # [[7, 9, 9], [11, 11, 13]]
+c = ox.rand(shape=[6, 7, 8], a=10, b=20, d_type=ox.float32)
+```
+
+run this to install:
+```
+pip install -i https://test.pypi.org/simple/ py-oxide
 ```
 
 # Features
