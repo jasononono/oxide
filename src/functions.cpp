@@ -1,8 +1,11 @@
 #include "functions.hpp"
-#include "typeutil.hpp"
+#include "common.hpp"
 
 
 namespace oxide {
+
+
+    // TODO: #define specialize pattern (see isps)
 
 
     template <typename d_type>
@@ -186,7 +189,8 @@ namespace oxide {
     TensorView<d_type> reshape(const TensorView<d_type>& view, const std::vector<uint>& shape) {
         uint size = parse_shape(*view.get_backend(), shape);
         if (size != parse_shape(*view.get_backend(), view.get_shape())) {
-            view.get_backend()->log("Oxide: reshaped total size must be the same"); view.get_backend()->abort();
+            view.get_backend()->log("Oxide: reshaped total size must be the same");
+            view.get_backend()->abort();
         }
 
         return TensorView<d_type>(*view.get_backend(), shape, view.get_base());

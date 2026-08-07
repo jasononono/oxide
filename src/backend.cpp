@@ -3,7 +3,7 @@
 
 
 #include "backend.hpp"
-#include "typeutil.hpp"
+#include "common.hpp"
 #include "tensor.hpp"
 
 #include <fstream>
@@ -64,14 +64,16 @@ namespace oxide {
         }
         metal.queue = metal.device->newCommandQueue();
         if (!metal.queue) {
-            log("Oxide: failed to initialize gpu command queue."); abort();
+            log("Oxide: failed to initialize gpu command queue.");
+            abort();
         }
     }
 
     void Backend::init_shader(const std::string& path) {
         std::ifstream file(path);
         if (!file.is_open()) {
-            log("Oxide: shader source not found"); abort();
+            log("Oxide: shader source not found");
+            abort();
         }
 
         std::string text, line;
@@ -82,19 +84,22 @@ namespace oxide {
 
         shader.library = metal.device->newLibrary(source, nullptr, &error);
         if (!shader.library) {
-            log("Oxide: failed to compile shader."); log_metal(); abort();
+            log("Oxide: failed to compile shader."); log_metal();
+            abort();
         }
     }
 
     void Backend::load_shader(const std::string& name) {
         MTL::Function* function = shader.library->newFunction(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
         if (!function) {
-            log("Oxide: shader function '" + name + "' does not exist."); abort();
+            log("Oxide: shader function '" + name + "' does not exist.");
+            abort();
         }
 
         shader.pipeline[name] = metal.device->newComputePipelineState(function, &error);
         if (!shader.pipeline[name]) {
-            log("Oxide: failed to create pipeline for '" + name + "'."); log_metal(); abort();
+            log("Oxide: failed to create pipeline for '" + name + "'."); log_metal();
+            abort();
         }
 
         function->release();
@@ -120,7 +125,7 @@ namespace oxide {
         return cmd;
     }
 
-    NS::Error** Backend::error_out() {
+    NS::Error** Backend::error_out() { // TODO: handle err codes only in c++, write msgs in pythonside
         return &error;
     }
 

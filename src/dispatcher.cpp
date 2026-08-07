@@ -1,5 +1,5 @@
 #include "dispatcher.hpp"
-#include "typeutil.hpp"
+#include "common.hpp"
 
 
 namespace oxide {
@@ -17,7 +17,8 @@ namespace oxide {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();
         MTL::ComputeCommandEncoder* encoder = cmd->computeCommandEncoder();
         if (!encoder) {
-            backend->log("Oxide: failed to initialize command encoder."); backend->abort();
+            backend->log("Oxide: failed to initialize command encoder.");
+            backend->abort();
         }
 
         NS::UInteger max_threads = backend->set_cps(encoder, function);
@@ -49,7 +50,8 @@ namespace oxide {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();
         MTL::ComputeCommandEncoder* encoder = cmd->computeCommandEncoder();
         if (!encoder) {
-            backend->log("Oxide: failed to initialize command encoder."); backend->abort();
+            backend->log("Oxide: failed to initialize command encoder.");
+            backend->abort();
         }
 
         NS::UInteger max_threads = backend->set_cps(encoder, function);

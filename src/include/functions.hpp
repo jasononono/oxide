@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include "typeutil.hpp"
+#include "common.hpp"
 #include "tensor.hpp"
 #include "dispatcher.hpp"
 

@@ -5,7 +5,7 @@
 
 from . import system, core
 from .tensor import *
-from .typeutil import *
+from .common import *
 from typing import Iterable
 
 

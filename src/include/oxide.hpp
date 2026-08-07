@@ -1,10 +1,10 @@
 #pragma once
 
 #include "backend.hpp"
+#include "common.hpp"
 #include "dispatcher.hpp"
 #include "functions.hpp"
 #include "tensor.hpp"
-#include "typeutil.hpp"
 
 
 namespace oxide {

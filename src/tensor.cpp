@@ -142,7 +142,8 @@ namespace oxide {
     template <typename d_type>
     void TensorData<d_type>::check_buffer() const {
         if (!buffer) {
-            backend->log("Oxide: cannot access null buffer after move operation"); backend->abort();
+            backend->log("Oxide: cannot access null buffer after move operation");
+            backend->abort();
         }
     }
 
@@ -294,7 +295,8 @@ namespace oxide {
     int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
         check_base();
         if (indices.size() != ndim) {
-            backend->log("Oxide: indexing dimensions does not match tensor dimensions"); backend->abort();
+            backend->log("Oxide: indexing dimensions does not match tensor dimensions");
+            backend->abort();
         }
 
         int buf_index = 0, idx;
@@ -374,7 +376,8 @@ namespace oxide {
     template <typename d_type>
     void TensorView<d_type>::check_base() const {
         if (!base) {
-            backend->log("Oxide: base missing during tensor view operation"); backend->abort();
+            backend->log("Oxide: base missing during tensor view operation");
+            backend->abort();
         }
         if (backend != base->get_backend()) {
             backend->log("Oxide: backend mismatch");
@@ -399,7 +402,8 @@ namespace oxide {
         uint size = 1;
         for (uint i : shape) {
             if (i <= 0) {
-                backend.log("Oxide: dimension must be greater than 0"); backend.abort();
+                backend.log("Oxide: dimension must be greater than 0");
+                backend.abort();
             }
             size *= i;
         }

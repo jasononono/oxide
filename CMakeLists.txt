@@ -12,11 +12,11 @@ option(RELEASE "build release library instead of test cpp script" OFF)
 
 set(SOURCE
     src/backend.cpp
+    src/common.cpp
     src/dispatcher.cpp
     src/functions.cpp
     src/oxide.cpp
     src/tensor.cpp
-    src/typeutil.cpp
 )
 
 set(NAME main)
@@ -61,7 +61,7 @@ configure_file(
 )
 
 target_include_directories(${NAME} PRIVATE
-    external/metal-cpp
+    ~/Documents/lib/metal-cpp
     src/include
 )
 
