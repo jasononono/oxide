@@ -80,7 +80,7 @@ namespace oxide {
 
         shader.library = metal.device->newLibrary(source, nullptr, &mtl_err);
         if (!shader.library) {
-            log("failed to compile shader, see below for mtl compiler log:");
+            log("failed to compile shader\n");
             log_metal();
             abort();
         }
@@ -141,7 +141,7 @@ namespace oxide {
     }
 
     void Backend::abort() {
-        throw std::runtime_error(error_log);
+        throw OxideError(error_log);
     }
 
     std::mt19937& Backend::random_generate() {

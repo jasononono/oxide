@@ -24,7 +24,7 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b); // generate tensor randomly filled with elements of range [a, b]
 
-    
+
     template <typename d_type>
     TensorView<d_type> filled(Backend& backend, const std::vector<uint>& shape, d_type value); // generate tensor filled with value
 
@@ -47,12 +47,12 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type> transpose(const TensorView<d_type>& view, const std::vector<uint>& order);
 
-    template <typename d_type>
-    TensorView<d_type> slice(const TensorView<d_type>& view, const std::vector<std::pair<int, int>>& indices);
+    // template <typename d_type>
+    // TensorView<d_type> slice(const TensorView<d_type>& view, const std::vector<std::pair<int, int>>& indices);
 
     
-    template <typename d_type_old, typename d_type_new>
-    TensorView<d_type_new> as_type(const TensorView<d_type_old>& view);
+    // template <typename d_type_old, typename d_type_new>
+    // TensorView<d_type_new> as_type(const TensorView<d_type_old>& view);
 
 
 }

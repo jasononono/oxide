@@ -9,7 +9,9 @@ namespace oxide {
     
 
     using uint = unsigned int; // not an oxide data type
-    class OxideError : public std::runtime_error {};
+    class OxideError : public std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
 
     // oxide data types
     typedef int32_t int32;

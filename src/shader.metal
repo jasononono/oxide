@@ -2,13 +2,16 @@
 using namespace metal;
 
 
+// common.hpp
 typedef int32_t int32;
 typedef float float32;
 
 #define MAXDIMS 32;
 
+
+// functions
 // TODO: optimize these for common cases
-#define binary_op(d_type, name, op) \ 
+#define binary_op(d_type, name, op) \
 kernel void name( \
     const device d_type* a [[buffer(0)]], \
     const device d_type* b [[buffer(1)]], \
@@ -36,7 +39,6 @@ kernel void name( \
     out[id] = a[a_idx] op b[b_idx]; \
 }
 
-
 #define unary_op(d_type, name, op) \
 kernel void name( \
     device d_type* a [[buffer(0)]], \
@@ -63,20 +65,28 @@ kernel void name( \
 }
 
 
-binary_op(int32, add_int32, +)
-binary_op(float32, add_float32, +)
-binary_op(int32, sub_int32, -)
-binary_op(float32, sub_float32, -)
-binary_op(int32, mul_int32, *)
-binary_op(float32, mul_float32, *)
-binary_op(int32, div_int32, /)
-binary_op(float32, div_float32, /)
+// apply functions
+#define SPECIALIZE_ALL \
+TEMPLATE(int32) \
+TEMPLATE(float32)
 
-unary_op(int32, uadd_int32, +=)
-unary_op(float32, uadd_float32, +=)
-unary_op(int32, usub_int32, -=)
-unary_op(float32, usub_float32, -=)
-unary_op(int32, umul_int32, *=)
-unary_op(float32, umul_float32, *=)
-unary_op(int32, udiv_int32, /=)
-unary_op(float32, udiv_float32, /=)
+#define TEMPLATE(d_type) binary_op(d_type, add_##d_type, +)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) binary_op(d_type, sub_##d_type, -)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) binary_op(d_type, mul_##d_type, *)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) binary_op(d_type, div_##d_type, /)
+SPECIALIZE_ALL
+
+#define TEMPLATE(d_type) unary_op(d_type, uadd_##d_type, +=)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) unary_op(d_type, usub_##d_type, -=)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) unary_op(d_type, umul_##d_type, *=)
+SPECIALIZE_ALL
+#define TEMPLATE(d_type) unary_op(d_type, udiv_##d_type, /=)
+SPECIALIZE_ALL
+
+#undef SPECIALIZE_ALL
+#undef TEMPLATE

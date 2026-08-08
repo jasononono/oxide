@@ -4,8 +4,7 @@
 namespace oxide {
 
 
-    #define TEMPLATE(d_type) \
-    template<> \
+    #define TEMPLATE(d_type) template<> \
     std::string with_type<d_type>(const std::string& name) { \
         return name + "_" + #d_type; \
     }

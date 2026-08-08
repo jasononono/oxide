@@ -63,6 +63,7 @@ configure_file(
 target_include_directories(${NAME} PRIVATE
     ~/Documents/lib/metal-cpp
     src/include
+    src/specialize
 )
 
 target_link_libraries(${NAME} PRIVATE

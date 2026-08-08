@@ -1,7 +1,7 @@
+#include "oxide.hpp"
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
-#include "oxide.hpp"
 
 
 namespace nb = nanobind;
@@ -25,6 +25,7 @@ NB_MODULE(core, m) {
 
     // functions.hpp
     {
+
         m.def("binary_add", &oxide::binary_add<oxide::int32>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         m.def("binary_add", &oxide::binary_add<oxide::float32>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         // m.def("unary_add", &oxide::binary_add, nb::arg("dispatcher"), nb::arg('a'), nb::arg('b'));
