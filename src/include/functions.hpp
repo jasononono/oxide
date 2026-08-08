@@ -1,9 +1,10 @@
 #pragma once
 
-#include <algorithm>
-#include "common.hpp"
 #include "tensor.hpp"
 #include "dispatcher.hpp"
+#include "backend.hpp"
+#include "common.hpp"
+#include <algorithm>
 
 
 namespace oxide {
@@ -19,9 +20,11 @@ namespace oxide {
     template <typename d_type>
     TensorView<d_type> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<d_type>& data);
 
+
     template <typename d_type>
     TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b); // generate tensor randomly filled with elements of range [a, b]
 
+    
     template <typename d_type>
     TensorView<d_type> filled(Backend& backend, const std::vector<uint>& shape, d_type value); // generate tensor filled with value
 

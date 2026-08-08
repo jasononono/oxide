@@ -16,7 +16,7 @@ namespace oxide {
         } else if (memory.tensor_type == typeid(TensorData<float32>)) {
             delete static_cast<TensorData<float32>*>(memory.address);
         } else {
-            backend.log("Oxide: can only manually free TensorData specializations");
+            backend.log("tensor type is not recognized in memory, cannot free");
             backend.abort();
         }
     }
@@ -27,9 +27,9 @@ namespace oxide {
 
         while (i < backend.get_tensors().size()) {
             key = backend.get_tensors()[i];
-            if (backend.memory_tied(key).empty()) {
+            if (backend.get_mem_tied(key).empty()) {
                 free_tensor_memory(backend, key);
-                backend.memory_delete(key);
+                backend.mem_delete(key);
             } else {
                 i++;
             }

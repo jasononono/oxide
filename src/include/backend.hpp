@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Metal/Metal.hpp>
 #include <string>
 #include <random>
 #include <unordered_map>
@@ -7,7 +8,8 @@
 #include <algorithm>
 #include <typeindex>
 #include <vector>
-#include <Metal/Metal.hpp>
+#include <iostream>
+#include <fstream>
 
 
 namespace oxide {
@@ -71,7 +73,8 @@ namespace oxide {
         Shader shader;
         Random random;
         Memory memory;
-        NS::Error* error = nullptr; // automatically points to error struct upon exception
+        
+        NS::Error* mtl_err = nullptr; // automatically points to error struct upon exception
         std::string error_log; // printed upon abort
         
         public:
@@ -87,19 +90,20 @@ namespace oxide {
             MTL::Buffer* new_buffer(int size); // create new shared resource buffer
             MTL::CommandBuffer* new_cmd_buffer(); // create single-use command buffer
 
-            NS::Error** error_out();
-            void log(const std::string& message); // log error message
+            NS::Error** get_mtl_err();
+            void out(const std::string& msg); // log warning message
+            void log(const std::string& msg); // log error message
             void log_metal(); // automatically log metal error description if applicable
-            void abort(); // throw runtime error
+            void abort(); // throw error
 
             std::mt19937& random_generate();
 
-            TensorMemory memory_register(void* address, std::type_index tensor_type);
-            TensorMemory memory_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);
-            void memory_unregister(TensorMemory parent_memory, TensorMemory view_memory);
+            TensorMemory mem_register(void* address, std::type_index tensor_type);
+            TensorMemory mem_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);
+            void mem_unregister(TensorMemory parent_memory, TensorMemory view_memory);
             const std::vector<TensorMemory>& get_tensors() const;
-            const std::unordered_set<TensorMemory, TensorMemoryHash>& memory_tied(TensorMemory key) const;
-            void memory_delete(TensorMemory tensor_memory);
+            const std::unordered_set<TensorMemory, TensorMemoryHash>& get_mem_tied(TensorMemory key) const;
+            void mem_delete(TensorMemory tensor_memory);
     };
 
 

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <stack>
 #include "backend.hpp"
-#include "common.hpp"
+#include <stack>
+#include <string>
+#include <algorithm>
 
 
 namespace oxide {
@@ -14,7 +15,7 @@ namespace oxide {
         Backend* backend = nullptr;
         d_type* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
-        TensorMemory memory_reference = TensorMemory();
+        TensorMemory mem = TensorMemory();
 
         uint size = 0;
         
@@ -37,7 +38,7 @@ namespace oxide {
             MTL::Buffer* get_buffer() const;
             uint get_size() const;
             std::string get_string() const;
-            TensorMemory get_memory_reference() const;
+            TensorMemory get_mem() const;
 
             void check_buffer() const; // throws error if buffer is null
     };
@@ -47,7 +48,7 @@ namespace oxide {
     class TensorView {
         Backend* backend = nullptr;
         TensorData<d_type>* base = nullptr;
-        TensorMemory memory_reference = TensorMemory();
+        TensorMemory mem = TensorMemory();
 
         uint ndim, size;
         uint offset = 0;

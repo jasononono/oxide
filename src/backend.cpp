@@ -1,13 +1,9 @@
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 
-
 #include "backend.hpp"
 #include "common.hpp"
 #include "tensor.hpp"
-
-#include <fstream>
-#include <Metal/Metal.hpp>
 
 
 namespace oxide {
@@ -46,7 +42,7 @@ namespace oxide {
 
 
     Backend::Backend():
-    error(nullptr) {
+    mtl_err(nullptr) {
         
         init_metal();
         
@@ -60,11 +56,11 @@ namespace oxide {
     void Backend::init_metal() {
         metal.device = MTL::CreateSystemDefaultDevice();
         if (!metal.device) {
-            log("Oxide: failed to obtain gpu information."); abort();
+            log("failed to obtain gpu information"); abort();
         }
         metal.queue = metal.device->newCommandQueue();
         if (!metal.queue) {
-            log("Oxide: failed to initialize gpu command queue.");
+            log("failed to initialize gpu command queue");
             abort();
         }
     }
@@ -72,7 +68,7 @@ namespace oxide {
     void Backend::init_shader(const std::string& path) {
         std::ifstream file(path);
         if (!file.is_open()) {
-            log("Oxide: shader source not found");
+            log("shader source not found");
             abort();
         }
 
@@ -82,9 +78,10 @@ namespace oxide {
 
         NS::String* source = NS::String::string(text.c_str(), NS::UTF8StringEncoding);
 
-        shader.library = metal.device->newLibrary(source, nullptr, &error);
+        shader.library = metal.device->newLibrary(source, nullptr, &mtl_err);
         if (!shader.library) {
-            log("Oxide: failed to compile shader."); log_metal();
+            log("failed to compile shader, see below for mtl compiler log:");
+            log_metal();
             abort();
         }
     }
@@ -92,13 +89,13 @@ namespace oxide {
     void Backend::load_shader(const std::string& name) {
         MTL::Function* function = shader.library->newFunction(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
         if (!function) {
-            log("Oxide: shader function '" + name + "' does not exist.");
+            log("shader function '" + name + "' does not exist");
             abort();
         }
 
-        shader.pipeline[name] = metal.device->newComputePipelineState(function, &error);
+        shader.pipeline[name] = metal.device->newComputePipelineState(function, &mtl_err);
         if (!shader.pipeline[name]) {
-            log("Oxide: failed to create pipeline for '" + name + "'."); log_metal();
+            log("failed to create pipeline for '" + name + "'"); log_metal();
             abort();
         }
 
@@ -120,13 +117,17 @@ namespace oxide {
     MTL::CommandBuffer* Backend::new_cmd_buffer() {
         MTL::CommandBuffer* cmd = metal.queue->commandBuffer();
         if (!cmd) {
-            log("Oxide: failed to initialize command buffer."); abort();
+            log("failed to initialize command buffer"); abort();
         }
         return cmd;
     }
 
-    NS::Error** Backend::error_out() { // TODO: handle err codes only in c++, write msgs in pythonside
-        return &error;
+    NS::Error** Backend::get_mtl_err() {
+        return &mtl_err;
+    }
+
+    void Backend::out(const std::string& message) {
+        std::cout << "(!) " << message << std::endl;
     }
 
     void Backend::log(const std::string& message) {
@@ -134,8 +135,8 @@ namespace oxide {
     }
 
     void Backend::log_metal() {
-        if (error) {
-            error_log += error->localizedDescription()->utf8String();
+        if (mtl_err) {
+            error_log += mtl_err->localizedDescription()->utf8String();
         }
     }
 
@@ -147,20 +148,20 @@ namespace oxide {
         return random.generator;
     }
 
-    TensorMemory Backend::memory_register(void* address, std::type_index tensor_type) {
+    TensorMemory Backend::mem_register(void* address, std::type_index tensor_type) {
         TensorMemory tensor_memory(address, tensor_type);
         memory.registered[tensor_memory] = std::unordered_set<TensorMemory, TensorMemoryHash>();
         memory.tensors.push_back(tensor_memory);
         return tensor_memory;
     }
 
-    TensorMemory Backend::memory_register(TensorMemory parent_memory, void* address, std::type_index tensor_type) {
+    TensorMemory Backend::mem_register(TensorMemory parent_memory, void* address, std::type_index tensor_type) {
         TensorMemory tensor_memory(address, tensor_type);
         memory.registered[parent_memory].insert(tensor_memory);
         return tensor_memory;
     }
 
-    void Backend::memory_unregister(TensorMemory parent_memory, TensorMemory view_memory) {
+    void Backend::mem_unregister(TensorMemory parent_memory, TensorMemory view_memory) {
         memory.registered[parent_memory].erase(view_memory);
     }
 
@@ -168,11 +169,11 @@ namespace oxide {
         return memory.tensors;
     }
 
-    const std::unordered_set<TensorMemory, TensorMemoryHash>& Backend::memory_tied(TensorMemory key) const {
+    const std::unordered_set<TensorMemory, TensorMemoryHash>& Backend::get_mem_tied(TensorMemory key) const {
         return memory.registered.at(key);
     }
 
-    void Backend::memory_delete(TensorMemory tensor_memory) {
+    void Backend::mem_delete(TensorMemory tensor_memory) {
         memory.registered.erase(tensor_memory);
         memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), tensor_memory));
     }

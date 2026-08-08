@@ -22,10 +22,7 @@ int main() {
     try {
         run();
     } catch (const std::runtime_error& e) {
-        std::cout << e.what() << std::flush;
-        return 1;
-    } catch (const std::exception& e) {
-        std::cout << e.what() << std::flush;
+        std::cout << "Oxide: " << e.what() << std::flush;
         return 1;
     }
     return 0;

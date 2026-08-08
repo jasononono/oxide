@@ -4,13 +4,15 @@
 namespace oxide {
 
 
-    template<>
-    std::string with_type<int32>(const std::string& name) {
-        return name + "_int32";
+    #define TEMPLATE(d_type) \
+    template<> \
+    std::string with_type<d_type>(const std::string& name) { \
+        return name + "_" + #d_type; \
     }
-    template <>
-    std::string with_type<float32>(const std::string& name) {
-        return name + "_float32";
+    #include "specialize/all.h"
+
+    std::string ansi(int code, const std::string& str) {
+        return std::format("\x1b[{}m{}\x1b[0m", code, str);
     }
 
 

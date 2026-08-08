@@ -6,6 +6,12 @@ backend = core.Backend()
 dispatcher = core.Dispatcher(backend)
 
 
+def call(function, *args, **kwargs):
+    try:
+        function(*args, **kwargs)
+    except RuntimeError:
+        
+
 @atexit.register
 def free():
     core.free_backend(backend)
