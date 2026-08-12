@@ -26,15 +26,16 @@ NB_MODULE(core, m) {
     // functions.hpp
     {
 
-        m.def("binary_add", &oxide::binary_add<oxide::int32>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
-        m.def("binary_add", &oxide::binary_add<oxide::float32>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(d_type) m.def("binary_add", &oxide::binary_add<oxide::d_type>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #include "specialize/all.h"
         // m.def("unary_add", &oxide::binary_add, nb::arg("dispatcher"), nb::arg('a'), nb::arg('b'));
 
-        m.def("make_view", &oxide::make_view<oxide::int32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
-        m.def("make_view", &oxide::make_view<oxide::float32>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
+        #define TEMPLATE(d_type) m.def("make_view", &oxide::make_view<oxide::d_type>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
+        #include "specialize/all.h"
 
-        m.def("rand_int32", &oxide::rand<oxide::int32>, nb::arg("backend"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
-        m.def("rand_float32", &oxide::rand<oxide::float32>, nb::arg("backend"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
+        m.def("rand", &oxide::rand, nb::arg("dispatcher"), nb::arg("shape"));
+        #define TEMPLATE(d_type) m.def("random", &oxide::random<oxide::d_type>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
+        #include "specialize/numeric.h"
     }
  
     // oxide.hpp
@@ -47,7 +48,7 @@ NB_MODULE(core, m) {
     {
         auto c1 = nb::class_<oxide::TensorView<oxide::int32>>(m, "TensorView_int32");
         c1.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*>());
-        c1.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*, int, const std::vector<int>&>());
+        c1.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::int32>*, oxide::iint, const std::vector<oxide::iint>&>());
         c1.def("get_element", &oxide::TensorView<oxide::int32>::get_element, nb::arg("indices"));
         c1.def("set_element", &oxide::TensorView<oxide::int32>::set_element, nb::arg("indices"), nb::arg("value"));
         c1.def("get_ndim", &oxide::TensorView<oxide::int32>::get_ndim);
@@ -60,7 +61,7 @@ NB_MODULE(core, m) {
 
         auto c2 = nb::class_<oxide::TensorView<oxide::float32>>(m, "TensorView_float32");
         c2.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*>());
-        c2.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*, int, const std::vector<int>&>());
+        c2.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::float32>*, oxide::iint, const std::vector<oxide::iint>&>());
         c2.def("get_element", &oxide::TensorView<oxide::float32>::get_element, nb::arg("indices"));
         c2.def("set_element", &oxide::TensorView<oxide::float32>::set_element, nb::arg("indices"), nb::arg("value"));
         c2.def("get_ndim", &oxide::TensorView<oxide::float32>::get_ndim);

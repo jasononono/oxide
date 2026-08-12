@@ -47,6 +47,7 @@ namespace oxide {
         init_metal();
         
         random.generator =  std::mt19937(random.device());
+        random.seed_dist = std::uniform_int_distribution<uint>(0, std::numeric_limits<uint>::max());
 
         init_shader("src/shader.metal");
     }
@@ -110,7 +111,7 @@ namespace oxide {
         return shader.pipeline.at(name)->maxTotalThreadsPerThreadgroup();
     }
 
-    MTL::Buffer* Backend::new_buffer(int size) {
+    MTL::Buffer* Backend::new_buffer(uint size) {
         return metal.device->newBuffer(size * sizeof(float), MTL::ResourceStorageModeShared);
     }
 
@@ -146,6 +147,10 @@ namespace oxide {
 
     std::mt19937& Backend::random_generate() {
         return random.generator;
+    }
+
+    uint Backend::random_seed() {
+        return random.seed_dist(random.generator);
     }
 
     TensorMemory Backend::mem_register(void* address, std::type_index tensor_type) {

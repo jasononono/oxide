@@ -15,10 +15,10 @@ namespace oxide {
         uint ndim = std::max(a.get_ndim(), b.get_ndim());
         std::vector<uint> out_shape(ndim);
         uint size = 1;
-        std::vector<int> a_strides(ndim), b_strides(ndim);
+        std::vector<iint> a_strides(ndim), b_strides(ndim);
         uint idx, a_idx, b_idx;
         
-        for (int i = 0; i < ndim; i++) {
+        for (iint i = 0; i < ndim; i++) {
             idx = ndim - i - 1;
             a_idx = a.get_ndim() - i - 1;
             b_idx = b.get_ndim() - i - 1;
@@ -77,7 +77,7 @@ namespace oxide {
         uint idx, b_idx;
 
         
-        for (int i = 0; i < a.get_ndim(); i++) {
+        for (iint i = 0; i < a.get_ndim(); i++) {
             idx = a.get_ndim() - i - 1;
             b_idx = b.get_ndim() - i - 1;
 
@@ -116,36 +116,26 @@ namespace oxide {
     #include "specialize/all.h"
 
 
+    TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape) {
+        uint size = parse_shape(*dispatcher.get_backend(), shape);
+        TensorData<float32>* out = new TensorData<float32>(*dispatcher.get_backend(), size, float32());
+
+        dispatcher.rand(size, out->get_buffer(), dispatcher.get_backend()->random_seed());
+
+        return TensorView<float32>(*dispatcher.get_backend(), shape, out);
+    }
+
     template <typename d_type>
-    TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b) {
-        backend.log("rand() is not supported for this data type");
-        backend.abort();
+    TensorView<d_type> random(Dispatcher& dispatcher, const std::vector<uint>& shape, d_type a, d_type b) {
+        uint size = parse_shape(*dispatcher.get_backend(), shape);
+        TensorData<d_type>* out = new TensorData<d_type>(*dispatcher.get_backend(), size, d_type());
+
+        dispatcher.random(with_type<d_type>("random"), size, out->get_buffer(), dispatcher.get_backend()->random_seed(), a, b);
+
+        return TensorView<d_type>(*dispatcher.get_backend(), shape, out);
     }
-
-    template <>
-    TensorView<int32> rand(Backend& backend, const std::vector<uint>& shape, int32 a, int32 b) {
-        uint size = parse_shape(backend, shape);
-        TensorData<int32>* out = new TensorData<int32>(backend, size, int32());
-
-        std::uniform_int_distribution<int32> dist(a, b);
-        for (int i = 0; i < size; i++) {
-            out->get_ptr()[i] = dist(backend.random_generate());
-        }
-
-        return TensorView<int32>(backend, shape, out);
-    }
-    template <> //TODO: gpu random init
-    TensorView<float32> rand(Backend& backend, const std::vector<uint>& shape, float32 a, float32 b) {
-        uint size = parse_shape(backend, shape);
-        TensorData<float32>* out = new TensorData<float32>(backend, size, float32());
-
-        std::uniform_real_distribution<float32> dist(a, b);
-        for (int i = 0; i < size; i++) {
-            out->get_ptr()[i] = dist(backend.random_generate());
-        }
-
-        return TensorView<float32>(backend, shape, out);
-    }
+    #define TEMPLATE(d_type) template TensorView<d_type> random(Dispatcher& dispatcher, const std::vector<uint>& shape, d_type a, d_type b);
+    #include "specialize/numeric.h"
 
 
     template <typename d_type>
@@ -207,11 +197,11 @@ namespace oxide {
             view.get_backend()->abort();
         }
         
-        std::vector<int> strides(order.size());
+        std::vector<iint> strides(order.size());
         std::vector<uint> shape(order.size());
         std::vector<bool> used(order.size(), false);
 
-        for (int i = 0; i < order.size(); i++) {
+        for (iint i = 0; i < order.size(); i++) {
             if (order[i] >= order.size()) {
                 view.get_backend()->log("transposed order is invalid");
                 view.get_backend()->abort();

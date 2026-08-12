@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 
 namespace oxide {
@@ -37,6 +38,8 @@ namespace oxide {
     struct Random {
         std::random_device device;
         std::mt19937 generator;
+
+        std::uniform_int_distribution<uint> seed_dist;
     };
 
 
@@ -87,7 +90,7 @@ namespace oxide {
             void load_shader(const std::string& name); // load individual functions inside shader source file
             NS::UInteger set_cps(MTL::ComputeCommandEncoder* encoder, const std::string& name); // returns cps max threads
 
-            MTL::Buffer* new_buffer(int size); // create new shared resource buffer
+            MTL::Buffer* new_buffer(uint size); // create new shared resource buffer
             MTL::CommandBuffer* new_cmd_buffer(); // create single-use command buffer
 
             NS::Error** get_mtl_err();
@@ -97,6 +100,7 @@ namespace oxide {
             void abort(); // throw error
 
             std::mt19937& random_generate();
+            uint random_seed();
 
             TensorMemory mem_register(void* address, std::type_index tensor_type);
             TensorMemory mem_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);

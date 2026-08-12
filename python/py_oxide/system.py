@@ -6,10 +6,10 @@ backend = core.Backend()
 dispatcher = core.Dispatcher(backend)
 
 
-def call(function, *args, **kwargs):
-    try:
-        function(*args, **kwargs)
-    except RuntimeError:
+# def call(function, *args, **kwargs):
+    # try:
+    #     function(*args, **kwargs)
+    # except RuntimeError:
         
 
 @atexit.register

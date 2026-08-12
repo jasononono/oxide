@@ -41,10 +41,13 @@ def tensor(iterable):
 def add(a, b):
     return Tensor(core.binary_add(system.dispatcher, a.ctensor, b.ctensor))
 
-def rand(shape, a = 0, b = 1, d_type = float32):
+def rand(shape):
+    return Tensor(core.rand(system.dispatcher, shape))
+
+def random(shape, a = 0, b = 1, d_type = float32):
     if d_type is int32:
-        return Tensor(core.rand_int32(system.backend, shape, a, b))
+        return Tensor(core.random_int32(system.dispatcher, shape, a, b))
     elif d_type is float32:
-        return Tensor(core.rand_float32(system.backend, shape, a, b))
+        return Tensor(core.random_float32(system.dispatcher, shape, a, b))
     else:
         raise RuntimeError("Oxide: data type is invalid")

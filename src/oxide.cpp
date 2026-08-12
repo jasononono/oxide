@@ -22,7 +22,7 @@ namespace oxide {
     }
 
     void memory_optimize(Backend& backend) {
-        int i = 0;
+        iint i = 0;
         TensorMemory key;
 
         while (i < backend.get_tensors().size()) {

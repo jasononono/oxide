@@ -3,10 +3,14 @@ using namespace metal;
 
 
 // common.hpp
+using uint = uint32_t;
+using iint = int32_t;
+
 typedef int32_t int32;
 typedef float float32;
 
-#define MAXDIMS 32;
+#define MAXDIMS 32
+#define MAXSEEDF 4294967295.0f
 
 
 // functions
@@ -65,9 +69,64 @@ kernel void name( \
 }
 
 
+uint xorshift(uint seed, uint id) {
+    uint state = seed + id;
+    state ^= state << 16;
+    state *= 2994277826;
+    if (state == 0) {
+        state = 2994277826;
+    }
+    state ^= state << 13;
+    state ^= state >> 17;
+    state ^= state << 5;
+
+    return state;
+}
+
+kernel void rand(
+    device float* buf [[buffer(0)]],
+    constant uint& seed [[buffer(1)]],
+    uint id [[thread_position_in_grid]]
+) {
+    buf[id] = (float)(xorshift(seed, id)) / (MAXSEEDF + 1);
+}
+
+#define random_int(d_type, name) \
+kernel void name( \
+    device d_type* buf [[buffer(0)]], \
+    constant uint& seed [[buffer(1)]], \
+    constant d_type& a [[buffer(2)]], \
+    constant d_type& b [[buffer(3)]], \
+    uint id [[thread_position_in_grid]] \
+) { \
+    buf[id] = (d_type)((float)(xorshift(seed, id)) / (MAXSEEDF + 1) * (b - a + 1) + a); \
+}
+
+#define random_float(d_type, name) \
+kernel void name( \
+    device d_type* buf [[buffer(0)]], \
+    constant uint& seed [[buffer(1)]], \
+    constant d_type& a [[buffer(2)]], \
+    constant d_type& b [[buffer(3)]], \
+    uint id [[thread_position_in_grid]] \
+) { \
+    buf[id] = (d_type)((float)(xorshift(seed, id)) / MAXSEEDF * (b - a) + a); \
+}
+
+
 // apply functions
 #define SPECIALIZE_ALL \
 TEMPLATE(int32) \
+TEMPLATE(float32)
+
+#define SPECIALIZE_NUMERIC \
+TEMPLATE(int32) \
+TEMPLATE(float32)
+
+#define SPECIALIZE_INT \
+TEMPLATE(int32)
+
+#define SPECIALIZE_FLOAT \
 TEMPLATE(float32)
 
 #define TEMPLATE(d_type) binary_op(d_type, add_##d_type, +)
@@ -88,5 +147,13 @@ SPECIALIZE_ALL
 #define TEMPLATE(d_type) unary_op(d_type, udiv_##d_type, /=)
 SPECIALIZE_ALL
 
+#define TEMPLATE(d_type) random_int(d_type, random_##d_type)
+SPECIALIZE_INT
+#define TEMPLATE(d_type) random_float(d_type, random_##d_type)
+SPECIALIZE_FLOAT
+
 #undef SPECIALIZE_ALL
+#undef SPECIALIZE_NUMERIC
+#undef SPECIALIZE_INT
+#undef SPECIALIZE_FLOAT
 #undef TEMPLATE

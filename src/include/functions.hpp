@@ -21,8 +21,10 @@ namespace oxide {
     TensorView<d_type> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<d_type>& data);
 
 
+    TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape);
+
     template <typename d_type>
-    TensorView<d_type> rand(Backend& backend, const std::vector<uint>& shape, d_type a, d_type b); // generate tensor randomly filled with elements of range [a, b]
+    TensorView<d_type> random(Dispatcher& dispatcher, const std::vector<uint>& shape, d_type a, d_type b); // generate tensor randomly filled with elements of range [a, b]
 
 
     template <typename d_type>

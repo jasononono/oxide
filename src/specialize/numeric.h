@@ -1,0 +1,3 @@
+TEMPLATE(int32)
+TEMPLATE(float32)
+#undef TEMPLATE

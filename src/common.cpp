@@ -10,7 +10,7 @@ namespace oxide {
     }
     #include "specialize/all.h"
 
-    std::string ansi(int code, const std::string& str) {
+    std::string ansi(iint code, const std::string& str) {
         return std::format("\x1b[{}m{}\x1b[0m", code, str);
     }
 

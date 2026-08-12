@@ -4,7 +4,7 @@ Giving me access to these GPU shenanigans is an equally good idea as installing 
 
 # Usage
 
-I lowkey linked 3 functions so far, so here is all the functionality
+I only linked like 3 functions so far, there will be more soon trust
 
 ```python
 import py_oxide as ox
@@ -12,9 +12,10 @@ import py_oxide as ox
 a = ox.tensor([[1, 2, 3], [4, 5, 6]])
 print(a.shape) # [2, 3]
 b = ox.tensor([[6, 7, 6], [7, 6, 7]])
-print(b[1, 2]) # 7
+print(b[[1, 2]]) # 7    (use lists to index tensors)
 print(ox.add(a, b)) # [[7, 9, 9], [11, 11, 13]]
-c = ox.rand(shape=[6, 7, 8], a=10, b=20, d_type=ox.float32)
+c = a # efficiently copies view 'a' to 'c'
+d = ox.random(shape=[6, 7, 8], a=10, b=20, d_type=ox.float32)
 ```
 
 run this to install:

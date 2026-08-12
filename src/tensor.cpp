@@ -85,13 +85,13 @@ namespace oxide {
     }
 
     template <typename d_type>
-    d_type TensorData<d_type>::operator[](int index) const {
+    d_type TensorData<d_type>::operator[](iint index) const {
         check_buffer();
         return ptr[index];
     }
 
     template <typename d_type>
-    d_type& TensorData<d_type>::operator[](int index) {
+    d_type& TensorData<d_type>::operator[](iint index) {
         check_buffer();
         return ptr[index];
     }
@@ -122,7 +122,7 @@ namespace oxide {
     std::string TensorData<d_type>::get_string() const {
         check_buffer();
         std::string str = "[";
-        for (int i = 0; i < size; i++) {
+        for (iint i = 0; i < size; i++) {
             str += std::to_string(ptr[i]);
             if (i == size - 1) {str += ']';}
             else {str += ", ";}
@@ -163,7 +163,7 @@ namespace oxide {
     }
 
     template <typename d_type>
-    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base, int _offset, const std::vector<int>& _strides):
+    TensorView<d_type>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<d_type>* _base, iint _offset, const std::vector<iint>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
         if (backend != base->get_backend()) {
             backend->log("backend mismatch");
@@ -241,22 +241,22 @@ namespace oxide {
     }
 
     template <typename d_type>
-    d_type TensorView<d_type>::operator[](const std::vector<int>& indices) const {
+    d_type TensorView<d_type>::operator[](const std::vector<iint>& indices) const {
         return base->get_ptr()[get_buffer_idx(indices)];
     }
 
     template <typename d_type>
-    d_type& TensorView<d_type>::operator[](const std::vector<int>& indices) {
+    d_type& TensorView<d_type>::operator[](const std::vector<iint>& indices) {
         return base->get_ptr()[get_buffer_idx(indices)];
     }
 
     template <typename d_type>
-    d_type TensorView<d_type>::get_element(const std::vector<int>& indices) {
+    d_type TensorView<d_type>::get_element(const std::vector<iint>& indices) {
         return (*this)[indices];
     }
 
     template <typename d_type>
-    void TensorView<d_type>::set_element(const std::vector<int>& indices, d_type value) {
+    void TensorView<d_type>::set_element(const std::vector<iint>& indices, d_type value) {
         (*this)[indices] = value;
     }
 
@@ -265,16 +265,16 @@ namespace oxide {
         shape = _shape;
         size = parse_shape(*backend, shape);
         ndim = shape.size();
-        strides = std::vector<int>(ndim);
+        strides = std::vector<iint>(ndim);
 
         strides[ndim - 1] = 1;
-        for (int i = ndim - 2; i >= 0; i--) {
+        for (iint i = ndim - 2; i >= 0; i--) {
             strides[i] = strides[i + 1] * shape[i + 1];
         }
     }
 
     template <typename d_type>
-    void TensorView<d_type>::set_shape(const std::vector<uint>& _shape, const std::vector<int>& _strides, uint _offset) {
+    void TensorView<d_type>::set_shape(const std::vector<uint>& _shape, const std::vector<iint>& _strides, uint _offset) {
         shape = _shape;
         size = parse_shape(*backend, shape);
         ndim = shape.size();
@@ -288,15 +288,15 @@ namespace oxide {
     }
 
     template <typename d_type>
-    int TensorView<d_type>::get_buffer_idx(const std::vector<int>& indices) const {
+    iint TensorView<d_type>::get_buffer_idx(const std::vector<iint>& indices) const {
         check_base();
         if (indices.size() != ndim) {
             backend->log("indexing dimensions does not match tensor dimensions");
             backend->abort();
         }
 
-        int buf_index = 0, idx;
-        for (int i = 0; i < ndim; i++) {
+        iint buf_index = 0, idx;
+        for (iint i = 0; i < ndim; i++) {
             if (indices[i] >= 0) {
                 idx = indices[i];
             } else {
@@ -343,14 +343,14 @@ namespace oxide {
     }
 
     template <typename d_type>
-    const std::vector<int>& TensorView<d_type>::get_strides() const {
+    const std::vector<iint>& TensorView<d_type>::get_strides() const {
         return strides;
     }
 
     template <typename d_type>
     std::string TensorView<d_type>::get_string() const {
         std::string str(ndim, '[');
-        std::vector<int> indices(ndim, 0);
+        std::vector<iint> indices(ndim, 0);
         
         while (!indices.empty()) {
             str += std::to_string((*this)[indices]);
