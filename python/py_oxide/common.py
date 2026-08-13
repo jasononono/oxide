@@ -10,9 +10,18 @@ class int32(int_t): pass
 class float32(float_t): pass
 
 
-pyconv_t = {
+MAXDIMS = 16;
+MAXSEEDF = float(4294967295.0);
+
+
+py_t = {
     int: int32,
     float: float32
+}
+
+ox_t = {
+    int32: int,
+    float32: float
 }
 
 tensorview_t = {

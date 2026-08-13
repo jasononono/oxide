@@ -15,11 +15,11 @@ typedef float float32;
 
 // functions
 // common case optim
-#define binary_op(d_type, name, op) \
+#define binary_op(dtype, name, op) \
 kernel void name( \
-    const device d_type* a [[buffer(0)]], \
-    const device d_type* b [[buffer(1)]], \
-    device d_type* out [[buffer(2)]], \
+    const device dtype* a [[buffer(0)]], \
+    const device dtype* b [[buffer(1)]], \
+    device dtype* out [[buffer(2)]], \
     constant uint& ndim [[buffer(3)]], \
     constant int* a_strides [[buffer(4)]], \
     constant uint& a_offset [[buffer(5)]], \
@@ -43,10 +43,10 @@ kernel void name( \
     out[id] = a[a_idx] op b[b_idx]; \
 }
 
-#define unary_op(d_type, name, op) \
+#define unary_op(dtype, name, op) \
 kernel void name( \
-    device d_type* a [[buffer(0)]], \
-    const device d_type* b [[buffer(1)]], \
+    device dtype* a [[buffer(0)]], \
+    const device dtype* b [[buffer(1)]], \
     constant uint& ndim [[buffer(2)]], \
     constant int* a_strides [[buffer(3)]], \
     constant uint& a_offset [[buffer(4)]], \
@@ -91,26 +91,26 @@ kernel void rand(
     buf[id] = (float)(xorshift(seed, id)) / (MAXSEEDF + 1);
 }
 
-#define random_int(d_type, name) \
+#define random_int(dtype, name) \
 kernel void name( \
-    device d_type* buf [[buffer(0)]], \
+    device dtype* buf [[buffer(0)]], \
     constant uint& seed [[buffer(1)]], \
-    constant d_type& a [[buffer(2)]], \
-    constant d_type& b [[buffer(3)]], \
+    constant dtype& a [[buffer(2)]], \
+    constant dtype& b [[buffer(3)]], \
     uint id [[thread_position_in_grid]] \
 ) { \
-    buf[id] = (d_type)((float)(xorshift(seed, id)) / (MAXSEEDF + 1) * (b - a + 1) + a); \
+    buf[id] = (dtype)((float)(xorshift(seed, id)) / (MAXSEEDF + 1) * (b - a + 1) + a); \
 }
 
-#define random_float(d_type, name) \
+#define random_float(dtype, name) \
 kernel void name( \
-    device d_type* buf [[buffer(0)]], \
+    device dtype* buf [[buffer(0)]], \
     constant uint& seed [[buffer(1)]], \
-    constant d_type& a [[buffer(2)]], \
-    constant d_type& b [[buffer(3)]], \
+    constant dtype& a [[buffer(2)]], \
+    constant dtype& b [[buffer(3)]], \
     uint id [[thread_position_in_grid]] \
 ) { \
-    buf[id] = (d_type)((float)(xorshift(seed, id)) / MAXSEEDF * (b - a) + a); \
+    buf[id] = (dtype)((float)(xorshift(seed, id)) / MAXSEEDF * (b - a) + a); \
 }
 
 
@@ -129,27 +129,27 @@ TEMPLATE(int32)
 #define SPECIALIZE_FLOAT \
 TEMPLATE(float32)
 
-#define TEMPLATE(d_type) binary_op(d_type, add_##d_type, +)
+#define TEMPLATE(dtype) binary_op(dtype, add_##dtype, +)
 SPECIALIZE_ALL
-#define TEMPLATE(d_type) binary_op(d_type, sub_##d_type, -)
+#define TEMPLATE(dtype) binary_op(dtype, sub_##dtype, -)
 SPECIALIZE_ALL
-#define TEMPLATE(d_type) binary_op(d_type, mul_##d_type, *)
+#define TEMPLATE(dtype) binary_op(dtype, mul_##dtype, *)
 SPECIALIZE_ALL
-#define TEMPLATE(d_type) binary_op(d_type, div_##d_type, /)
-SPECIALIZE_ALL
-
-#define TEMPLATE(d_type) unary_op(d_type, uadd_##d_type, +=)
-SPECIALIZE_ALL
-#define TEMPLATE(d_type) unary_op(d_type, usub_##d_type, -=)
-SPECIALIZE_ALL
-#define TEMPLATE(d_type) unary_op(d_type, umul_##d_type, *=)
-SPECIALIZE_ALL
-#define TEMPLATE(d_type) unary_op(d_type, udiv_##d_type, /=)
+#define TEMPLATE(dtype) binary_op(dtype, div_##dtype, /)
 SPECIALIZE_ALL
 
-#define TEMPLATE(d_type) random_int(d_type, random_##d_type)
+#define TEMPLATE(dtype) unary_op(dtype, uadd_##dtype, +=)
+SPECIALIZE_ALL
+#define TEMPLATE(dtype) unary_op(dtype, usub_##dtype, -=)
+SPECIALIZE_ALL
+#define TEMPLATE(dtype) unary_op(dtype, umul_##dtype, *=)
+SPECIALIZE_ALL
+#define TEMPLATE(dtype) unary_op(dtype, udiv_##dtype, /=)
+SPECIALIZE_ALL
+
+#define TEMPLATE(dtype) random_int(dtype, random_##dtype)
 SPECIALIZE_INT
-#define TEMPLATE(d_type) random_float(d_type, random_##d_type)
+#define TEMPLATE(dtype) random_float(dtype, random_##dtype)
 SPECIALIZE_FLOAT
 
 #undef SPECIALIZE_ALL

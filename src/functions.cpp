@@ -4,8 +4,8 @@
 namespace oxide {
 
 
-    template <typename d_type>
-    TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b) {
+    template <typename dtype>
+    TensorView<dtype> binary_add(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("backend mismatch");
             dispatcher.get_backend()->abort();
@@ -51,17 +51,17 @@ namespace oxide {
             size *= out_shape[idx];
         }
 
-        TensorData<d_type>* out = new TensorData<d_type>(*dispatcher.get_backend(), size, 0);
-        TensorView<d_type> view(*dispatcher.get_backend(), out_shape, out);
+        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0);
+        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out);
 
-        dispatcher.binary_operand(with_type<d_type>("add"), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
+        dispatcher.binary_operand(with_type<dtype>("add"), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
         return view;
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b);
+    #define TEMPLATE(dtype) template TensorView<dtype> binary_add(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
     #include "specialize/numeric.h"
 
-    template <typename d_type>
-    TensorView<d_type>& unary_add(Dispatcher& dispatcher, TensorView<d_type>& a, const TensorView<d_type>& b) {
+    template <typename dtype>
+    TensorView<dtype>& unary_add(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("backend mismatch");
             dispatcher.get_backend()->abort();
@@ -93,26 +93,26 @@ namespace oxide {
             }
         }
 
-        dispatcher.unary_operand(with_type<d_type>("uadd"), a.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), a.get_ndim(), a.get_strides(), a.get_offset(), b_strides, b.get_offset());
+        dispatcher.unary_operand(with_type<dtype>("uadd"), a.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), a.get_ndim(), a.get_strides(), a.get_offset(), b_strides, b.get_offset());
         return a;
     }
-    #define TEMPLATE(d_type) template TensorView<d_type>& unary_add(Dispatcher& dispatcher, TensorView<d_type>& a, const TensorView<d_type>& b);
+    #define TEMPLATE(dtype) template TensorView<dtype>& unary_add(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
     #include "specialize/numeric.h"
 
 
-    template <typename d_type>
-    TensorView<d_type> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<d_type>& data) {
+    template <typename dtype>
+    TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data) {
         uint size = parse_shape(backend, shape);
         if (size != data.size()) {
             backend.log("data size must be compatible with tensor shape");
             backend.abort();
         }
         
-        TensorData<d_type>* out = new TensorData<d_type>(backend, size, d_type());
-        std::memcpy(out->get_ptr(), data.data(), sizeof(d_type) * data.size());
-        return TensorView<d_type>(backend, shape, out);
+        TensorData<dtype>* out = new TensorData<dtype>(backend, size, dtype());
+        std::memcpy(out->get_ptr(), data.data(), sizeof(dtype) * data.size());
+        return TensorView<dtype>(backend, shape, out);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<d_type>& data);
+    #define TEMPLATE(dtype) template TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data);
     #include "specialize/all.h"
 
 
@@ -125,73 +125,73 @@ namespace oxide {
         return TensorView<float32>(*dispatcher.get_backend(), shape, out);
     }
 
-    template <typename d_type>
-    TensorView<d_type> random(Dispatcher& dispatcher, const std::vector<uint>& shape, d_type a, d_type b) {
+    template <typename dtype>
+    TensorView<dtype> random(Dispatcher& dispatcher, const std::vector<uint>& shape, dtype a, dtype b) {
         uint size = parse_shape(*dispatcher.get_backend(), shape);
-        TensorData<d_type>* out = new TensorData<d_type>(*dispatcher.get_backend(), size, d_type());
+        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, dtype());
 
-        dispatcher.random(with_type<d_type>("random"), size, out->get_buffer(), dispatcher.get_backend()->random_seed(), a, b);
+        dispatcher.random(with_type<dtype>("random"), size, out->get_buffer(), dispatcher.get_backend()->random_seed(), a, b);
 
-        return TensorView<d_type>(*dispatcher.get_backend(), shape, out);
+        return TensorView<dtype>(*dispatcher.get_backend(), shape, out);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> random(Dispatcher& dispatcher, const std::vector<uint>& shape, d_type a, d_type b);
+    #define TEMPLATE(dtype) template TensorView<dtype> random(Dispatcher& dispatcher, const std::vector<uint>& shape, dtype a, dtype b);
     #include "specialize/numeric.h"
 
 
-    template <typename d_type>
-    TensorView<d_type> filled(Backend& backend, const std::vector<uint>& shape, d_type value) {
+    template <typename dtype>
+    TensorView<dtype> filled(Backend& backend, const std::vector<uint>& shape, dtype value) {
         uint size = parse_shape(backend, shape);
-        TensorData<d_type>* out = new TensorData<d_type>(backend, size, value);
-        return TensorView<d_type>(backend, shape, out);
+        TensorData<dtype>* out = new TensorData<dtype>(backend, size, value);
+        return TensorView<dtype>(backend, shape, out);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> filled(Backend& backend, const std::vector<uint>& shape, d_type value);
+    #define TEMPLATE(dtype) template TensorView<dtype> filled(Backend& backend, const std::vector<uint>& shape, dtype value);
     #include "specialize/all.h"
 
-    template <typename d_type>
-    TensorView<d_type> zeros(Backend& backend, const std::vector<uint>& shape) {
-        return filled<d_type>(backend, shape, 0);
+    template <typename dtype>
+    TensorView<dtype> zeros(Backend& backend, const std::vector<uint>& shape) {
+        return filled<dtype>(backend, shape, 0);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> zeros(Backend& backend, const std::vector<uint>& shape);
+    #define TEMPLATE(dtype) template TensorView<dtype> zeros(Backend& backend, const std::vector<uint>& shape);
     #include "specialize/numeric.h"
 
-    template <typename d_type>
-    TensorView<d_type> ones(Backend& backend, const std::vector<uint>& shape) {
-        return filled<d_type>(backend, shape, 1);
+    template <typename dtype>
+    TensorView<dtype> ones(Backend& backend, const std::vector<uint>& shape) {
+        return filled<dtype>(backend, shape, 1);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> ones(Backend& backend, const std::vector<uint>& shape);
+    #define TEMPLATE(dtype) template TensorView<dtype> ones(Backend& backend, const std::vector<uint>& shape);
     #include "specialize/numeric.h"
 
 
-    template <typename d_type>
-    TensorView<d_type> reshape(const TensorView<d_type>& view, const std::vector<uint>& shape) {
+    template <typename dtype>
+    TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape) {
         uint size = parse_shape(*view.get_backend(), shape);
         if (size != parse_shape(*view.get_backend(), view.get_shape())) {
             view.get_backend()->log("reshaped total size must be the same");
             view.get_backend()->abort();
         }
 
-        return TensorView<d_type>(*view.get_backend(), shape, view.get_base());
+        return TensorView<dtype>(*view.get_backend(), shape, view.get_base());
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> reshape(const TensorView<d_type>& view, const std::vector<uint>& shape);
+    #define TEMPLATE(dtype) template TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape);
     #include "specialize/all.h"
 
-    template <typename d_type>
-    TensorView<d_type> ravel(const TensorView<d_type>& view) {
-        return TensorView<d_type>(*view.get_backend(), {view.get_size()}, view.get_base());
+    template <typename dtype>
+    TensorView<dtype> ravel(const TensorView<dtype>& view) {
+        return TensorView<dtype>(*view.get_backend(), {view.get_size()}, view.get_base());
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> ravel(const TensorView<d_type>& view);
+    #define TEMPLATE(dtype) template TensorView<dtype> ravel(const TensorView<dtype>& view);
     #include "specialize/all.h"
 
-    template <typename d_type>
-    TensorView<d_type>& flatten(TensorView<d_type>& view) {
+    template <typename dtype>
+    TensorView<dtype>& flatten(TensorView<dtype>& view) {
         view.set_shape({view.get_size()});
         return view;
     }
-    #define TEMPLATE(d_type) TensorView<d_type>& flatten(TensorView<d_type>& view);
+    #define TEMPLATE(dtype) TensorView<dtype>& flatten(TensorView<dtype>& view);
     #include "specialize/all.h"
 
-    template <typename d_type>
-    TensorView<d_type> transpose(const TensorView<d_type>& view, const std::vector<uint>& order) {
+    template <typename dtype>
+    TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order) {
         if (order.size() != view.get_ndim()) {
             view.get_backend()->log("transposed order must have the same size as tensor shape (ndim)");
             view.get_backend()->abort();
@@ -216,16 +216,16 @@ namespace oxide {
             shape[i] = view.get_shape()[order[i]];
         }
 
-        return TensorView<d_type>(*view.get_backend(), shape, view.get_base(), 0, strides);
+        return TensorView<dtype>(*view.get_backend(), shape, view.get_base(), 0, strides);
     }
-    #define TEMPLATE(d_type) template TensorView<d_type> transpose(const TensorView<d_type>& view, const std::vector<uint>& order);
+    #define TEMPLATE(dtype) template TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order);
     #include "specialize/all.h"
 
 
     // try using gpu for as_type???
 
-    // template <typename d_type_old, typename d_type_new>
-    // TensorView<d_type_new> as_type(const TensorView<d_type_old>& view) {
+    // template <typename dtype_old, typename dtype_new>
+    // TensorView<dtype_new> as_type(const TensorView<dtype_old>& view) {
     //     return view;
     // }
 

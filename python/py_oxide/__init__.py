@@ -10,10 +10,10 @@ __all__ = (system, Tensor)
 
 def parse_iterable(depth, first, shape, stack, iterable, result):
     if not isinstance(iterable, Iterable):
-        for t in pyconv_t.keys():
+        for t in py_t.keys():
             if isinstance(iterable, t):
                 result.append(iterable)
-                return pyconv_t[t]
+                return py_t[t]
         system.throw(f"item of type '{type(iterable).__name__}' cannot be stored in a tensor")
 
     t = None
@@ -55,14 +55,25 @@ def add(a, b):
         system.throw("tensor addition expected tensors of the same type")
     return Tensor(system.run(core.binary_add, system.dispatcher, a.ctensor, b.ctensor))
 
+def check_shape(shape):
+    if len(shape) > MAXDIMS:
+        system.throw("shape exceeds maximum dimensions")
+    for i in shape:
+        if not (isinstance(i, int) and i > 0):
+            system.throw("shape is invalid")
 
-# def rand(shape):
-#     return Tensor(core.rand(system.dispatcher, shape))
+def rand(shape):
+    if isinstance(shape, int):
+        shape = [shape]
+    check_shape(shape)
+    return Tensor(system.run(core.rand, system.dispatcher, shape))
 
-# def random(shape, a = 0, b = 1, d_type = float32):
-#     if d_type is int32:
-#         return Tensor(core.random_int32(system.dispatcher, shape, a, b))
-#     elif d_type is float32:
-#         return Tensor(core.random_float32(system.dispatcher, shape, a, b))
-#     else:
-#         raise RuntimeError("Oxide: data type is invalid")
+def random(shape, a = 0, b = 1, dtype = float32):
+    if isinstance(shape, int):
+        shape = [shape]
+    check_shape(shape)
+    if not dtype in ox_t:
+        system.throw("dtype is invalid")
+    if not (isinstance(a, ox_t[dtype]) and isinstance(b, ox_t[dtype])):
+        system.throw("random range argument types are invalid")
+    return Tensor(system.run(core.random, system.dispatcher, shape, a, b))

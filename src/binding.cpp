@@ -35,33 +35,33 @@ NB_MODULE(core, m) {
     // functions.hpp
     {
 
-        #define TEMPLATE(d_type) m.def("binary_add", &oxide::binary_add<oxide::d_type>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(dtype) m.def("binary_add", &oxide::binary_add<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(d_type) m.def("unary_add", &oxide::unary_add<oxide::d_type>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(dtype) m.def("unary_add", &oxide::unary_add<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
 
-        #define TEMPLATE(d_type) m.def("make_view", &oxide::make_view<oxide::d_type>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
+        #define TEMPLATE(dtype) m.def("make_view", &oxide::make_view<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
         #include "specialize/all.h"
 
         m.def("rand", &oxide::rand, nb::arg("dispatcher"), nb::arg("shape"));
-        #define TEMPLATE(d_type) m.def("random", &oxide::random<oxide::d_type>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(dtype) m.def("random", &oxide::random<oxide::dtype>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
 
-        #define TEMPLATE(d_type) m.def("filled", &oxide::filled<oxide::d_type>, nb::arg("backend"), nb::arg("shape"), nb::arg("value"));
+        #define TEMPLATE(dtype) m.def("filled", &oxide::filled<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("value"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(d_type) m.def("zeros", &oxide::zeros<oxide::d_type>, nb::arg("backend"), nb::arg("shape"));
+        #define TEMPLATE(dtype) m.def("zeros", &oxide::zeros<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(d_type) m.def("ones", &oxide::ones<oxide::d_type>, nb::arg("backend"), nb::arg("shape"));
+        #define TEMPLATE(dtype) m.def("ones", &oxide::ones<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
         #include "specialize/numeric.h"
 
-        #define TEMPLATE(d_type) m.def("reshape", &oxide::reshape<oxide::d_type>, nb::arg("view"), nb::arg("shape"));
+        #define TEMPLATE(dtype) m.def("reshape", &oxide::reshape<oxide::dtype>, nb::arg("view"), nb::arg("shape"));
         #include "specialize/all.h"
-        #define TEMPLATE(d_type) m.def("ravel", &oxide::ravel<oxide::d_type>, nb::arg("view"));
+        #define TEMPLATE(dtype) m.def("ravel", &oxide::ravel<oxide::dtype>, nb::arg("view"));
         #include "specialize/all.h"
-        // #define TEMPLATE(d_type) m.def("flatten", &oxide::flatten<oxide::d_type>, nb::arg("view"));
+        // #define TEMPLATE(dtype) m.def("flatten", &oxide::flatten<oxide::dtype>, nb::arg("view"));
         // #include "specialize/all.h"
         // TODO: figure out why tis thing doesnt work
-        #define TEMPLATE(d_type) m.def("transpose", &oxide::transpose<oxide::d_type>, nb::arg("view"), nb::arg("order"));
+        #define TEMPLATE(dtype) m.def("transpose", &oxide::transpose<oxide::dtype>, nb::arg("view"), nb::arg("order"));
         #include "specialize/all.h"
     }
  
@@ -73,20 +73,20 @@ NB_MODULE(core, m) {
 
     // tensor.hpp
     {
-        #define TEMPLATE(d_type) \
+        #define TEMPLATE(dtype) \
         { \
-            std::string name = std::string("TensorView_") + #d_type; \
-            auto c = nb::class_<oxide::TensorView<oxide::d_type>>(m, name.data()); \
-            c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::d_type>*>()); \
-            c.def(nb::init<oxide::Backend&, const std::vector<uint>&,  oxide::TensorData<oxide::d_type>*, oxide::iint, const std::vector<oxide::iint>&>()); \
-            c.def("get_element", &oxide::TensorView<oxide::d_type>::get_element, nb::arg("indices")); \
-            c.def("set_element", &oxide::TensorView<oxide::d_type>::set_element, nb::arg("indices"), nb::arg("value")); \
-            c.def("get_ndim", &oxide::TensorView<oxide::d_type>::get_ndim); \
-            c.def("get_size", &oxide::TensorView<oxide::d_type>::get_size); \
-            c.def("get_offset", &oxide::TensorView<oxide::d_type>::get_offset); \
-            c.def("get_shape", &oxide::TensorView<oxide::d_type>::get_shape); \
-            c.def("get_strides", &oxide::TensorView<oxide::d_type>::get_strides); \
-            c.def("get_string", &oxide::TensorView<oxide::d_type>::get_string); \
+            std::string name = std::string("TensorView_") + #dtype; \
+            auto c = nb::class_<oxide::TensorView<oxide::dtype>>(m, name.data()); \
+            c.def(nb::init<oxide::Backend&, const std::vector<uint>&, oxide::TensorData<oxide::dtype>*>()); \
+            c.def(nb::init<oxide::Backend&, const std::vector<uint>&,  oxide::TensorData<oxide::dtype>*, oxide::iint, const std::vector<oxide::iint>&>()); \
+            c.def("get_element", &oxide::TensorView<oxide::dtype>::get_element, nb::arg("indices")); \
+            c.def("set_element", &oxide::TensorView<oxide::dtype>::set_element, nb::arg("indices"), nb::arg("value")); \
+            c.def("get_ndim", &oxide::TensorView<oxide::dtype>::get_ndim); \
+            c.def("get_size", &oxide::TensorView<oxide::dtype>::get_size); \
+            c.def("get_offset", &oxide::TensorView<oxide::dtype>::get_offset); \
+            c.def("get_shape", &oxide::TensorView<oxide::dtype>::get_shape); \
+            c.def("get_strides", &oxide::TensorView<oxide::dtype>::get_strides); \
+            c.def("get_string", &oxide::TensorView<oxide::dtype>::get_string); \
         }
         #include "specialize/all.h"
     }

@@ -15,7 +15,7 @@ b = ox.tensor([[6, 7, 6], [7, 6, 7]])
 print(b[[1, 2]]) # 7    (use lists to index tensors)
 print(ox.add(a, b)) # [[7, 9, 9], [11, 11, 13]]
 c = a # efficiently copies view 'a' to 'c'
-d = ox.random(shape=[6, 7, 8], a=10, b=20, d_type=ox.float32)
+d = ox.random(shape=[6, 7, 8], a=10, b=20, dtype=ox.float32)
 ```
 
 run this to install:

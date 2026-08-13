@@ -23,8 +23,8 @@ namespace oxide {
             void unary_operand(const std::string& function, uint size, MTL::Buffer* a, MTL::Buffer* b, uint ndim, const std::vector<iint>& a_strides, uint a_offset, const std::vector<iint>& b_strides, uint b_offset);
             
             void rand(uint size, MTL::Buffer* buf, uint seed); // [0, 1)
-            template <typename d_type>
-            void random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, d_type a, d_type b); // [a, b]
+            template <typename dtype>
+            void random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, dtype a, dtype b); // [a, b]
             
     };
 

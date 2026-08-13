@@ -24,7 +24,7 @@ namespace oxide {
     const float MAXSEEDF = 4294967295.0f;
 
     // misc functions
-    template <typename d_type>
+    template <typename dtype>
     std::string with_type(const std::string& name);
     std::string ansi(iint code, const std::string& str);
 

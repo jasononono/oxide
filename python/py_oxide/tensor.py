@@ -7,7 +7,12 @@ import typing
 class Tensor:
     def __init__(self, ctensor):
         super().__setattr__("ctensor", ctensor)
-        super().__setattr__("dtype", tensorview_t[type(ctensor)])
+        for t in tensorview_t.keys():
+            if isinstance(ctensor, t):
+                super().__setattr__("dtype", tensorview_t[t])
+                break
+        else:
+            system.throw("ctensor argument type invalid")
 
     def __getitem__(self, key):
         if isinstance(key, int):

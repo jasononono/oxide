@@ -103,8 +103,8 @@ namespace oxide {
         cmd->release();
     }
 
-    template <typename d_type>
-    void Dispatcher::random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, d_type a, d_type b) {
+    template <typename dtype>
+    void Dispatcher::random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, dtype a, dtype b) {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();
         MTL::ComputeCommandEncoder* encoder = cmd->computeCommandEncoder();
         if (!encoder) {
@@ -115,8 +115,8 @@ namespace oxide {
         NS::UInteger max_threads = backend->set_cps(encoder, function);
         encoder->setBuffer(buf, 0, 0);
         encoder->setBytes(&seed, sizeof(uint), 1);
-        encoder->setBytes(&a, sizeof(d_type), 2);
-        encoder->setBytes(&b, sizeof(d_type), 3);
+        encoder->setBytes(&a, sizeof(dtype), 2);
+        encoder->setBytes(&b, sizeof(dtype), 3);
 
         if (max_threads > size) {max_threads = size;}
         MTL::Size threads(max_threads, 1, 1);
@@ -130,7 +130,7 @@ namespace oxide {
         encoder->release();
         cmd->release();
     }
-    #define TEMPLATE(d_type) template void Dispatcher::random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, d_type a, d_type b);
+    #define TEMPLATE(dtype) template void Dispatcher::random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, dtype a, dtype b);
     #include "specialize/numeric.h"
     
 
