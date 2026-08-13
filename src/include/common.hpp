@@ -8,7 +8,7 @@
 namespace oxide {
 
 
-    class OxideError : public std::runtime_error {
+    class oxide_error : public std::runtime_error {
         using std::runtime_error::runtime_error;
     };
 
@@ -19,9 +19,8 @@ namespace oxide {
     // oxide data types (you can store these in tensors)
     typedef int32_t int32;
     typedef float float32;
-    typedef uint32_t uint32;
 
-    const uint MAXDIMS = 32;
+    const uint MAXDIMS = 16;
     const float MAXSEEDF = 4294967295.0f;
 
     // misc functions

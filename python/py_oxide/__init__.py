@@ -1,11 +1,7 @@
-# python things are currently very unsafe
-# literally 0 type checking bruh
-# TODO: type checking
-
-
-from . import system, core
-from .tensor import *
 from .common import *
+from . import system
+from . import core
+from .tensor import *
 from typing import Iterable
 
 
@@ -14,40 +10,54 @@ __all__ = (system, Tensor)
 
 def parse_iterable(depth, first, shape, stack, iterable, result):
     if not isinstance(iterable, Iterable):
-        result.append(iterable)
-        return shape
-    
+        for t in pyconv_t.keys():
+            if isinstance(iterable, t):
+                result.append(iterable)
+                return pyconv_t[t]
+        system.throw(f"item of type '{type(iterable).__name__}' cannot be stored in a tensor")
+
+    t = None
+    if len(iterable) == 0:
+        system.throw("empty iterable cannot be a part of tensor")
+
     for i in iterable:
         stack.append(len(iterable))
         if len(stack) > len(shape):
             if first:
                 shape.append(stack[depth])
             else:
-                raise RuntimeError("Oxide: depth within iterable does not match")
+                system.throw("depth within iterable does not match")
         elif stack[depth] != shape[depth]:
-            raise RuntimeError("Oxide: dimensions do not match")
-        parse_iterable(depth + 1, first, shape, stack, i, result)
+            system.throw("dimensions do not match")
+            
+        t_new = parse_iterable(depth + 1, first, shape, stack, i, result)
+        if t and t_new is not t:
+            system.throw("tensor can only store items of similar types")
+        t = t_new
+
         stack.pop()
         first = False
 
-    return shape
+    return t
 
 def tensor(iterable):
     data = []
-    shape = parse_iterable(0, True, [], [], iterable, data)
-    ctensor = core.make_view(system.backend, shape, data)
+    shape = []
+    parse_iterable(0, True, shape, [], iterable, data)
+    ctensor = system.run(core.make_view, system.backend, shape, data)
     return Tensor(ctensor)
 
-def add(a, b):
-    return Tensor(core.binary_add(system.dispatcher, a.ctensor, b.ctensor))
 
-def rand(shape):
-    return Tensor(core.rand(system.dispatcher, shape))
+# def add(a, b):
+#     return Tensor(core.binary_add(system.dispatcher, a.ctensor, b.ctensor))
 
-def random(shape, a = 0, b = 1, d_type = float32):
-    if d_type is int32:
-        return Tensor(core.random_int32(system.dispatcher, shape, a, b))
-    elif d_type is float32:
-        return Tensor(core.random_float32(system.dispatcher, shape, a, b))
-    else:
-        raise RuntimeError("Oxide: data type is invalid")
+# def rand(shape):
+#     return Tensor(core.rand(system.dispatcher, shape))
+
+# def random(shape, a = 0, b = 1, d_type = float32):
+#     if d_type is int32:
+#         return Tensor(core.random_int32(system.dispatcher, shape, a, b))
+#     elif d_type is float32:
+#         return Tensor(core.random_float32(system.dispatcher, shape, a, b))
+#     else:
+#         raise RuntimeError("Oxide: data type is invalid")

@@ -1,4 +1,7 @@
-from . import core, system
+from .common import *
+from . import system
+from . import core
+import typing
 
 
 class Tensor:
@@ -6,10 +9,20 @@ class Tensor:
         super().__setattr__("ctensor", ctensor)
 
     def __getitem__(self, key):
-        return self.ctensor.get_element(key)
+        if isinstance(key, int):
+            return self.ctensor.get_element([key])
+        elif isinstance(key, typing.Iterable):
+            return self.ctensor.get_element(list(key))
+        else:
+            system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
 
     def __setitem__(self, key, value):
-        self.ctensor.set_element(key, value)
+        if isinstance(key, int):
+            self.ctensor.set_element([key], value)
+        elif isinstance(key, typing.Iterable):
+            self.ctensor.set_element(list(key), value)
+        else:
+            system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
 
     def __getattr__(self, key):
         if key == "ndim":
@@ -23,10 +36,10 @@ class Tensor:
         if key == "strides":
             return self.ctensor.get_strides().copy()
         
-        raise RuntimeError(f"Oxide: tensor attribute '{key}' does not exist")
+        system.throw(f"tensor attribute '{key}' does not exist")
         
     def __setattr__(self, key, value):
-        raise RuntimeError("Oxide: standalone tensor attributes are immutable")
+        system.throw("tensor attributes are immutable")
     
     def __str__(self):
         return self.ctensor.get_string()

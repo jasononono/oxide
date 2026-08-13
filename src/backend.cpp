@@ -142,7 +142,7 @@ namespace oxide {
     }
 
     void Backend::abort() {
-        throw OxideError(error_log);
+        throw oxide_error(error_log);
     }
 
     std::mt19937& Backend::random_generate() {

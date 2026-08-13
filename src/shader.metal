@@ -14,7 +14,7 @@ typedef float float32;
 
 
 // functions
-// TODO: optimize these for common cases
+// common case optim
 #define binary_op(d_type, name, op) \
 kernel void name( \
     const device d_type* a [[buffer(0)]], \

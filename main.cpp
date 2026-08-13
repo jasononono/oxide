@@ -7,9 +7,11 @@ void run() {
     oxide::Dispatcher dispatcher(backend);
 
     oxide::TensorView<oxide::float32> a = oxide::random<oxide::float32>(dispatcher, {2, 4}, 2, 10);
+    oxide::TensorView<oxide::float32> b = oxide::random<oxide::float32>(dispatcher, {2, 4}, 2, 10);
 
 
-    std::cout << "a:   " << a.get_string() << std::endl;
+    oxide::binary_add(dispatcher, a, b);
+    oxide::binary_add(dispatcher, a, b);
 
     
     oxide::free_backend(backend);
@@ -19,9 +21,11 @@ void run() {
 int main() {
     try {
         run();
-    } catch (const oxide::OxideError& e) {
+    } catch (const oxide::oxide_error& e) {
         std::cout << oxide::ansi(31, "Oxide: " + std::string(e.what())) << std::flush;
         return 1;
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
     }
     return 0;
 }

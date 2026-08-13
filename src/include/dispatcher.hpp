@@ -15,6 +15,7 @@ namespace oxide {
 
         public:
             Dispatcher(Backend& _backend);
+            ~Dispatcher();
 
             Backend* get_backend() const;
 

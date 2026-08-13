@@ -7,6 +7,8 @@ namespace oxide {
     Dispatcher::Dispatcher(Backend& _backend):
     backend(&_backend) {}
 
+    Dispatcher::~Dispatcher() {}
+
     Backend* Dispatcher::get_backend() const {
         return backend;
     }

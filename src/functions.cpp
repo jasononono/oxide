@@ -58,7 +58,7 @@ namespace oxide {
         return view;
     }
     #define TEMPLATE(d_type) template TensorView<d_type> binary_add(Dispatcher& dispatcher, const TensorView<d_type>& a, const TensorView<d_type>& b);
-    #include "specialize/all.h"
+    #include "specialize/numeric.h"
 
     template <typename d_type>
     TensorView<d_type>& unary_add(Dispatcher& dispatcher, TensorView<d_type>& a, const TensorView<d_type>& b) {
@@ -97,7 +97,7 @@ namespace oxide {
         return a;
     }
     #define TEMPLATE(d_type) template TensorView<d_type>& unary_add(Dispatcher& dispatcher, TensorView<d_type>& a, const TensorView<d_type>& b);
-    #include "specialize/all.h"
+    #include "specialize/numeric.h"
 
 
     template <typename d_type>
@@ -152,14 +152,14 @@ namespace oxide {
         return filled<d_type>(backend, shape, 0);
     }
     #define TEMPLATE(d_type) template TensorView<d_type> zeros(Backend& backend, const std::vector<uint>& shape);
-    #include "specialize/all.h"
+    #include "specialize/numeric.h"
 
     template <typename d_type>
     TensorView<d_type> ones(Backend& backend, const std::vector<uint>& shape) {
         return filled<d_type>(backend, shape, 1);
     }
     #define TEMPLATE(d_type) template TensorView<d_type> ones(Backend& backend, const std::vector<uint>& shape);
-    #include "specialize/all.h"
+    #include "specialize/numeric.h"
 
 
     template <typename d_type>

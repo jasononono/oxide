@@ -1,3 +1,4 @@
+from .common import *
 from . import core
 import atexit, gc
 
@@ -6,11 +7,17 @@ backend = core.Backend()
 dispatcher = core.Dispatcher(backend)
 
 
-# def call(function, *args, **kwargs):
-    # try:
-    #     function(*args, **kwargs)
-    # except RuntimeError:
-        
+def run(function, *args, **kwargs):
+    try:
+        return function(*args, **kwargs)
+    except core.oxide_error as e:
+        throw(e.what())
+    except BaseException as e:
+        raise e
+
+def throw(msg):
+    raise OxideError(msg)
+    
 
 @atexit.register
 def free():
