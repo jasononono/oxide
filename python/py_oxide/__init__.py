@@ -48,8 +48,13 @@ def tensor(iterable):
     return Tensor(ctensor)
 
 
-# def add(a, b):
-#     return Tensor(core.binary_add(system.dispatcher, a.ctensor, b.ctensor))
+def add(a, b):
+    if not (isinstance(a, Tensor) and isinstance(b, Tensor)):
+        system.throw("tensor addition expected tensor arguments")
+    if a.dtype != b.dtype:
+        system.throw("tensor addition expected tensors of the same type")
+    return Tensor(system.run(core.binary_add, system.dispatcher, a.ctensor, b.ctensor))
+
 
 # def rand(shape):
 #     return Tensor(core.rand(system.dispatcher, shape))

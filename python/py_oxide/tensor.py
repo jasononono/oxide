@@ -7,6 +7,7 @@ import typing
 class Tensor:
     def __init__(self, ctensor):
         super().__setattr__("ctensor", ctensor)
+        super().__setattr__("dtype", tensorview_t[type(ctensor)])
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -35,6 +36,8 @@ class Tensor:
             return self.ctensor.get_shape().copy()
         if key == "strides":
             return self.ctensor.get_strides().copy()
+        if key == "dtype":
+            return self.dtype
         
         system.throw(f"tensor attribute '{key}' does not exist")
         

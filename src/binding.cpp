@@ -60,6 +60,7 @@ NB_MODULE(core, m) {
         #include "specialize/all.h"
         // #define TEMPLATE(d_type) m.def("flatten", &oxide::flatten<oxide::d_type>, nb::arg("view"));
         // #include "specialize/all.h"
+        // TODO: figure out why tis thing doesnt work
         #define TEMPLATE(d_type) m.def("transpose", &oxide::transpose<oxide::d_type>, nb::arg("view"), nb::arg("order"));
         #include "specialize/all.h"
     }

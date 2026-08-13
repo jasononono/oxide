@@ -14,3 +14,8 @@ pyconv_t = {
     int: int32,
     float: float32
 }
+
+tensorview_t = {
+    core.TensorView_int32: int32,
+    core.TensorView_float32: float32
+}
