@@ -1,9 +1,7 @@
-# from python import oxide
+from python import oxide
 
 
-# a = oxide.zeros(0)
-# print(a)
+a = oxide.zeros([2, 4])
+b = oxide.transpose(a, [1, 0])
 
-from python.oxide import *
-
-a = zeros(0)
+print(b)

@@ -2,4 +2,4 @@
 
 rm -rf dist/*
 python -m build
-pip3 install $(ls dist/*.whl) --force-reinstall
+# pip3 install $(ls dist/*.whl) --force-reinstall

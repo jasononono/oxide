@@ -55,3 +55,15 @@ def zeros(shape, dtype = float32):
     if not dtype in OX_T:
         system.throw("dtype is invalid")
     return Tensor(system.run(core.zeros, system.backend, shape))
+
+def ones(shape, dtype = float32):
+    if isinstance(shape, int):
+        shape = [shape]
+    check_shape(shape)
+
+    if not dtype in OX_T:
+        system.throw("dtype is invalid")
+    return Tensor(system.run(core.ones, system.backend, shape))
+
+def transpose(view, order):
+    return Tensor(system.run(core.transpose, view.ctensor, order))
