@@ -19,8 +19,7 @@ NB_MODULE(core, m) {
 
     // common.hpp
     {
-        auto c = nb::class_<oxide::oxide_error>(m, "oxide_error");
-        c.def("what", &oxide::oxide_error::what);
+        auto c = nb::exception<oxide::oxide_error>(m, "oxide_error");
             
         m.def("ansi", &oxide::ansi, nb::arg("code"), nb::arg("str"));
     }
@@ -58,9 +57,8 @@ NB_MODULE(core, m) {
         #include "specialize/all.h"
         #define TEMPLATE(dtype) m.def("ravel", &oxide::ravel<oxide::dtype>, nb::arg("view"));
         #include "specialize/all.h"
-        // #define TEMPLATE(dtype) m.def("flatten", &oxide::flatten<oxide::dtype>, nb::arg("view"));
-        // #include "specialize/all.h"
-        // TODO: figure out why tis thing doesnt work
+        #define TEMPLATE(dtype) m.def("flatten", &oxide::flatten<oxide::dtype>, nb::arg("view"));
+        #include "specialize/all.h"
         #define TEMPLATE(dtype) m.def("transpose", &oxide::transpose<oxide::dtype>, nb::arg("view"), nb::arg("order"));
         #include "specialize/all.h"
     }

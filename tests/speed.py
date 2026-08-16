@@ -1,8 +1,8 @@
 import numpy as np
 import torch
-import py_oxide as ox
+import oxide as ox
 from time import perf_counter
-import psutil, math, os
+import psutil, math, os, importlib
 
 
 PRECISION = 4

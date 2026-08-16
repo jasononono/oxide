@@ -187,7 +187,7 @@ namespace oxide {
         view.set_shape({view.get_size()});
         return view;
     }
-    #define TEMPLATE(dtype) TensorView<dtype>& flatten(TensorView<dtype>& view);
+    #define TEMPLATE(dtype) template TensorView<dtype>& flatten(TensorView<dtype>& view);
     #include "specialize/all.h"
 
     template <typename dtype>

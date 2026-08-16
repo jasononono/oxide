@@ -1,7 +1,7 @@
 from . import core
 
 
-class OxideError(RuntimeError): pass
+class OxideError(BaseException): pass
 
 class numeric_t: pass
 class int_t(numeric_t): pass
@@ -14,17 +14,15 @@ MAXDIMS = 16;
 MAXSEEDF = float(4294967295.0);
 
 
-py_t = {
+PY_T = { # corresponding oxide dtype of python types
     int: int32,
     float: float32
 }
-
-ox_t = {
+OX_T = { # corresponding python type of oxide dtypes
     int32: int,
     float32: float
 }
-
-tensorview_t = {
+TENSOR_T = { # corresponding oxide dtype of backend tensorview classes
     core.TensorView_int32: int32,
     core.TensorView_float32: float32
 }

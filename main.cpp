@@ -7,11 +7,10 @@ void run() {
     oxide::Dispatcher dispatcher(backend);
 
     oxide::TensorView<oxide::float32> a = oxide::random<oxide::float32>(dispatcher, {2, 4}, 2, 10);
-    oxide::TensorView<oxide::float32> b = oxide::random<oxide::float32>(dispatcher, {2, 4}, 2, 10);
+    oxide::TensorView<oxide::float32> b = oxide::random<oxide::float32>(dispatcher, {0, 4}, 2, 10);
 
 
-    oxide::binary_add(dispatcher, a, b);
-    oxide::binary_add(dispatcher, a, b);
+    oxide::flatten<oxide::float32>(a);
 
     
     oxide::free_backend(backend);

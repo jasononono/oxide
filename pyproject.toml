@@ -14,7 +14,7 @@ dependencies = [
 
 [tool.setuptools]
 package-dir = {"" = "python"}
-packages = ["py_oxide"]
+packages = ["oxide"]
 
 [tool.setuptools.package-data]
-"py_oxide" = ["*.so"]
+"oxide" = ["*.so"]

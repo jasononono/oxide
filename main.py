@@ -1,5 +1,9 @@
-from python import py_oxide as oxide
+# from python import oxide
 
 
-a = oxide.random([5], 3, 4, oxide.int32)
-print(a)
+# a = oxide.zeros(0)
+# print(a)
+
+from python.oxide import *
+
+a = zeros(0)

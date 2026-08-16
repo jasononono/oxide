@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+python/oxide/__init__.py
+python/oxide/common.py
+python/oxide/core.cpython-313-darwin.so
+python/oxide/system.py
+python/oxide/tensor.py
+python/py_oxide.egg-info/PKG-INFO
+python/py_oxide.egg-info/SOURCES.txt
+python/py_oxide.egg-info/dependency_links.txt
+python/py_oxide.egg-info/top_level.txt

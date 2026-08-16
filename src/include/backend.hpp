@@ -97,7 +97,7 @@ namespace oxide {
             void out(const std::string& msg); // log warning message
             void log(const std::string& msg); // log error message
             void log_metal(); // automatically log metal error description if applicable
-            void abort(); // throw error
+            void abort();
 
             std::mt19937& random_generate();
             uint random_seed();

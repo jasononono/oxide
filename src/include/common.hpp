@@ -8,15 +8,21 @@
 namespace oxide {
 
 
-    class oxide_error : public std::runtime_error {
-        using std::runtime_error::runtime_error;
+    class oxide_error {
+        std::string msg;
+
+        public:
+            oxide_error(std::string& _msg): msg(_msg) {}
+            const char* what() const noexcept {
+                return msg.data();
+            }
     };
 
     // not oxide data types (used to make numeric sizes more predictable)
     using uint = uint32_t;
     using iint = int32_t;
 
-    // oxide data types (you can store these in tensors)
+    // oxide data types (things that can be stored in tensors)
     typedef int32_t int32;
     typedef float float32;
 
