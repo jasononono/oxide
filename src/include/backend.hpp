@@ -66,6 +66,8 @@ namespace oxide {
     struct Memory {
         std::unordered_map<TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>, TensorMemoryHash> registered;
         std::vector<TensorMemory> tensors;
+        
+        uint cache = 0;
     };
 
 
@@ -108,6 +110,10 @@ namespace oxide {
             const std::vector<TensorMemory>& get_tensors() const;
             const std::unordered_set<TensorMemory, TensorMemoryHash>& get_mem_tied(TensorMemory key) const;
             void mem_delete(TensorMemory tensor_memory);
+
+            void mem_cacheinc(uint bytes);
+            void mem_cachezero();
+            uint mem_cacheget() const;
     };
 
 

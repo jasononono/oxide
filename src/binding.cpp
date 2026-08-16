@@ -15,6 +15,7 @@ NB_MODULE(core, m) {
     {
         auto c = nb::class_<oxide::Backend>(m, "Backend");
         c.def(nb::init());
+        c.def("mem_cacheget", &oxide::Backend::mem_cacheget);
     }
 
     // common.hpp

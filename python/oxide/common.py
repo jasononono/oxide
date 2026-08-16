@@ -10,8 +10,9 @@ class int32(int_t): pass
 class float32(float_t): pass
 
 
-MAXDIMS = 16;
-MAXSEEDF = float(4294967295.0);
+MAXDIMS = 16
+MAXSEEDF = float(4294967295.0)
+CACHETHRESHOLD = 1024 * 16
 
 
 PY_T = { # corresponding oxide dtype of python types

@@ -28,6 +28,7 @@ namespace oxide {
 
     const uint MAXDIMS = 16;
     const float MAXSEEDF = 4294967295.0f;
+    const uint CACHETHRESHOLD = 1024 * 16;
 
     // misc functions
     template <typename dtype>

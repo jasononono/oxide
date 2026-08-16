@@ -183,5 +183,17 @@ namespace oxide {
         memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), tensor_memory));
     }
 
+    void Backend::mem_cacheinc(uint bytes) {
+        memory.cache += bytes;
+    }
+
+    void Backend::mem_cachezero() {
+        memory.cache = 0;
+    }
+
+    uint Backend::mem_cacheget() const {
+        return memory.cache;
+    }
+
 
 }

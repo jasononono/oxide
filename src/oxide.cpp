@@ -22,6 +22,9 @@ namespace oxide {
     }
 
     void memory_optimize(Backend& backend) {
+        if (backend.mem_cacheget() < CACHETHRESHOLD) {return;}
+        backend.mem_cachezero();
+
         iint i = 0;
         TensorMemory key;
 
