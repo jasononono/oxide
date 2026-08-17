@@ -8,7 +8,7 @@ dispatcher = core.Dispatcher(backend)
 
 
 def run(function, *args, **kwargs):
-    core.memory_optimize(backend)
+    core.mem_optimize(backend)
     try:
         return function(*args, **kwargs)
     except core.oxide_error as e:

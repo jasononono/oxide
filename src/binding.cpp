@@ -67,7 +67,7 @@ NB_MODULE(core, m) {
     // oxide.hpp
     {
         m.def("free_backend", &oxide::free_backend, nb::arg("backend"));
-        m.def("memory_optimize", &oxide::memory_optimize, nb::arg("backend"));
+        m.def("mem_optimize", &oxide::mem_optimize, nb::arg("backend"));
     }
 
     // tensor.hpp

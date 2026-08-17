@@ -5,14 +5,15 @@
 void run() {
     oxide::Backend backend;
     oxide::Dispatcher dispatcher(backend);
-
-    oxide::TensorView<oxide::float32> a = oxide::random<oxide::float32>(dispatcher, {2, 4}, 2, 10);
-    oxide::TensorView<oxide::float32> b = oxide::random<oxide::float32>(dispatcher, {0, 4}, 2, 10);
-
-
-    oxide::flatten<oxide::float32>(a);
-
     
+    {
+        oxide::TensorView<oxide::float32> a = oxide::zeros<oxide::float32>(backend, {256*16});
+    }
+
+    oxide::mem_optimize(backend);
+    
+    std::cout << backend.mem_cacheget() << std::endl;
+
     oxide::free_backend(backend);
 }
 

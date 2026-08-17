@@ -11,8 +11,8 @@ namespace oxide {
 
 
     void free_backend(Backend& backend);
-    void free_tensor_memory(Backend& backend, TensorMemory memory);
-    void memory_optimize(Backend& backend);
+    void free_mem(Backend& backend, TensorMemory memory);
+    void mem_optimize(Backend& backend);
 
 
 }

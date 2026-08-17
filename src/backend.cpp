@@ -32,7 +32,7 @@ namespace oxide {
     }
 
     bool TensorMemory::valid() const {
-        return address == nullptr;
+        return address != nullptr;
     }
 
 
@@ -154,20 +154,32 @@ namespace oxide {
     }
 
     TensorMemory Backend::mem_register(void* address, std::type_index tensor_type) {
-        TensorMemory tensor_memory(address, tensor_type);
-        memory.registered[tensor_memory] = std::unordered_set<TensorMemory, TensorMemoryHash>();
-        memory.tensors.push_back(tensor_memory);
-        return tensor_memory;
+        TensorMemory mem(address, tensor_type);
+        memory.registered[mem] = std::unordered_set<TensorMemory, TensorMemoryHash>();
+        memory.tensors.push_back(mem);
+        return mem;
     }
 
-    TensorMemory Backend::mem_register(TensorMemory parent_memory, void* address, std::type_index tensor_type) {
-        TensorMemory tensor_memory(address, tensor_type);
-        memory.registered[parent_memory].insert(tensor_memory);
-        return tensor_memory;
+    TensorMemory Backend::mem_register(TensorMemory parent_mem, void* address, std::type_index tensor_type) {
+        TensorMemory mem(address, tensor_type);
+        memory.registered[parent_mem].insert(mem);
+        return mem;
     }
 
-    void Backend::mem_unregister(TensorMemory parent_memory, TensorMemory view_memory) {
-        memory.registered[parent_memory].erase(view_memory);
+    void Backend::mem_unregister(TensorMemory parent_mem, TensorMemory view_mem) {
+        memory.registered[parent_mem].erase(view_mem);
+        if (memory.registered[parent_mem].empty()) {
+            #define TEMPLATE(dtype) \
+            if (parent_mem.tensor_type == typeid(TensorData<dtype>)) { \
+                TensorData<dtype>* data = reinterpret_cast<TensorData<dtype>*>(parent_mem.address); \
+                memory.cache += sizeof(*data) + data->get_size() * sizeof(dtype); \
+                return; \
+            }
+            #include "specialize/all.h"
+
+            log("tensor type is not recognized in memory, cannot add to cache");
+            abort();
+        }
     }
 
     const std::vector<TensorMemory>& Backend::get_tensors() const {
@@ -178,16 +190,16 @@ namespace oxide {
         return memory.registered.at(key);
     }
 
-    void Backend::mem_delete(TensorMemory tensor_memory) {
-        memory.registered.erase(tensor_memory);
-        memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), tensor_memory));
+    void Backend::mem_delete(TensorMemory mem) {
+        memory.registered.erase(mem);
+        memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), mem));
     }
 
     void Backend::mem_cacheinc(uint bytes) {
         memory.cache += bytes;
     }
 
-    void Backend::mem_cachezero() {
+    void Backend::mem_cacheclear() {
         memory.cache = 0;
     }
 

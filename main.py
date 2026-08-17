@@ -1,10 +1,9 @@
 from python import oxide
 
 
-for i in range(60):
-    a = oxide.zeros([2, 4])
-    b = oxide.transpose(a, [1, 0])
-print(b)
+def f():
+    a = oxide.zeros([256*16])
 
-oxide.core.memory_optimize(oxide.system.backend)
+f()
+oxide.core.mem_optimize(oxide.system.backend)
 print(oxide.system.backend.mem_cacheget())

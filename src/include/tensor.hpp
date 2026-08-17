@@ -17,7 +17,6 @@ namespace oxide {
         dtype* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
         TensorMemory mem = TensorMemory();
-        uint refs = 0; // # of TensorViews bound
 
         uint size = 0;
         
@@ -61,7 +60,7 @@ namespace oxide {
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base);
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset, const std::vector<iint>& _strides);
 
-            ~TensorView(); // TODO: make sure to add TENSORDATA's # bytes to backend.memory.cache
+            ~TensorView();
             TensorView(const TensorView& other);
             TensorView(TensorView&& other);
             TensorView& operator=(const TensorView& other);

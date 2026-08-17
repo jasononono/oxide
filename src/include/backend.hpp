@@ -105,14 +105,14 @@ namespace oxide {
             uint random_seed();
 
             TensorMemory mem_register(void* address, std::type_index tensor_type);
-            TensorMemory mem_register(TensorMemory parent_memory, void* address, std::type_index tensor_type);
-            void mem_unregister(TensorMemory parent_memory, TensorMemory view_memory);
+            TensorMemory mem_register(TensorMemory parent_mem, void* address, std::type_index tensor_type);
+            void mem_unregister(TensorMemory parent_mem, TensorMemory view_mem);
             const std::vector<TensorMemory>& get_tensors() const;
             const std::unordered_set<TensorMemory, TensorMemoryHash>& get_mem_tied(TensorMemory key) const;
-            void mem_delete(TensorMemory tensor_memory);
+            void mem_delete(TensorMemory mem);
 
             void mem_cacheinc(uint bytes);
-            void mem_cachezero();
+            void mem_cacheclear();
             uint mem_cacheget() const;
     };
 

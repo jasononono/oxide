@@ -81,7 +81,7 @@ namespace oxide {
     template <typename dtype>
     void TensorData<dtype>::create_buffer() {
         buffer = backend->new_buffer(size);
-        ptr = static_cast<dtype*>(buffer->contents());
+        ptr = reinterpret_cast<dtype*>(buffer->contents());
     }
 
     template <typename dtype>
