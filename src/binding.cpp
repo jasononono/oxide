@@ -35,13 +35,10 @@ NB_MODULE(core, m) {
     // functions.hpp
     {
 
-        #define TEMPLATE(dtype) m.def("binary_add", &oxide::binary_add<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(dtype) m.def("add", &oxide::add<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(dtype) m.def("unary_add", &oxide::unary_add<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(dtype) m.def("uadd", &oxide::uadd<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
-
-        #define TEMPLATE(dtype) m.def("make_view", &oxide::make_view<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
-        #include "specialize/all.h"
 
         m.def("rand", &oxide::rand, nb::arg("dispatcher"), nb::arg("shape"));
         #define TEMPLATE(dtype) m.def("random", &oxide::random<oxide::dtype>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
