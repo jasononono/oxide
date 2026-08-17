@@ -5,20 +5,17 @@ namespace oxide {
 
 
     template <typename dtype>
-    TensorView<dtype> binary_add(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b) {
+    uint broadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, const uint ndim, std::vector<uint>& out_shape, std::vector<iint>& a_strides, std::vector<iint>& b_strides) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("backend mismatch");
             dispatcher.get_backend()->abort();
         }
         a.check_base(); b.check_base();
-        
-        uint ndim = std::max(a.get_ndim(), b.get_ndim());
-        std::vector<uint> out_shape(ndim);
+
         uint size = 1;
-        std::vector<iint> a_strides(ndim), b_strides(ndim);
         uint idx, a_idx, b_idx;
-        
-        for (iint i = 0; i < ndim; i++) {
+
+        for (uint i = 0; i < ndim; i++) {
             idx = ndim - i - 1;
             a_idx = a.get_ndim() - i - 1;
             b_idx = b.get_ndim() - i - 1;
@@ -51,17 +48,51 @@ namespace oxide {
             size *= out_shape[idx];
         }
 
-        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0);
-        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out);
-
-        dispatcher.binary_operand(with_type<dtype>("add"), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides());
-        return view;
+        return size;
     }
-    #define TEMPLATE(dtype) template TensorView<dtype> binary_add(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
-    #include "specialize/numeric.h"
+    #define TEMPLATE(dtype) template uint broadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, const uint ndim, std::vector<uint>& out_shape, std::vector<iint>& a_strides, std::vector<iint>& b_strides);
+    #include "specialize/all.h"
 
-    template <typename dtype>
-    TensorView<dtype>& unary_add(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) {
+
+    #define TEMPLATE(dtype) \
+    FUNCTION(add, dtype) \
+    FUNCTION(sub, dtype) \
+    FUNCTION(mul, dtype) \
+    FUNCTION(div, dtype)
+
+    #define FUNCTION(op, NULL) template <typename dtype> \
+    TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b) { \
+        uint ndim = std::max(a.get_ndim(), b.get_ndim()); \
+        std::vector<uint> out_shape(ndim); \
+        std::vector<iint> a_strides(ndim), b_strides(ndim); \
+        uint size = broadcast<dtype>(dispatcher, a, b, ndim, out_shape, a_strides, b_strides); \
+        \
+        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
+        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
+        \
+        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
+        return view; \
+    }
+    TEMPLATE()
+    #undef FUNCTION
+    #define FUNCTION(op, dtype) template TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
+    #include "specialize/numeric.h"
+    #undef FUNCTION
+    
+    #define FUNCTION(op, NULL) template <typename dtype> \
+    TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) { \
+        uint ndim = std::max(a.get_ndim(), b.get_ndim()); \
+        std::vector<uint> out_shape(ndim); \
+        std::vector<iint> a_strides(ndim), b_strides(ndim); \
+        uint size = broadcast<dtype>(dispatcher, a, b, ndim, out_shape, a_strides, b_strides); \
+        \
+        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
+        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
+        \
+        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
+        return view; \
+
+        
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("backend mismatch");
             dispatcher.get_backend()->abort();
@@ -96,24 +127,8 @@ namespace oxide {
         dispatcher.unary_operand(with_type<dtype>("uadd"), a.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), a.get_ndim(), a.get_strides(), a.get_offset(), b_strides, b.get_offset());
         return a;
     }
-    #define TEMPLATE(dtype) template TensorView<dtype>& unary_add(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    #define TEMPLATE(dtype) template TensorView<dtype>& uadd(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
     #include "specialize/numeric.h"
-
-
-    template <typename dtype>
-    TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data) {
-        uint size = parse_shape(backend, shape);
-        if (size != data.size()) {
-            backend.log("data size must be compatible with tensor shape");
-            backend.abort();
-        }
-        
-        TensorData<dtype>* out = new TensorData<dtype>(backend, size, dtype());
-        std::memcpy(out->get_ptr(), data.data(), sizeof(dtype) * data.size());
-        return TensorView<dtype>(backend, shape, out);
-    }
-    #define TEMPLATE(dtype) template TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data);
-    #include "specialize/all.h"
 
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape) {

@@ -1,9 +1,10 @@
 from python import oxide
 
 
-def f():
-    a = oxide.zeros([256*16])
+a = oxide
 
-f()
-oxide.core.mem_optimize(oxide.system.backend)
-print(oxide.system.backend.mem_cacheget())
+# TODO: cpp actual functions for +-*/
+# TODO: better way to specify zeros<> in binding.cpp
+# TODO: link rest of functions & +-*/ to python
+# TODO: improve python typing
+# TODO: xorshift -> some better rand function idk

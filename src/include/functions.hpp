@@ -11,14 +11,28 @@ namespace oxide {
 
 
     template <typename dtype>
-    TensorView<dtype> binary_add(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b); // out = a + b
+    uint broadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, const uint ndim, std::vector<uint>& out_shape, std::vector<iint>& a_strides, std::vector<iint>& b_strides);
 
-    template <typename dtype>
-    TensorView<dtype>& unary_add(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b); // a += b
-    
 
-    template <typename dtype>
-    TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data);
+    #define TEMPLATE(dtype) \
+    FUNCTION(add, dtype) \
+    FUNCTION(sub, dtype) \
+    FUNCTION(mul, dtype) \
+    FUNCTION(div, dtype)
+
+    // example: out = a + b
+    #define FUNCTION(op, NULL) template <typename dtype> \
+    TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
+    TEMPLATE()
+    #undef FUNCTION
+
+    // example: a += b
+    #define FUNCTION(op, NULL) template <typename dtype> \
+    TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    TEMPLATE()
+    #undef FUNCTION
+
+    #undef TEMPLATE
 
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape);
