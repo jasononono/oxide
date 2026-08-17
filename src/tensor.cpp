@@ -185,12 +185,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorView<dtype>::TensorView(const TensorView<dtype>& other):
-    base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
-        if (backend != other.get_backend()) {
-            backend->log("backend mismatch");
-            backend->abort();
-        }
+    TensorView<dtype>::TensorView(const TensorView<dtype>& other): backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
         if (base) {
             mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
         }
@@ -206,17 +201,18 @@ namespace oxide {
     template <typename dtype>
     TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) {
         if (this == &other) {return *this;}
-        if (backend != other.get_backend()) {
-            backend->log("backend mismatch");
-            backend->abort();
-        }
-
+        
+        backend = other.backend;
         base = other.base;
         ndim = other.ndim;
         size = other.size;
         offset = other.offset;
         shape = other.shape;
         strides = other.strides;
+
+        if (base) {
+            mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
+        }
 
         return *this;
     }

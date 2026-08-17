@@ -17,6 +17,7 @@ namespace oxide {
         dtype* ptr = nullptr;
         MTL::Buffer* buffer = nullptr;
         TensorMemory mem = TensorMemory();
+        uint refs = 0; // # of TensorViews bound
 
         uint size = 0;
         
