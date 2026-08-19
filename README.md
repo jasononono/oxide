@@ -1,10 +1,18 @@
-My attempt at making a GPU-accelerated array computing library to learn many things in the process.
+# PyOxide
 
-Giving me access to these GPU shenanigans is an equally good idea as installing a GE90 Jet Engine on a scooter
+My attempt to build a GPU-accelerated array computing library to learn many things in the process.
+
+Oxide functions similarly to [numpy](https://numpy.org/), built specifically to compute efficiently on the macOS GPU using [Metal](https://developer.apple.com/metal/).
+
+The backend of Oxide is written entirely in C/C++, linked to Python API via [nanobind](https://github.com/wjakob/nanobind/).
 
 # Usage
 
-I only linked like 3 functions so far, there will be more soon trust
+Oxide currently supports multiple data types, basic arithmetic, and shape manipulation, all optimized with array views and batch processing.
+
+Full documentation coming soon perhaps?
+
+**Sample Program (Python)**
 
 ```python
 import oxide as ox
@@ -18,20 +26,26 @@ c = a # efficiently copies view 'a' to 'c'
 d = ox.random(shape=[6, 7, 8], a=10, b=20, dtype=ox.float32)
 ```
 
-run this to install:
+# Platform & Installation
+
+Oxide is a macOS-exclusive library.
+
+Run this to install the [TestPyPI](https://test.pypi.org/simple/) distribution:
+
 ```
 pip install -i https://test.pypi.org/simple/ py-oxide
 ```
 
 # Features
 
-- auto memory management (alloc and free)
-- eager execution
 - GPU accelerated "tensors" using MTL::ResourceStorageModeShared
+- automatic Tensor memory management (alloc and free)
 - c++ backend (pain)
+- GPU pseudo-random generator (xorshift currently a little scuffed)
 
-# Things
+# Inspirations
+Parsing through these awesome libraries helped me setup Metal, design the file system, and understand the complicated shader syntax!
 
-Inspirations: numpy, torch, mlx, and forge (https://github.com/kellen-sun/Forge)
-
-I am unfortunately still trying to comprehend JIT Graph Compilation and like 1000+ other things
+- [numpy](https://numpy.org/): most oxide function names corresponds to numpy
+- [torch](https://pytorch.org/): benchmarking alongside numpy
+- [forge](https://github.com/kellen-sun/Forge/): Metal library setup reference

@@ -1,5 +1,6 @@
 #define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION // TODO: undef this future me when you figure out where to do that
+// i love talking with myself :D
 
 #include "backend.hpp"
 #include "common.hpp"

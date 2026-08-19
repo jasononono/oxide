@@ -44,6 +44,7 @@ namespace oxide {
 
 
     // wrapper class for any type, used for memory management and registration
+    // use this only for tensor related classes!
     struct TensorMemory {
         void* address = nullptr;
         std::type_index tensor_type;
@@ -72,7 +73,7 @@ namespace oxide {
 
 
     // bundled metadata, pointers, basic metal utilities
-    // must be passed when communicating with metal framework
+    // must be passed when communicating with metal framework (higher-level functions can use Dispatcher directly)
     class Backend {
         Metal metal;
         Shader shader;
