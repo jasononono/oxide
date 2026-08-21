@@ -9,12 +9,12 @@ void run() {
     oxide::TensorView<oxide::float32> a = oxide::rand(dispatcher, {2, 4});
     oxide::TensorView<oxide::float32> b = oxide::rand(dispatcher, {4});
 
-    // std::cout << a.get_string() << std::endl;
-    // std::cout << b.get_string() << std::endl;
+    std::cout << a.get_string() << std::endl;
+    std::cout << b.get_string() << std::endl;
 
-    // auto out = oxide::add(dispatcher, a, b);
+    auto out = oxide::add(dispatcher, a, b);
 
-    // std::cout << out.get_string() << std::endl;
+    std::cout << out.get_string() << std::endl;
 
     oxide::free_backend(backend);
 }

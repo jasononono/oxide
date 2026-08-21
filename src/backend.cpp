@@ -197,10 +197,14 @@ namespace oxide {
         for (TensorMemory view_mem : memory.registered[mem]) {
             #define TEMPLATE(dtype) \
             if (view_mem.tensor_type == typeid(TensorView<dtype>)) { \
-                TensorView<dtype>* view = reinterpret_cast<TensorView<dtype>*>(mem.address); \
+                TensorView<dtype>* view = reinterpret_cast<TensorView<dtype>*>(view_mem.address); \
                 view->untie_base(); \
                 continue; \
             }
+            #include "specialize/all.h"
+
+            log("tensor type is not recognized in memory, cannot free");
+            abort();
         }
         memory.registered.erase(mem);
         memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), mem));
