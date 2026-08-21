@@ -8,3 +8,5 @@ a = oxide
 # TODO: link rest of functions & +-*/ to python
 # TODO: improve python typing
 # TODO: xorshift -> some better rand function idk
+# TODO: matmul
+# TODO: delayed execution (dispatch gpu & let cpu cook on its own until results are needed again)

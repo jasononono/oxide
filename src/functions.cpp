@@ -53,47 +53,8 @@ namespace oxide {
     #define TEMPLATE(dtype) template uint broadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, const uint ndim, std::vector<uint>& out_shape, std::vector<iint>& a_strides, std::vector<iint>& b_strides);
     #include "specialize/all.h"
 
-
-    #define TEMPLATE(dtype) \
-    FUNCTION(add, dtype) \
-    FUNCTION(sub, dtype) \
-    FUNCTION(mul, dtype) \
-    FUNCTION(div, dtype)
-
-    #define FUNCTION(op, NULL) template <typename dtype> \
-    TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b) { \
-        uint ndim = std::max(a.get_ndim(), b.get_ndim()); \
-        std::vector<uint> out_shape(ndim); \
-        std::vector<iint> a_strides(ndim), b_strides(ndim); \
-        uint size = broadcast<dtype>(dispatcher, a, b, ndim, out_shape, a_strides, b_strides); \
-        \
-        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
-        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
-        \
-        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
-        return view; \
-    }
-    TEMPLATE()
-    #undef FUNCTION
-    #define FUNCTION(op, dtype) template TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
-    #include "specialize/numeric.h"
-    #undef FUNCTION
-    
-    #define FUNCTION(op, NULL) template <typename dtype> \
-    TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) { \
-        uint ndim = std::max(a.get_ndim(), b.get_ndim()); \
-        std::vector<uint> out_shape(ndim); \
-        std::vector<iint> a_strides(ndim), b_strides(ndim); \
-        uint size = broadcast<dtype>(dispatcher, a, b, ndim, out_shape, a_strides, b_strides); \
-        \
-        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
-        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
-        \
-        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
-        return view; \
-
-        // LEFT OFF HERE BTW FIGURE OUT HOW TO CONVERT THIS MESS INTO A broadcast<dtype>() call
-        
+    template <typename dtype>
+    void ubroadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, std::vector<iint>& b_strides) {
         if (a.get_backend() != b.get_backend() || a.get_backend() != dispatcher.get_backend()) {
             dispatcher.get_backend()->log("backend mismatch");
             dispatcher.get_backend()->abort();
@@ -105,10 +66,8 @@ namespace oxide {
             dispatcher.get_backend()->abort();
         }
 
-        std::vector<int> b_strides(a.get_ndim());
         uint idx, b_idx;
 
-        
         for (iint i = 0; i < a.get_ndim(); i++) {
             idx = a.get_ndim() - i - 1;
             b_idx = b.get_ndim() - i - 1;
@@ -124,12 +83,55 @@ namespace oxide {
                 dispatcher.get_backend()->abort();
             }
         }
-
-        dispatcher.unary_operand(with_type<dtype>("uadd"), a.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), a.get_ndim(), a.get_strides(), a.get_offset(), b_strides, b.get_offset());
-        return a;
     }
-    #define TEMPLATE(dtype) template TensorView<dtype>& uadd(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    #define TEMPLATE(dtype) void ubroadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, std::vector<iint>& b_strides);
+    #include "specialize/all.h"
+
+
+    #define NO_UNDEF
+    #define TEMPLATE(dtype) \
+    FUNCTION(add, dtype) \
+    FUNCTION(sub, dtype) \
+    FUNCTION(mul, dtype) \
+    FUNCTION(div, dtype)
+
+    #define FUNCTION(op, null) template <typename dtype> \
+    TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b) { \
+        uint ndim = std::max(a.get_ndim(), b.get_ndim()); \
+        std::vector<uint> out_shape(ndim); \
+        std::vector<iint> a_strides(ndim), b_strides(ndim); \
+        uint size = broadcast<dtype>(dispatcher, a, b, ndim, out_shape, a_strides, b_strides); \
+        \
+        TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
+        TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
+        \
+        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
+        return view; \
+    }
+    TEMPLATE(null)
+    #undef FUNCTION
+    #define FUNCTION(op, dtype) template TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
     #include "specialize/numeric.h"
+    #undef FUNCTION
+    
+    #define FUNCTION(op, null) template <typename dtype> \
+    TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) { \
+        uint ndim = a.get_ndim(); \
+        std::vector<iint> b_strides(ndim); \
+        uint size = a.get_size(); \
+        ubroadcast<dtype>(dispatcher, a, b, b_strides); \
+        \
+        dispatcher.unary_operand(with_type<dtype>("u" #op), size, a.get_base()->get_buffer(), b.get_base()->get_buffer(), ndim, a.get_strides(), a.get_offset(), b_strides, b.get_offset()); \
+        return a; \
+    }
+    TEMPLATE(null)
+    #undef FUNCTION
+    #define FUNCTION(op, dtype) template TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    #include "specialize/numeric.h"
+    #undef FUNCTION
+
+    #undef TEMPLATE
+    #undef NO_UNDEF
 
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape) {

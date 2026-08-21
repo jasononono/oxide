@@ -1,12 +1,16 @@
 #include "oxide.hpp"
-
+#include<iostream>
 
 namespace oxide {
 
 
     void free_backend(Backend& backend) {
-        for (const TensorMemory memory : backend.get_tensors()) {
-            free_mem(backend, memory);
+        TensorMemory key;
+
+        while (!backend.get_tensors().empty()) {
+            key = backend.get_tensors().back();
+            free_mem(backend, key);
+            backend.mem_delete(key);
         }
     }
 

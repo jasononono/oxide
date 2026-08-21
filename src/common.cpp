@@ -6,7 +6,7 @@ namespace oxide {
 
     #define TEMPLATE(dtype) template<> \
     std::string with_type<dtype>(const std::string& name) { \
-        return name + "_" + #dtype; \
+        return name + "_" #dtype; \
     }
     #include "specialize/all.h"
 

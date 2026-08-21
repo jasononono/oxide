@@ -377,6 +377,11 @@ namespace oxide {
         }
     }
 
+    template <typename dtype>
+    void TensorView<dtype>::untie_base() {
+        base = nullptr;
+    }
+
     #define TEMPLATE(dtype) template class TensorView<dtype>;
     #include "specialize/all.h"
 

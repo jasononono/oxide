@@ -13,6 +13,9 @@ namespace oxide {
     template <typename dtype>
     uint broadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, const uint ndim, std::vector<uint>& out_shape, std::vector<iint>& a_strides, std::vector<iint>& b_strides);
 
+    template <typename dtype>
+    void ubroadcast(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b, std::vector<iint>& b_strides);
+
 
     #define TEMPLATE(dtype) \
     FUNCTION(add, dtype) \
@@ -21,15 +24,15 @@ namespace oxide {
     FUNCTION(div, dtype)
 
     // example: out = a + b
-    #define FUNCTION(op, NULL) template <typename dtype> \
+    #define FUNCTION(op, null) template <typename dtype> \
     TensorView<dtype> op(Dispatcher& dispatcher, const TensorView<dtype>& a, const TensorView<dtype>& b);
-    TEMPLATE()
+    TEMPLATE(null)
     #undef FUNCTION
 
     // example: a += b
-    #define FUNCTION(op, NULL) template <typename dtype> \
+    #define FUNCTION(op, null) template <typename dtype> \
     TensorView<dtype>& u##op(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
-    TEMPLATE()
+    TEMPLATE(null)
     #undef FUNCTION
 
     #undef TEMPLATE

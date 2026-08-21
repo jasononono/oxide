@@ -6,13 +6,15 @@ void run() {
     oxide::Backend backend;
     oxide::Dispatcher dispatcher(backend);
     
-    {
-        oxide::TensorView<oxide::float32> a = oxide::zeros<oxide::float32>(backend, {256*16});
-    }
+    oxide::TensorView<oxide::float32> a = oxide::rand(dispatcher, {2, 4});
+    oxide::TensorView<oxide::float32> b = oxide::rand(dispatcher, {4});
 
-    oxide::mem_optimize(backend);
-    
-    std::cout << backend.mem_cacheget() << std::endl;
+    // std::cout << a.get_string() << std::endl;
+    // std::cout << b.get_string() << std::endl;
+
+    // auto out = oxide::add(dispatcher, a, b);
+
+    // std::cout << out.get_string() << std::endl;
 
     oxide::free_backend(backend);
 }

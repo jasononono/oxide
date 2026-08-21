@@ -2,7 +2,7 @@
 
 My attempt to build a GPU-accelerated array computing library to learn many things in the process.
 
-Oxide functions similarly to [numpy](https://numpy.org/), built specifically to compute efficiently on the macOS GPU using [Metal](https://developer.apple.com/metal/).
+Oxide functions similarly to [numpy](https://numpy.org/), built exclusively to compute efficiently on the macOS GPU using [Metal](https://developer.apple.com/metal/).
 
 The backend of Oxide is written entirely in C/C++, linked to Python API via [nanobind](https://github.com/wjakob/nanobind/).
 
@@ -30,7 +30,7 @@ d = ox.random(shape=[6, 7, 8], a=10, b=20, dtype=ox.float32)
 
 Oxide is a macOS-exclusive library.
 
-Run this to install the [TestPyPI](https://test.pypi.org/simple/) distribution:
+Run this to install the [TestPyPI](https://test.pypi.org/project/py-oxide/0.0.4/) distribution:
 
 ```
 pip install -i https://test.pypi.org/simple/ py-oxide

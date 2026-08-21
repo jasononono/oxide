@@ -168,7 +168,9 @@ namespace oxide {
     }
 
     void Backend::mem_unregister(TensorMemory parent_mem, TensorMemory view_mem) {
+        if (!memory.registered.count(parent_mem)) {return;}
         memory.registered[parent_mem].erase(view_mem);
+
         if (memory.registered[parent_mem].empty()) {
             #define TEMPLATE(dtype) \
             if (parent_mem.tensor_type == typeid(TensorData<dtype>)) { \
@@ -192,6 +194,14 @@ namespace oxide {
     }
 
     void Backend::mem_delete(TensorMemory mem) {
+        for (TensorMemory view_mem : memory.registered[mem]) {
+            #define TEMPLATE(dtype) \
+            if (view_mem.tensor_type == typeid(TensorView<dtype>)) { \
+                TensorView<dtype>* view = reinterpret_cast<TensorView<dtype>*>(mem.address); \
+                view->untie_base(); \
+                continue; \
+            }
+        }
         memory.registered.erase(mem);
         memory.tensors.erase(std::find(memory.tensors.begin(), memory.tensors.end(), mem));
     }

@@ -4,6 +4,7 @@ pyproject.toml
 python/oxide/__init__.py
 python/oxide/common.py
 python/oxide/core.cpython-313-darwin.so
+python/oxide/operands.py
 python/oxide/system.py
 python/oxide/tensor.py
 python/py_oxide.egg-info/PKG-INFO

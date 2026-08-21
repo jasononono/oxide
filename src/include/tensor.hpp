@@ -87,6 +87,7 @@ namespace oxide {
             std::string get_string() const;
 
             void check_base() const; // throws error if base is null
+            void untie_base();
     };
     
 
