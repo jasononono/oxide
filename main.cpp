@@ -12,9 +12,9 @@ void run() {
     std::cout << a.get_string() << std::endl;
     std::cout << b.get_string() << std::endl;
 
-    auto out = oxide::add(dispatcher, a, b);
+    oxide::usub<oxide::float32>(dispatcher, a, b);
 
-    std::cout << out.get_string() << std::endl;
+    std::cout << a.get_string() << std::endl;
 
     oxide::free_backend(backend);
 }
