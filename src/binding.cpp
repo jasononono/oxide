@@ -20,35 +20,31 @@ NB_MODULE(core, m) {
     // common.hpp
     {
         auto c = nb::exception<oxide::oxide_error>(m, "oxide_error");
-        m.def("ansi", &oxide::ansi, nb::arg("code"), nb::arg("str"));
     }
 
     // dispatcher.hpp
     {
         auto c = nb::class_<oxide::Dispatcher>(m, "Dispatcher");
-        c.def(nb::init<oxide::Dispatcher&>(), nb::arg("_backend")); // why did i use backend here?
+        c.def(nb::init<oxide::Backend&>(), nb::arg("_backend"));
     }
     
 
     // functions.hpp
     {
-        #define NO_UNDEF
-        #define TEMPLATE(dtype) \
-        FUNCTION(add, dtype) \
-        FUNCTION(sub, dtype) \
-        FUNCTION(mul, dtype) \
-        FUNCTION(div, dtype)
+        #define SPEC2D
+        #define TEMPLATE2D(dtype) \
+        TEMPLATE(add, dtype) \
+        TEMPLATE(sub, dtype) \
+        TEMPLATE(mul, dtype) \
+        TEMPLATE(div, dtype)
 
-        #define FUNCTION(op, dtype) m.def(#op "_" #dtype, &oxide::op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(op, dtype) m.def(#op "_" #dtype, &oxide::op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
-        #undef FUNCTION
-
-        #define FUNCTION(op, dtype) m.def("u" #op "_" #dtype, &oxide::u##op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
+        #define TEMPLATE(op, dtype) m.def("u" #op "_" #dtype, &oxide::u##op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
-        #undef FUNCTION
 
-        #undef TEMPLATE
-        #undef NO_UNDEF
+        #undef TEMPLATE2D
+        #undef SPEC2D
 
         m.def("rand", &oxide::rand, nb::arg("dispatcher"), nb::arg("shape"));
         #define TEMPLATE(dtype) m.def("random_" #dtype, &oxide::random<oxide::dtype>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));

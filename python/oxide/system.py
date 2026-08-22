@@ -10,9 +10,9 @@ dispatcher = core.Dispatcher(backend)
 def run(function, *args, **kwargs):
     core.mem_optimize(backend)
     try:
-        return function(*args, **kwargs)
+        return getattr(core, function)(*args, **kwargs)
     except core.oxide_error as e:
-        throw(e.what())
+        throw(str(e))
     except BaseException as e:
         raise e
 

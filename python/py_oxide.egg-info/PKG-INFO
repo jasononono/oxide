@@ -1,6 +1,7 @@
 Metadata-Version: 2.4
 Name: py-oxide
-Version: 0.0.4
+Version: 0.0.6
+Summary: An array computing library optimized natively with the MacOS GPU.
 Requires-Python: >=3.13
 Description-Content-Type: text/markdown
 License-File: LICENSE
@@ -38,7 +39,7 @@ d = ox.random(shape=[6, 7, 8], a=10, b=20, dtype=ox.float32)
 
 Oxide is a macOS-exclusive library.
 
-Run this to install the [TestPyPI](https://test.pypi.org/simple/) distribution:
+Run this to install the [TestPyPI](https://test.pypi.org/project/py-oxide/0.0.4/) distribution:
 
 ```
 pip install -i https://test.pypi.org/simple/ py-oxide

@@ -21,13 +21,8 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorData<dtype>::TensorData(const TensorData<dtype>& other):
+    TensorData<dtype>::TensorData(const TensorData<dtype>& other): backend(other.backend), 
         size(other.size) {
-        if (backend != other.get_backend()) {
-            backend->log("backend mismatch");
-            backend->abort();
-        }
-        
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(dtype));
 
@@ -46,12 +41,9 @@ namespace oxide {
     template <typename dtype>
     TensorData<dtype>& TensorData<dtype>::operator=(const TensorData<dtype>& other) {
         if (this == &other) {return *this;}
-        if (backend != other.get_backend()) {
-            backend->log("backend mismatch");
-            backend->abort();
-        }
         if (buffer) {buffer->release();}
 
+        backend = other.backend;
         size = other.size;
         create_buffer();
         std::memcpy(ptr, other.ptr, size * sizeof(dtype));
@@ -193,7 +185,11 @@ namespace oxide {
 
     template <typename dtype>
     TensorView<dtype>::TensorView(TensorView<dtype>&& other):
-    backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides), mem(other.mem) {
+    backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
+        if (base) {
+            backend->mem_unregister(other.base->get_mem(), other.mem);
+            mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
+        }
         other.base = nullptr;
         other.mem = TensorMemory();
     }
@@ -228,8 +224,11 @@ namespace oxide {
         offset = other.offset;
         shape = other.shape;
         strides = other.strides;
-        mem = other.mem;
-
+        
+        if (base) {
+            backend->mem_unregister(other.base->get_mem(), other.mem);
+            mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
+        }
         other.base = nullptr;
         other.mem = TensorMemory();
 
