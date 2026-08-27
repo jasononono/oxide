@@ -17,6 +17,7 @@ set(SOURCE
     src/functions.cpp
     src/oxide.cpp
     src/tensor.cpp
+    src/util.cpp
 )
 
 set(NAME main)

@@ -17,3 +17,5 @@ print(a*b)
 # TODO: change cpp header structure? (functions.xpp -> operand.xpp, create.xpp etc.)
 # TODO: documentation
 # TODO: journal
+# TODO: precompile shader?
+# TODO: view as_type? (convert to type only when needed, not the entire data)

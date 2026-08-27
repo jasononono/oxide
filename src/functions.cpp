@@ -1,4 +1,5 @@
 #include "functions.hpp"
+#include "util.hpp"
 
 
 namespace oxide {
@@ -105,7 +106,7 @@ namespace oxide {
         TensorData<dtype>* out = new TensorData<dtype>(*dispatcher.get_backend(), size, 0); \
         TensorView<dtype> view(*dispatcher.get_backend(), out_shape, out); \
         \
-        dispatcher.binary_operand(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
+        dispatcher.binary_operation(with_type<dtype>(#op), view.get_size(), a.get_base()->get_buffer(), b.get_base()->get_buffer(), out->get_buffer(), ndim, a_strides, a.get_offset(), b_strides, b.get_offset(), view.get_strides()); \
         return view; \
     }
     TEMPLATE2D(null)
@@ -120,7 +121,7 @@ namespace oxide {
         uint size = a.get_size(); \
         ubroadcast<dtype>(dispatcher, a, b, b_strides); \
         \
-        dispatcher.unary_operand(with_type<dtype>("u" #op), size, a.get_base()->get_buffer(), b.get_base()->get_buffer(), ndim, a.get_strides(), a.get_offset(), b_strides, b.get_offset()); \
+        dispatcher.unary_operation(with_type<dtype>("u" #op), size, a.get_base()->get_buffer(), b.get_base()->get_buffer(), ndim, a.get_strides(), a.get_offset(), b_strides, b.get_offset()); \
         return a; \
     }
     TEMPLATE2D(null)

@@ -1,6 +1,5 @@
 #define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION // TODO: undef this future me when you figure out where to do that
-// i love talking with myself :D
+#define MTL_PRIVATE_IMPLEMENTATION
 
 #include "backend.hpp"
 #include "common.hpp"
@@ -18,6 +17,7 @@ namespace oxide {
 
     Shader::~Shader() {
         library->release();
+        // release all cps objects
         for (const std::pair<std::string, MTL::ComputePipelineState*>& pair : pipeline) {
             pair.second->release();
         }
@@ -38,7 +38,7 @@ namespace oxide {
 
 
     std::size_t TensorMemoryHash::operator()(const TensorMemory &x) const {
-        return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type);
+        return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type); // combine hashes using xor (hash collision doesn't really matter, not trying to make this O(1) lol)
     }
 
 

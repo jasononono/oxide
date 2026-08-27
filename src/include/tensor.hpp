@@ -1,3 +1,16 @@
+/*
+TENSOR.HPP
+
+class TensorData: object that owns the actual data of tensors
+    - associated with a backend, supports basic indexing
+    - contains a ptr to the data, freed automatically in mem checks implemented in oxide.hpp & backend.hpp
+    - always call check_buffer() before using the underlying buffer (the object might be moved or uninitialized)
+
+class TensorView: object tied to TensorData with shape, strides, and offset. In Python, it is stored as tensorclass.Tensor.ctensor
+    - always call check_base() before using the tied TensorData (the object might be moved or uninitialized)
+*/
+
+
 #pragma once
 
 #include "backend.hpp"
@@ -23,6 +36,7 @@ namespace oxide {
         public:
             TensorData(Backend& _backend, uint _size, dtype value);
 
+            // rule of five
             ~TensorData();
             TensorData(const TensorData& other);
             TensorData(TensorData&& other);
@@ -31,9 +45,11 @@ namespace oxide {
 
             void create_buffer(); // create buffer based on size attribute
             
+            // indexing functions
             dtype operator[](iint index) const;
             dtype& operator[](iint index);
 
+            // getter functions
             Backend* get_backend() const;
             dtype* get_ptr() const;
             MTL::Buffer* get_buffer() const;
@@ -60,12 +76,14 @@ namespace oxide {
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base);
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset, const std::vector<iint>& _strides);
 
+            // rule of five
             ~TensorView();
             TensorView(const TensorView& other);
             TensorView(TensorView&& other);
             TensorView& operator=(const TensorView& other);
             TensorView& operator=(TensorView&& other);
 
+            // indexing
             dtype operator[](const std::vector<iint>& indices) const;
             dtype& operator[](const std::vector<iint>& indices);
             
@@ -74,9 +92,11 @@ namespace oxide {
 
             iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
 
+            // reshape with size checking
             void set_shape(const std::vector<uint>& _shape);
             void set_shape(const std::vector<uint>& _shape, const std::vector<iint>& _strides, uint _offset);
 
+            // getter functions
             Backend* get_backend() const;
             TensorData<dtype>* get_base() const;
             uint get_ndim() const;
@@ -87,11 +107,8 @@ namespace oxide {
             std::string get_string() const;
 
             void check_base() const; // throws error if base is null
-            void untie_base();
+            void untie_base(); // set base to nullptr
     };
     
-
-    uint parse_shape(Backend& backend, const std::vector<uint>& shape); // throws error if shape is invalid, then returns accumulative size
-
 
 }

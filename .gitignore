@@ -8,4 +8,3 @@
 build/
 python/build/
 python/oxide.egg-info
-external/

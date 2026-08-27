@@ -1,3 +1,6 @@
+// this pattern is pasted underneath functions that need  specialization
+
+
 #ifdef SPEC2D
 #define MACRO TEMPLATE2D
 #else
