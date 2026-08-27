@@ -5,14 +5,16 @@ import typing
 
 
 class Tensor:
+
     def __init__(self, ctensor):
         super().__setattr__("ctensor", ctensor)
-        for t in TENSOR_T.keys():
-            if isinstance(ctensor, t):
-                super().__setattr__("dtype", TENSOR_T[t])
+        for t in OX_T:
+            ct =  with_type(t, "TensorView")
+            if ct == type(ctensor).__name__:
+                super().__setattr__("dtype", t)
                 break
         else:
-            system.throw("ctensor argument type invalid")
+            system.throw("ctensor type invalid")
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -52,6 +54,20 @@ class Tensor:
     def __str__(self):
         return self.ctensor.get_string()
 
+    def __add__(self, other):
+        return system.operand_module.add(self, other)
+
+    def __sub__(self, other):
+        return system.operand_module.sub(self, other)
+
+    def __mul__(self, other):
+        return system.operand_module.mul(self, other)
+
+    def __truediv__(self, other):
+        return system.operand_module.div(self, other)
+
+
+## OUTDATED FUNCTION(s), might patch later
 
 def parse_iterable(depth, first, shape, stack, iterable, result):
     if not isinstance(iterable, typing.Iterable):
@@ -88,6 +104,8 @@ def parse_iterable(depth, first, shape, stack, iterable, result):
 def tensor(iterable):
     data = []
     shape = []
-    parse_iterable(0, True, shape, [], iterable, data)
-    ctensor = system.run(core.make_view, system.backend, shape, data)
+    t = parse_iterable(0, True, shape, [], iterable, data)
+    ctensor = system.run(with_type(t, "make_view"), system.backend, shape, data)
     return Tensor(ctensor)
+
+#############

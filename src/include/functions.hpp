@@ -1,3 +1,10 @@
+/*
+FUNCTIONS.HPP
+
+
+*/
+
+
 #pragma once
 
 #include "tensor.hpp"
@@ -36,6 +43,10 @@ namespace oxide {
     #undef FUNCTION
 
     #undef TEMPLATE
+
+
+    template <typename dtype>
+    TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data); // shortcut for initing from data & shape
 
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape);

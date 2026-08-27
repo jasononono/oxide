@@ -6,6 +6,8 @@ import atexit
 backend = core.Backend()
 dispatcher = core.Dispatcher(backend)
 
+operand_module = None
+
 
 def run(function, *args, **kwargs):
     core.mem_optimize(backend)

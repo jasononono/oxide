@@ -1,6 +1,6 @@
 from .common import *
 from . import system
-from .tensor import *
+from .tensorclass import *
 
 
 def check_tensors(*tensors):

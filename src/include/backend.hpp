@@ -1,3 +1,17 @@
+/*
+BACKEND.HPP
+
+class backend: bundle of L1 shenanigans
+    - stores metal API & handles
+    - shader library, API for creating and using pipelines
+    - random generator (generate seeds for shader)
+    - tensor memory management, optimization
+    - error handling/logging
+
+struct TensorMemory: container that stores ptr info about any tensor type
+*/
+
+
 #pragma once
 
 #include <Metal/Metal.hpp>
@@ -39,12 +53,12 @@ namespace oxide {
         std::random_device device;
         std::mt19937 generator;
 
-        std::uniform_int_distribution<uint> seed_dist;
+        std::uniform_int_distribution<uint> seed_dist; // seeds are in the range [0, 2^32)
     };
 
 
     // wrapper class for any type, used for memory management and registration
-    // use this only for tensor related classes!
+    // use this only for tensor related classes
     struct TensorMemory {
         void* address = nullptr;
         std::type_index tensor_type;
@@ -65,10 +79,10 @@ namespace oxide {
 
     // auto memory management data and things
     struct Memory {
-        std::unordered_map<TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>, TensorMemoryHash> registered;
-        std::vector<TensorMemory> tensors;
+        std::unordered_map<TensorMemory, std::unordered_set<TensorMemory, TensorMemoryHash>, TensorMemoryHash> registered; // maps TensorData to TensorView
+        std::vector<TensorMemory> tensors; // collection of all TensorData
         
-        uint cache = 0;
+        uint cache = 0; // when cache >= CACHETHRESHOLD, mem is optimized
     };
 
 
@@ -102,15 +116,15 @@ namespace oxide {
             void log_metal(); // automatically log metal error description if applicable
             void abort();
 
-            std::mt19937& random_generate();
+            std::mt19937& random_generate(); // returns the generator ONLY
             uint random_seed();
 
-            TensorMemory mem_register(void* address, std::type_index tensor_type);
-            TensorMemory mem_register(TensorMemory parent_mem, void* address, std::type_index tensor_type);
-            void mem_unregister(TensorMemory parent_mem, TensorMemory view_mem);
+            TensorMemory mem_register(void* address, std::type_index tensor_type); // register TensorData
+            TensorMemory mem_register(TensorMemory parent_mem, void* address, std::type_index tensor_type); // register TensorView
+            void mem_unregister(TensorMemory parent_mem, TensorMemory view_mem); // unregister TensorView
             const std::vector<TensorMemory>& get_tensors() const;
             const std::unordered_set<TensorMemory, TensorMemoryHash>& get_mem_tied(TensorMemory key) const;
-            void mem_delete(TensorMemory mem);
+            void mem_delete(TensorMemory mem); // free TensorData
 
             void mem_cacheinc(uint bytes);
             void mem_cacheclear();

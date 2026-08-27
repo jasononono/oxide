@@ -37,7 +37,7 @@ NB_MODULE(core, m) {
         TEMPLATE(sub, dtype) \
         TEMPLATE(mul, dtype) \
         TEMPLATE(div, dtype)
-
+        // replace the "_" + #dtype with oxide::with_type perhaps
         #define TEMPLATE(op, dtype) m.def(#op "_" #dtype, &oxide::op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
         #define TEMPLATE(op, dtype) m.def("u" #op "_" #dtype, &oxide::u##op<oxide::dtype>, nb::arg("dispatcher"), nb::arg("a"), nb::arg("b"));
@@ -46,15 +46,18 @@ NB_MODULE(core, m) {
         #undef TEMPLATE2D
         #undef SPEC2D
 
+        #define TEMPLATE(dtype) m.def("make_view_" #dtype, &oxide::make_view<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("data"));
+        #include "specialize/all.h"
+
         m.def("rand", &oxide::rand, nb::arg("dispatcher"), nb::arg("shape"));
         #define TEMPLATE(dtype) m.def("random_" #dtype, &oxide::random<oxide::dtype>, nb::arg("dispatcher"), nb::arg("shape"), nb::arg("a"), nb::arg("b"));
         #include "specialize/numeric.h"
 
-        #define TEMPLATE(dtype) m.def("filled" #dtype, &oxide::filled<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("value"));
+        #define TEMPLATE(dtype) m.def("filled_" #dtype, &oxide::filled<oxide::dtype>, nb::arg("backend"), nb::arg("shape"), nb::arg("value"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(dtype) m.def("zeros" #dtype, &oxide::zeros<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
+        #define TEMPLATE(dtype) m.def("zeros_" #dtype, &oxide::zeros<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
         #include "specialize/numeric.h"
-        #define TEMPLATE(dtype) m.def("ones" #dtype, &oxide::ones<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
+        #define TEMPLATE(dtype) m.def("ones_" #dtype, &oxide::ones<oxide::dtype>, nb::arg("backend"), nb::arg("shape"));
         #include "specialize/numeric.h"
 
         #define TEMPLATE(dtype) m.def("reshape", &oxide::reshape<oxide::dtype>, nb::arg("view"), nb::arg("shape"));

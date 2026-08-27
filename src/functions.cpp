@@ -132,6 +132,22 @@ namespace oxide {
     #undef SPEC2D
 
 
+    template <typename dtype>
+    TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data) {
+        uint size = parse_shape(backend, shape);
+        if (size != data.size()) {
+            backend.log("data size must be compatible with tensor shape");
+            backend.abort();
+        }
+        
+        TensorData<dtype>* out = new TensorData<dtype>(backend, size, dtype());
+        std::memcpy(out->get_ptr(), data.data(), sizeof(dtype) * data.size());
+        return TensorView<dtype>(backend, shape, out);
+    }
+    #define TEMPLATE(dtype) template TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data);
+    #include "specialize/all.h"
+
+
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape) {
         uint size = parse_shape(*dispatcher.get_backend(), shape);
         TensorData<float32>* out = new TensorData<float32>(*dispatcher.get_backend(), size, float32());

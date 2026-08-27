@@ -31,7 +31,3 @@ OX_T = { # corresponding python type of oxide dtypes
     int32: int,
     float32: (int, float)
 }
-TENSOR_T = { # corresponding oxide dtype of backend tensorview classes
-    core.TensorView_int32: int32,
-    core.TensorView_float32: float32
-}

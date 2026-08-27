@@ -1,10 +1,10 @@
-# PyOxide
+# py-oxide
 
 My attempt to build a GPU-accelerated array computing library to learn many things in the process.
 
 Oxide functions similarly to [numpy](https://numpy.org/), built exclusively to compute efficiently on the macOS GPU using [Metal](https://developer.apple.com/metal/).
 
-The backend of Oxide is written entirely in C/C++, linked to Python API via [nanobind](https://github.com/wjakob/nanobind/).
+The backend of Oxide is written entirely in C/C++, linked to Python interface via [nanobind](https://github.com/wjakob/nanobind/).
 
 # Usage
 
@@ -41,7 +41,7 @@ pip install -i https://test.pypi.org/simple/ py-oxide
 - GPU accelerated "tensors" using MTL::ResourceStorageModeShared
 - automatic Tensor memory management (alloc and free)
 - c++ backend (pain)
-- GPU pseudo-random generator (xorshift currently a little scuffed)
+- GPU pseudo-random generator (xorshift currently a little scuffed, ill replace it soon)
 
 # Inspirations
 Parsing through these awesome libraries helped me setup Metal, design the file system, and understand the complicated shader syntax!

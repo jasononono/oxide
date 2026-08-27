@@ -1,7 +1,7 @@
 from .common import *
 from . import system
 from . import util
-from .tensor import *
+from .tensorclass import *
 
 
 def rand(shape):
