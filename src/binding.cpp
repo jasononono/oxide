@@ -1,3 +1,10 @@
+/*
+BINDING.CPP
+
+expose c++ features to Python via nanobind
+*/
+
+
 #include "oxide.hpp"
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/vector.h>

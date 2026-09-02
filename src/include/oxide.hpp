@@ -6,8 +6,8 @@ called by Python implementation
 
 to use the c++ interface of Oxide:
     1. include this file to get everything in the namespace 'oxide'
-    2. create Oxide::Backend and Oxide::Dispatcher objects
-    3. call oxide::free_backend() upon exit
+    2. use the OXIDE_MAIN macro defined below
+    3. create a run() function with arguments oxide::Backend& and oxide::Dispatcher& (must be defined before using the macro)
     4. see docs/sample_cpp.cpp for reference
 */
 
@@ -22,6 +22,28 @@ to use the c++ interface of Oxide:
 
 
 namespace oxide {
+
+
+    #define OXIDE_MAIN \
+    void oxide_main() { \
+        oxide::Backend backend; \
+        oxide::Dispatcher dispatcher(backend); \
+        run(backend, dispatcher); \
+        oxide::free_backend(backend); \
+    } \
+\
+    int main() { \
+        try { \
+            oxide_main(); \
+        } catch (const oxide::oxide_error& e) { \
+            std::cout << oxide::ansi(31, "Oxide: " + std::string(e.what())) << std::flush; \
+            return 1; \
+        } catch (const std::exception& e) { \
+            std::cout << e.what() << std::endl; \
+            return 1; \
+        } \
+        return 0; \
+    }
 
 
     void free_backend(Backend& backend); // free all data

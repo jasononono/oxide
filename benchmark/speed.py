@@ -1,8 +1,17 @@
+"""
+PLACEHOLDER BENCHMARK SCRIPT
+just addition for now
+"""
+
+
 import numpy as np
 import torch
-import oxide as ox
 from time import perf_counter
-import psutil, math, os, random, gc, time, io
+import psutil, math, os, random, gc, time, io, sys, pathlib
+
+sys.path.append(os.getcwd())
+# print(sys.path)
+from python import oxide as ox
 
 
 PRECISION = 4

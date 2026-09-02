@@ -1,8 +1,16 @@
+/*
+SHADER.METAL
+
+L0 shaders
+*/
+
+
 #include <metal_stdlib>
 using namespace metal;
 
 
-// common.hpp
+// common.hpp stuff pasted here
+
 using uint = uint32_t;
 using iint = int32_t;
 
@@ -14,7 +22,7 @@ typedef float float32;
 
 
 // functions
-// common case optim
+
 #define binary_op(dtype, name, op) \
 kernel void name( \
     const device dtype* a [[buffer(0)]], \
@@ -33,9 +41,13 @@ kernel void name( \
     uint b_idx = b_offset; \
     uint coord; \
 \
+    /* broadcasting ensures that for every indices I = [i_1, i_2, ...] of out, a[I] + b[I] = out[I] */ \
+\
     for (uint i = 0; i < ndim; i++) { \
+        /* generate indices of out view from idx of out buffer (i.e. thread id) */ \
         coord = out_idx / out_strides[i]; \
         out_idx %= out_strides[i]; \
+        /* use out view idx (coord) to generate a&b buffer indices */ \
         a_idx += coord * a_strides[i]; \
         b_idx += coord * b_strides[i]; \
     } \
@@ -58,23 +70,28 @@ kernel void name( \
     uint b_idx = b_offset; \
     uint coord; \
 \
+    /* broadcasting ensures that for every indices I = [i_1, i_2, ...] of a, a[I] = a[I] + b[I] */ \
+\
     for (uint i = 0; i < ndim; i++) { \
+        /* convert buffer index (relative to offset) to view indices */ \
         coord = a_idx / a_strides[i]; \
         a_idx %= a_strides[i]; \
+        /* view indices to buffer index of b */ \
         b_idx += coord * b_strides[i]; \
     } \
 \
-    a_idx += id + a_offset; \
-    a[a_idx] op b[b_idx]; \
+    a[id + a_offset] op b[b_idx]; \
 }
 
 
+// NOT THE FINAL PRNG IMPLEMENTATION.
+// xorshift is being used as a placeholder function here
 uint xorshift(uint seed, uint id) {
     uint state = seed + id;
     state ^= state << 16;
-    state *= 2994277826;
-    if (state == 0) {
-        state = 2994277826;
+    state *= 1000000007; // space out state for consecutive ids
+    if (state == 0) { // state must not be 0
+        state = 1000000007;
     }
     state ^= state << 13;
     state ^= state >> 17;
@@ -88,7 +105,7 @@ kernel void rand(
     constant uint& seed [[buffer(1)]],
     uint id [[thread_position_in_grid]]
 ) {
-    buf[id] = (float)(xorshift(seed, id)) / (MAXSEEDF + 1);
+    buf[id] = (float)(xorshift(seed, id)) / (MAXSEEDF + 1); // add 1 to ensure value is not 1.0
 }
 
 #define random_int(dtype, name) \
@@ -99,6 +116,7 @@ kernel void name( \
     constant dtype& b [[buffer(3)]], \
     uint id [[thread_position_in_grid]] \
 ) { \
+    /* generate random float in range [a, b+1), then round down */ \
     buf[id] = (dtype)((float)(xorshift(seed, id)) / (MAXSEEDF + 1) * (b - a + 1) + a); \
 }
 
@@ -114,7 +132,8 @@ kernel void name( \
 }
 
 
-// apply functions
+// redefine things in the specialize folder here
+
 #define SPECIALIZE_ALL \
 TEMPLATE(int32) \
 TEMPLATE(float32)
@@ -128,6 +147,8 @@ TEMPLATE(int32)
 
 #define SPECIALIZE_FLOAT \
 TEMPLATE(float32)
+
+// apply functions
 
 #define TEMPLATE(dtype) binary_op(dtype, add_##dtype, +)
 SPECIALIZE_ALL

@@ -36,7 +36,7 @@ namespace oxide {
     typedef float float32;
 
     const uint MAXDIMS = 16; // max tensor dimensions
-    const float MAXSEEDF = 4294967295.0f; // maximum value of seed
+    const float MAXSEEDF = 4294967295.0f; // maximum value of seed, i.e. (max of uint32) - 1
     const uint CACHETHRESHOLD = 1024 * 16; // optimizes memory automatically when cache reaches this value
 
     // misc functions

@@ -1,3 +1,10 @@
+/*
+COMMON.CPP
+
+implementation of common.hpp
+*/
+
+
 #include "common.hpp"
 
 

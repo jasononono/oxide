@@ -1,3 +1,10 @@
+/*
+UTIL.CPP
+
+implementation of util.hpp
+*/
+
+
 #include "util.hpp"
 
 

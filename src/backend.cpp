@@ -1,3 +1,10 @@
+/*
+BACKEND.CPP
+
+implementation of backend.hpp
+*/
+
+
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 
@@ -38,7 +45,8 @@ namespace oxide {
 
 
     std::size_t TensorMemoryHash::operator()(const TensorMemory &x) const {
-        return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type); // combine hashes using xor (hash collision doesn't really matter, not trying to make this O(1) lol)
+        // combine hashes using xor (hash collision doesn't really matter, not trying to make this O(1) lol)
+        return std::hash<void*>()(x.address) ^ std::hash<std::type_index>()(x.tensor_type);
     }
 
 
@@ -56,6 +64,7 @@ namespace oxide {
     Backend::~Backend() {}
 
     void Backend::init_metal() {
+        // get device info and see if metal is compatible
         metal.device = MTL::CreateSystemDefaultDevice();
         if (!metal.device) {
             log("failed to obtain gpu information"); abort();
@@ -74,12 +83,14 @@ namespace oxide {
             abort();
         }
 
+        // read file into a std::string
         std::string text, line;
         while (getline(file, line)) {text += line + '\n';}
         file.close();
 
         NS::String* source = NS::String::string(text.c_str(), NS::UTF8StringEncoding);
 
+        // compile into a "library" (collection of shader functions)
         shader.library = metal.device->newLibrary(source, nullptr, &mtl_err);
         if (!shader.library) {
             log("failed to compile shader\n");
@@ -89,12 +100,14 @@ namespace oxide {
     }
 
     void Backend::load_shader(const std::string& name) {
+        // retrieve function implementation in the library
         MTL::Function* function = shader.library->newFunction(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
         if (!function) {
             log("shader function '" + name + "' does not exist");
             abort();
         }
 
+        // cache cps in a map for when it is needed
         shader.pipeline[name] = metal.device->newComputePipelineState(function, &mtl_err);
         if (!shader.pipeline[name]) {
             log("failed to create pipeline for '" + name + "'"); log_metal();
@@ -106,7 +119,7 @@ namespace oxide {
 
     NS::UInteger Backend::set_cps(MTL::ComputeCommandEncoder* encoder, const std::string& name) {
         if (!shader.pipeline.count(name)) {
-            load_shader(name);
+            load_shader(name); // load only when needed
         }
         encoder->setComputePipelineState(shader.pipeline.at(name));
         return shader.pipeline.at(name)->maxTotalThreadsPerThreadgroup();
@@ -172,6 +185,7 @@ namespace oxide {
         memory.registered[parent_mem].erase(view_mem);
 
         if (memory.registered[parent_mem].empty()) {
+            // increment mem cache by the data size
             #define TEMPLATE(dtype) \
             if (parent_mem.tensor_type == typeid(TensorData<dtype>)) { \
                 TensorData<dtype>* data = reinterpret_cast<TensorData<dtype>*>(parent_mem.address); \
@@ -194,6 +208,7 @@ namespace oxide {
     }
 
     void Backend::mem_delete(TensorMemory mem) {
+        // untie the base for each associated TensorView to prevent double free
         for (TensorMemory view_mem : memory.registered[mem]) {
             #define TEMPLATE(dtype) \
             if (view_mem.tensor_type == typeid(TensorView<dtype>)) { \

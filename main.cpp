@@ -1,7 +1,6 @@
 #include <iostream>
 #include "oxide.hpp"
 
-
 namespace ox = oxide;
 
 
@@ -18,19 +17,4 @@ void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
 }
 
 
-int main() {
-    ox::Backend backend;
-    ox::Dispatcher dispatcher(backend);
-
-    try {
-        run(backend, dispatcher);
-    } catch (const ox::oxide_error& e) {
-        std::cout << ox::ansi(31, "Oxide: " + std::string(e.what())) << std::flush;
-        return 1;
-    } catch (const std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-
-    ox::free_backend(backend);
-    return 0;
-}
+OXIDE_MAIN

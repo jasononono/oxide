@@ -94,7 +94,7 @@ namespace oxide {
     TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order); // reorder the axes
 
 
-    // i will implement these later lol
+    // i will implement these later lol (will i tho aaaaaa)
 
         // template <typename dtype>
         // TensorView<dtype> slice(const TensorView<dtype>& view, const std::vector<std::pair<int, int>>& indices);

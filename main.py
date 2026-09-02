@@ -19,3 +19,5 @@ print(a*b)
 # TODO: journal
 # TODO: precompile shader?
 # TODO: view as_type? (convert to type only when needed, not the entire data)
+# TODO: common case optim for shader
+# TODO: better rand system? (store the two endpoints to prevent inaccuracies)

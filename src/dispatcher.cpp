@@ -1,3 +1,10 @@
+/*
+DISPATCHER.CPP
+
+implementation of dispatcher.hpp
+*/
+
+
 #include "dispatcher.hpp"
 
 
@@ -13,6 +20,12 @@ namespace oxide {
         return backend;
     }
 
+    
+    // all of the functions below basically follows the same procedure:
+    // 1. get a command buffer and encoder & set the function
+    // 2. set the function arguments using designated buffer indices
+    // 3. calculate grid size (how many threads to dispatch)
+    // 4. dispatch, wait for completion, release
 
     void Dispatcher::binary_operation(const std::string& function, uint size, MTL::Buffer* a, MTL::Buffer* b, MTL::Buffer* out, uint ndim, const std::vector<iint>& a_strides, uint a_offset, const std::vector<iint>& b_strides, uint b_offset, const std::vector<iint>& out_strides) {
         MTL::CommandBuffer* cmd = backend->new_cmd_buffer();

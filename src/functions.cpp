@@ -1,3 +1,10 @@
+/*
+FUNCTIONS.CPP
+
+implementation of functions.hpp
+*/
+
+
 #include "functions.hpp"
 #include "util.hpp"
 
@@ -17,9 +24,9 @@ namespace oxide {
         uint idx, a_idx, b_idx;
 
         for (uint i = 0; i < ndim; i++) {
-            idx = ndim - i - 1;
-            a_idx = a.get_ndim() - i - 1;
-            b_idx = b.get_ndim() - i - 1;
+            idx = ndim - i - 1; // axis index of out
+            a_idx = a.get_ndim() - i - 1; // axis index of a
+            b_idx = b.get_ndim() - i - 1; // axis index of b
 
             if (i >= a.get_ndim()) {
                 out_shape[idx] = b.get_shape()[b_idx];
@@ -70,8 +77,8 @@ namespace oxide {
         uint idx, b_idx;
 
         for (iint i = 0; i < a.get_ndim(); i++) {
-            idx = a.get_ndim() - i - 1;
-            b_idx = b.get_ndim() - i - 1;
+            idx = a.get_ndim() - i - 1; // axis index of a
+            b_idx = b.get_ndim() - i - 1; // axis index of b
 
             if (i >= b.get_ndim()) {
                 b_strides[idx] = 0;
@@ -89,7 +96,7 @@ namespace oxide {
     #include "specialize/all.h"
 
 
-    #define SPEC2D
+    #define SPEC2D // specialize for all of +-*/, and all of dtype
     #define TEMPLATE2D(dtype) \
     TEMPLATE(add, dtype) \
     TEMPLATE(sub, dtype) \

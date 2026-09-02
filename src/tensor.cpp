@@ -1,3 +1,10 @@
+/*
+TENSOR.CPP
+
+implementation of tensor.hpp
+*/
+
+
 #include "tensor.hpp"
 #include "common.hpp"
 #include "util.hpp"
@@ -55,7 +62,7 @@ namespace oxide {
     template <typename dtype>
     TensorData<dtype>& TensorData<dtype>::operator=(TensorData<dtype>&& other) {
         if (this == &other) {return *this;}
-        if (buffer) {buffer->release();}
+        if (buffer) {buffer->release();} // free original mem first
 
         backend = other.backend;
         buffer = other.buffer;
@@ -179,7 +186,7 @@ namespace oxide {
 
     template <typename dtype>
     TensorView<dtype>::TensorView(const TensorView<dtype>& other): backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
-        if (base) {
+        if (base) { // update base registration
             mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
         }
     }
@@ -187,7 +194,7 @@ namespace oxide {
     template <typename dtype>
     TensorView<dtype>::TensorView(TensorView<dtype>&& other):
     backend(other.backend), base(other.base), ndim(other.ndim), size(other.size), offset(other.offset), shape(other.shape), strides(other.strides) {
-        if (base) {
+        if (base) { // update base registration
             backend->mem_unregister(other.base->get_mem(), other.mem);
             mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
         }
@@ -207,7 +214,7 @@ namespace oxide {
         shape = other.shape;
         strides = other.strides;
 
-        if (base) {
+        if (base) { // update base registration
             mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
         }
 
@@ -226,7 +233,7 @@ namespace oxide {
         shape = other.shape;
         strides = other.strides;
         
-        if (base) {
+        if (base) { // update base registration
             backend->mem_unregister(other.base->get_mem(), other.mem);
             mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
         }
@@ -263,6 +270,7 @@ namespace oxide {
         ndim = shape.size();
         strides = std::vector<iint>(ndim);
 
+        // calculate strides from shape (note: make sure this works with offset in the future)
         strides[ndim - 1] = 1;
         for (iint i = ndim - 2; i >= 0; i--) {
             strides[i] = strides[i + 1] * shape[i + 1];
@@ -291,12 +299,12 @@ namespace oxide {
             backend->abort();
         }
 
-        iint buf_index = 0, idx;
+        iint buf_index = offset, idx;
         for (iint i = 0; i < ndim; i++) {
             if (indices[i] >= 0) {
                 idx = indices[i];
             } else {
-                idx = shape[i] + indices[i];
+                idx = shape[i] + indices[i]; // -n means the nth element from the right
             }
             if (idx < 0 || idx >= shape[i]) {
                 backend->log("index out of range"); backend->abort();
@@ -347,7 +355,8 @@ namespace oxide {
     std::string TensorView<dtype>::get_string() const {
         std::string str(ndim, '[');
         std::vector<iint> indices(ndim, 0);
-        
+
+        // bfs traversal from left to right of the buffer
         while (!indices.empty()) {
             str += std::to_string((*this)[indices]);
             while (!indices.empty() && indices.back() == shape[indices.size() - 1] - 1) {
