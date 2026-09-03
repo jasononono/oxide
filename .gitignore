@@ -7,6 +7,5 @@
 
 tests/build/
 python/build/
-python/oxide.egg-info
 
 docs/journal.md

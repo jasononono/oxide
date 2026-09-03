@@ -1,3 +1,12 @@
+Metadata-Version: 2.4
+Name: mtl-oxide
+Version: 0.1.0
+Summary: An array computing library optimized natively with the MacOS GPU.
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
 # Oxide
 
 My attempt at building a **GPU-accelerated array computing library** to learn many things in the process.
@@ -38,4 +47,4 @@ Parsing through these awesome libraries helped me setup Metal, design the file s
 - [forge](https://github.com/kellen-sun/Forge/): Metal library setup reference
 
 # Contributing
-Oxide is my personal learning project, but feel free to open an issue on [Github](https://github.com/jasononono/oxide) if you have any suggestions!
+Oxide is my personal learning project, but feel free to open an issue if you have any suggestions!
