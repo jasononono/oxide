@@ -356,7 +356,7 @@ namespace oxide {
         std::string str(ndim, '[');
         std::vector<iint> indices(ndim, 0);
 
-        // bfs traversal from left to right of the buffer
+        // dfs traversal from left to right of the buffer
         while (!indices.empty()) {
             str += std::to_string((*this)[indices]);
             while (!indices.empty() && indices.back() == shape[indices.size() - 1] - 1) {

@@ -1,8 +1,16 @@
+"""
+UTIL.PY
+
+utility functions (type & input checkers)
+"""
+
+
 from .common import *
 from . import system
 from .tensorclass import *
 
 
+# ensure that tensor types are univariant
 def check_tensors(*tensors):
     dtypes = set()
     for t in tensors:
@@ -14,6 +22,7 @@ def check_tensors(*tensors):
         system.throw("tensors should be of the same type")
     return list(dtypes)[0]
 
+# ensure that tensor shape is valid
 def check_shape(shape):
     if isinstance(shape, int):
         shape = [shape]
@@ -24,9 +33,11 @@ def check_shape(shape):
             system.throw("shape is invalid")
     return shape
 
+# ensure that dtype is an oxide dtype
+# optionally stricter restrictions
 def check_dtype(dtype, tclass = None):
     if tclass is None:
-        if not dtype in OX_T:
+        if not issubclass(dtype, oxide_t):
             system.throw("dtype is invalid")
     else:
         if not issubclass(dtype, tclass):

@@ -1,8 +1,7 @@
 /*
 COMMON.HPP
 
-misc functions, constants, and types that only need the stl
-(utility instances that require other oxide definitions live in util.hpp)
+misc inline functions, constants, and types that only need the stl
 */
 
 

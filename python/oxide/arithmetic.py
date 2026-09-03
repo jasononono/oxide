@@ -1,8 +1,17 @@
+"""
+ARITHMETIC.PY
+
+tensor arithmetic functions
+"""
+
+
 from .common import *
 from . import system
 from . import util
 from .tensorclass import *
 
+
+# binary operations (e.g. out = a + b)
 
 def add(a, b):
     dtype = util.check_tensors(a, b)
@@ -20,6 +29,8 @@ def div(a, b):
     dtype = util.check_tensors(a, b)
     return Tensor(system.run(with_type(dtype, "div"), system.dispatcher, a.ctensor, b.ctensor))
 
+
+# inplace unary operations (e.g. a += b)
 
 def uadd(a, b):
     dtype = util.check_tensors(a, b)

@@ -19,7 +19,7 @@ I tried to group all functions created and used in Oxide into distinct **layers 
 things that need to be considered when addingh a new datatype
 random gen thing
 namin convention for _int32
-commens in hpp
+commons in hpp (3 places)
 
 https://numpy.org/devdocs/user/basics.broadcasting.html
 https://numpy.org/devdocs/user/basics.copies.html

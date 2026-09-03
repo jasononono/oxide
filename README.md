@@ -1,6 +1,6 @@
 # py-oxide
 
-My attempt to build a GPU-accelerated array computing library to learn many things in the process.
+My attempt at building a GPU-accelerated array computing library to learn many things in the process.
 
 Oxide functions similarly to [numpy](https://numpy.org/), built exclusively to compute efficiently on the macOS GPU using [Metal](https://developer.apple.com/metal/).
 

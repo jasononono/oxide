@@ -9,4 +9,4 @@ build/
 python/build/
 python/oxide.egg-info
 
-docs/journal
+docs/journal.md

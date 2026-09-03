@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 4.1.1)
 
 project(Oxide LANGUAGES CXX)
 
-# set c standard and options
+# language standards and build options
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(RELEASE "build release library instead of test cpp script" OFF)
+
+# all .cpp src files
 
 set(SOURCE
     src/backend.cpp
@@ -23,6 +25,7 @@ set(SOURCE
 set(NAME main)
 
 
+# if RELEASE, use nanobind to produce the darwin.so library
 if (RELEASE)
 
 
@@ -30,6 +33,7 @@ if (RELEASE)
     
     find_package(Python 3.13 COMPONENTS Interpreter Development.Module REQUIRED)
 
+    # find nanobind package from pip3 installation
     execute_process(COMMAND python3 -m nanobind --cmake_dir OUTPUT_VARIABLE nanobind_ROOT OUTPUT_STRIP_TRAILING_WHITESPACE)
     find_package(nanobind CONFIG REQUIRED)
 
@@ -48,18 +52,22 @@ else()
 
     add_executable(main
         ${SOURCE}
-        main.cpp
+        tests/main.cpp
     )
 
 
 endif()
 
 
+# resource files
+
 configure_file(
     src/shader.metal
     ${CMAKE_BINARY_DIR}/shader.metal
     COPYONLY
 )
+
+# -I and -L links
 
 target_include_directories(${NAME} PRIVATE
     ~/Documents/lib/metal-cpp

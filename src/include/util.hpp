@@ -1,7 +1,7 @@
 /*
 UTIL.HPP
 
-utility functions that require other Oxide definitions
+utility functions that are more complex and require other oxide definitions
 */
 
 

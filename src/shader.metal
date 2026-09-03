@@ -9,7 +9,7 @@ L0 shaders
 using namespace metal;
 
 
-// common.hpp stuff pasted here
+// common definitions parallel to common.hpp
 
 using uint = uint32_t;
 using iint = int32_t;
