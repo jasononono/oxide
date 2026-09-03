@@ -5,7 +5,7 @@
 **/.DS_Store
 **/__pycache__/
 
-build/
+tests/build/
 python/build/
 python/oxide.egg-info
 
