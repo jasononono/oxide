@@ -1,3 +1,7 @@
+# Oxide Documentation
+
+Table of contents here
+
 # Setup
 
 ### Python
@@ -45,8 +49,8 @@ OXIDE_MAIN
 Create a tensor from a Python iterable.
 - **iterable**: the Python iterable (e.g. list, tuple)
 ```py
-my_array = [[1, 3, 5], [2, 4, 6]]
-A = oxide.tensor(my_array)
+my_list = [[1, 3, 5], [2, 4, 6]]
+A = oxide.tensor(my_list)
 ```
 
 ### rand(shape)
@@ -148,4 +152,11 @@ Similarly, subtraction (usub), multiplication (umul), and division (udiv) all wo
 
 # Miscellaneous Functions
 
-### 
+### topy(tensor)
+Returns the tensor as a python list
+- **tensor**: the Oxide tensor
+```py
+A = oxide.rand([3, 4])
+my_list = oxide.topy(A)
+print(my_list)
+```
