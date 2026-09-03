@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(RELEASE "build release library instead of test cpp script" OFF)
+option(RELEASE "build release library instead of test cpp script" ON)
 
 # all .cpp src files
 

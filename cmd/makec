@@ -1,4 +1,4 @@
 #!/usr/bin/env zsh
 
-cmake -B tests/build
+cmake -B tests/build -DRELEASE=OFF
 cmake --build tests/build

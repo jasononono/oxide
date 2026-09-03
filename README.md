@@ -1,4 +1,4 @@
-# Oxide
+# About Oxide
 
 My attempt at building a **GPU-accelerated array computing library** to learn many things in the process.
 
@@ -10,8 +10,9 @@ The backend of Oxide is written entirely in **C/C++**, linked to Python interfac
 
 Oxide currently supports multiple data types, basic arithmetic, and shape manipulation, all optimized with array views and batch processing.
 
-[Documentation](https://github.com/jasononono/oxide/tree/main/docs)\
-[Code Explanation & Notes](https://github.com/jasononono/oxide/blob/main/docs/DEV.md)
+[Documentation](https://github.com/jasononono/oxide/blob/main/docs/DOC.md) \
+[Code Explanation & Notes](https://github.com/jasononono/oxide/blob/main/docs/DEV.md) \
+[Benchmarks](https://github.com/jasononono/oxide/blob/main/docs/BENCHMARK.md)
 
 # Platform & Installation
 

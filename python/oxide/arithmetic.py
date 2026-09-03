@@ -30,7 +30,7 @@ def div(a, b):
     return Tensor(system.run(with_type(dtype, "div"), system.dispatcher, a.ctensor, b.ctensor))
 
 
-# inplace unary operations (e.g. a += b)
+# in-place unary operations (e.g. a += b)
 
 def uadd(a, b):
     dtype = util.check_tensors(a, b)
