@@ -10,3 +10,4 @@ TODO: view as_type? (convert to type only when needed, not the entire data)
 TODO: common case optim for shader
 TODO: better rand system? (store the two endpoints to prevent inaccuracies)
 TODO: indexing helper in python
+TODO: including files from the shader

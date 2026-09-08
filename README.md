@@ -31,8 +31,13 @@ pip install mtl-oxide
 - memory safe c++ backend (no leaks detected)
 - GPU pseudo-random generator (xorshift currently a little scuffed, ill replace it soon)
 
+# Language Specifications
+- C++23
+- Python: 3.13 (or higher)
+- Metal 4.1 (C++17 syntax)
+
 # Inspirations
-Parsing through these awesome libraries helped me setup Metal, design the file system, and understand the complicated shader syntax!
+Parsing through these awesome libraries helped me setup Metal, design the file system, and understand the complicated shader magic!
 
 - [numpy](https://numpy.org/): most oxide function names corresponds to numpy
 - [torch](https://pytorch.org/): benchmarking alongside numpy

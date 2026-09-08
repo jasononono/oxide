@@ -2,15 +2,15 @@
 
 
 #ifdef SPEC2D
-#define MACRO TEMPLATE2D
+    #define MACRO TEMPLATE2D
 #else
-#define MACRO TEMPLATE
+    #define MACRO TEMPLATE
 #endif
 
 MACRO(int32)
 MACRO(float32)
 
 #ifndef NO_UNDEF
-#undef TEMPLATE
+    #undef TEMPLATE
 #endif
 #undef MACRO

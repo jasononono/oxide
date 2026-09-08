@@ -1,6 +1,8 @@
 # Oxide Documentation
 
-Table of contents here
+This is a documentation of Oxide's interface, features, and example usage.
+
+(Table of contents here)
 
 # Setup
 
