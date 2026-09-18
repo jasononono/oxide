@@ -11,7 +11,7 @@ void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
     std::cout << a.get_string() << std::endl;
     std::cout << b.get_string() << std::endl;
 
-    ox::usub<ox::float32>(dispatcher, a, b);
+    ox::sub<ox::float32>(dispatcher, a, b);
 
     std::cout << a.get_string() << std::endl;
 }

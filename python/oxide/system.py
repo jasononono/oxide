@@ -20,13 +20,25 @@ operand_module = None # reference assigned at runtime to avoid circular import
 def run(function, *args, **kwargs):
     core.mem_optimize(backend)
     try:
-        return getattr(core, function)(*args, **kwargs)
+        result = getattr(core, function)(*args, **kwargs)
     except core.oxide_error as e:
+        flush()
         throw(str(e)) # convert core.oxide_error into the equivalent python class
     except BaseException as e:
+        flush()
         raise e
+    
+    flush()
+    return result
 
-def throw(msg):
+
+def logw(msg): # log warning, displays immediately
+    print(msg)
+
+def flush(): # log all cached warnings from the c++ side
+    print(backend.flush(False), end = "")
+
+def throw(msg): # throw error immediately
     raise OxideError(msg)
     
 

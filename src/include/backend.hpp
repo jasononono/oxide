@@ -95,9 +95,12 @@ namespace oxide {
         Memory memory;
         
         NS::Error* mtl_err = nullptr; // automatically points to error struct upon exception
-        std::string error_log; // printed upon abort
+        std::string error_log; // printed upon abort()
+        std::string warning_log; // printed upon flush()
         
         public:
+            bool flush_warnings = false; // when set to true, use cout to display warnings as soon as they are logged (c++ interface only)
+
             Backend();
             ~Backend();
             
@@ -111,10 +114,11 @@ namespace oxide {
             MTL::CommandBuffer* new_cmd_buffer(); // create single-use command buffer
 
             NS::Error** get_mtl_err();
-            void out(const std::string& msg); // log warning message
+            void logw(const std::string& msg); // log warning message
             void log(const std::string& msg); // log error message
             void log_metal(); // automatically log metal error description if applicable
-            void abort();
+            void abort(); // throws error, Python system should translate the oxide_error thrown
+            std::string flush(bool display = true); // flushes warnings, Python system should display warning_log after flushing
 
             std::mt19937& random_generate(); // returns the generator ONLY
             uint random_seed();

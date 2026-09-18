@@ -1,13 +1,17 @@
 TODO: xorshift -> some better rand function idk (research philox)
 TODO: slicing
-TODO: matmul
-TODO: delayed execution (dispatch gpu & let cpu cook on its own until results are needed again)
-TODO: refactor parse_iterable()
+TODO: indexing helper in python
+
 TODO: change cpp header structure? (functions.xpp -> operand.xpp, create.xpp etc.)
-TODO: journal
-TODO: precompile shader?
 TODO: view as_type? (convert to type only when needed, not the entire data)
 TODO: common case optim for shader
-TODO: better rand system? (store the two endpoints to prevent inaccuracies)
-TODO: indexing helper in python
+
+TODO: matmul
+
+TODO: precompile shader?
 TODO: including files from the shader
+TODO: refactor parse_iterable()
+
+
+TODO: delayed execution (dispatch gpu & let cpu cook on its own until results are needed again)
+TODO: better rand system? (store the two endpoints to prevent inaccuracies)

@@ -27,6 +27,7 @@ namespace oxide {
     #define OXIDE_MAIN \
     void oxide_main() { \
         oxide::Backend backend; \
+        backend.flush_warnings = true; \
         oxide::Dispatcher dispatcher(backend); \
         run(backend, dispatcher); \
         oxide::free_backend(backend); \

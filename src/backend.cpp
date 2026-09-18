@@ -141,8 +141,9 @@ namespace oxide {
         return &mtl_err;
     }
 
-    void Backend::out(const std::string& message) {
-        std::cout << "(!) " << message << std::endl;
+    void Backend::logw(const std::string& message) {
+        warning_log += message + '\n';
+        if (flush_warnings) {flush();}
     }
 
     void Backend::log(const std::string& message) {
@@ -156,7 +157,18 @@ namespace oxide {
     }
 
     void Backend::abort() {
-        throw oxide_error(error_log);
+        std::string buffer = error_log;
+        error_log.clear(); // clear error_log in case the user continues execution
+        throw oxide_error(buffer);
+    }
+
+    std::string Backend::flush(bool display) {
+        if (display) {
+            std::cout << warning_log; // not (!) padded or ansi, but ill fix trusttt
+        }
+        std::string buffer = warning_log;
+        warning_log.clear();
+        return buffer;
     }
 
     std::mt19937& Backend::random_generate() {

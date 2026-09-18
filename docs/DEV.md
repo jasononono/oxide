@@ -4,7 +4,7 @@ This is a documentation of Oxide's internal implementation and design pattern.
 
 (mostly an unsorted collection of the library's unique features)
 
-# How oxide works
+# Oxide's layers of abstraction
 
 I tried to group all functions created and used in Oxide into distinct **layers of abstraction**:
 
@@ -101,6 +101,18 @@ When defining a global constant, dtype, or other "common" instances, the followi
 2. common.py (Python)
 3. shader.metal (Metal, C++17 syntax)
 
+# Errors and Warnings
+When Oxide encounters a fault, it will either throw an error (immediate termination) or log a warning to stdout.
+
+Most errors and warnings are cached in the *error_log* and *warning_log* attribute of *Backend*, only to be displayed in batches at specific times. However, some can be forwarded and outputted directly depending on the interface.
+
+|  | Python | C++ | Description
+| --- | --- | --- | --- |
+| log warnings | logw() | logw() | displays warning. If C++ functions are run from Python, warnings are appended to *warning_log* and are displayed after the *run()* call.
+| flush warnings | flush() | flush() | display and clear all warnings in *warning_log* |
+| log errors | - | log(), log_metal() | append errors to *error_log*
+| throw errors | throw() | abort() | throw errors. *error_log* is used to route error messages to Python
+
 # GPU randomization
 Xorshift acts as a placeholder for a future PRNG algorithm.
 
@@ -109,4 +121,5 @@ Xorshift acts as a placeholder for a future PRNG algorithm.
 [Numpy broadcasting](https://numpy.org/devdocs/user/basics.broadcasting.html) \
 [Numpy views](https://numpy.org/devdocs/user/basics.copies.html) \
 [Metal syntax](https://developer.apple.com/documentation/metal/performing-calculations-on-a-gpu) \
-[Xorshift](https://en.wikipedia.org/wiki/Xorshift)
+[Xorshift](https://en.wikipedia.org/wiki/Xorshift) \
+[Philox](https://www.thesalmons.org/john/random123/papers/random123sc11.pdf)

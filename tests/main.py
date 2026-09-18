@@ -5,6 +5,6 @@ from python import oxide as ox
 
 
 a = ox.random([3, 3, 3], 0, 9, ox.int32)
+b = ox.random([3, 3, 3], 0, 9, ox.int32)
 
-print(ox.topy(a))
-print(a)
+a+b
