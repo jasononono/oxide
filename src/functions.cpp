@@ -203,6 +203,15 @@ namespace oxide {
 
 
     template <typename dtype>
+    TensorView<dtype> constview(Backend& backend, dtype value) {
+        TensorData<dtype>* out = new TensorData<dtype>(backend, 1, value);
+        return TensorView<dtype>(backend, {}, out);
+    }
+    #define TEMPLATE(dtype) template TensorView<dtype> constview(Backend& backend, dtype value);
+    #include "specialize/all.h"
+
+
+    template <typename dtype>
     TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape) {
         uint size = parse_shape(*view.get_backend(), shape);
         if (size != parse_shape(*view.get_backend(), view.get_shape())) {

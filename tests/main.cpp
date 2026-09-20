@@ -5,15 +5,10 @@ namespace ox = oxide;
 
 
 void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
-    ox::TensorView<ox::float32> a = ox::random<ox::float32>(dispatcher, {2, 4}, 1, 2);
-    ox::TensorView<ox::float32> b = ox::rand(dispatcher, {4});
+    auto a = ox::constview<ox::float32>(backend, 3);
+    auto b = ox::filled<ox::float32>(backend, {5, 2}, 1);
 
-    std::cout << a.get_string() << std::endl;
-    std::cout << b.get_string() << std::endl;
-
-    ox::sub<ox::float32>(dispatcher, a, b);
-
-    std::cout << a.get_string() << std::endl;
+    std::cout << ox::add(dispatcher, a, b).get_string() << std::endl;
 }
 
 

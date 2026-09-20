@@ -46,7 +46,7 @@ namespace oxide {
             void create_buffer(); // create buffer based on size attribute
             
             // indexing functions
-            dtype operator[](iint index) const;
+            const dtype& operator[](iint index) const;
             dtype& operator[](iint index);
 
             // getter functions
@@ -84,13 +84,17 @@ namespace oxide {
             TensorView& operator=(TensorView&& other);
 
             // indexing
-            dtype operator[](const std::vector<iint>& indices) const;
-            dtype& operator[](const std::vector<iint>& indices);
-            
-            dtype get_element(const std::vector<iint>& indices);
-            void set_element(const std::vector<iint>& indices, dtype value);
+            const dtype& get_element(const std::vector<iint>& indices) const; // get a singular element (length of indices must match ndim)
+            void set_element(const std::vector<iint>& indices, dtype value); // set a singular element (length of indices must match ndim)
+
+            const dtype& operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
+            dtype& operator[](const std::vector<iint>& indices); // set a subarray with another TensorView
 
             iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
+
+            // 0d views
+            bool constant() const; // returns true if the shape is []
+            const dtype& value() const;
 
             // reshape with size checking
             void set_shape(const std::vector<uint>& _shape);

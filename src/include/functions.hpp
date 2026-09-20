@@ -78,6 +78,10 @@ namespace oxide {
     TensorView<dtype> ones(Backend& backend, const std::vector<uint>& shape); // generate tensor filled with 1s
 
 
+    template <typename dtype>
+    TensorView<dtype> constview(Backend& backend, dtype value);
+
+
     // these functions below do not modify the underlying data
     // a.k.a. they're fast
 

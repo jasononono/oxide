@@ -85,7 +85,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    dtype TensorData<dtype>::operator[](iint index) const {
+    const dtype& TensorData<dtype>::operator[](iint index) const {
         check_buffer();
         return ptr[index];
     }
@@ -243,44 +243,46 @@ namespace oxide {
         return *this;
     }
 
-    template <typename dtype>
-    dtype TensorView<dtype>::operator[](const std::vector<iint>& indices) const {
-        return base->get_ptr()[get_buffer_idx(indices)];
-    }
+    // dtype get_element(const std::vector<iint>& indices); // get a singular element (length of indices must match ndim)
+    // void set_element(const std::vector<iint>& indices, dtype value); // set a singular element (length of indices must match ndim)
+
+    // dtype operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
+    // dtype& operator[](const std::vector<iint>& indices); // set a subarray with another TensorView
+
+    // iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
+    // bool constant() const; // returns true if the shape is []
 
     template <typename dtype>
-    dtype& TensorView<dtype>::operator[](const std::vector<iint>& indices) {
-        return base->get_ptr()[get_buffer_idx(indices)];
-    }
-
-    template <typename dtype>
-    dtype TensorView<dtype>::get_element(const std::vector<iint>& indices) {
-        return (*this)[indices];
+    const dtype& TensorView<dtype>::get_element(const std::vector<iint>& indices) const {
+        return (*base)[get_buffer_idx(indices)];
     }
 
     template <typename dtype>
     void TensorView<dtype>::set_element(const std::vector<iint>& indices, dtype value) {
-        (*this)[indices] = value;
+        (*base)[get_buffer_idx(indices)] = value;
     }
 
     template <typename dtype>
     void TensorView<dtype>::set_shape(const std::vector<uint>& _shape) {
+        size = parse_shape(*backend, _shape);
         shape = _shape;
-        size = parse_shape(*backend, shape);
         ndim = shape.size();
         strides = std::vector<iint>(ndim);
 
         // calculate strides from shape (note: make sure this works with offset in the future)
-        strides[ndim - 1] = 1;
-        for (iint i = ndim - 2; i >= 0; i--) {
-            strides[i] = strides[i + 1] * shape[i + 1];
+        if (ndim != 0) {
+            strides[ndim - 1] = 1;
+            for (iint i = ndim - 2; i >= 0; i--) {
+                strides[i] = strides[i + 1] * shape[i + 1];
+            }
         }
+        
     }
 
     template <typename dtype>
     void TensorView<dtype>::set_shape(const std::vector<uint>& _shape, const std::vector<iint>& _strides, uint _offset) {
+        size = parse_shape(*backend, _shape);
         shape = _shape;
-        size = parse_shape(*backend, shape);
         ndim = shape.size();
         strides = _strides;
         offset = _offset;
@@ -313,6 +315,20 @@ namespace oxide {
         }
 
         return buf_index;
+    }
+
+    template <typename dtype>
+    bool TensorView<dtype>::constant() const {
+        return shape.size() == 0;
+    }
+
+    template <typename dtype>
+    const dtype& TensorView<dtype>::value() const {
+        if (!constant()) {
+            backend->log("value() is not defined for non-0d views");
+            backend->abort();
+        }
+        return get_element({});
     }
 
     template <typename dtype>
@@ -353,12 +369,16 @@ namespace oxide {
 
     template <typename dtype>
     std::string TensorView<dtype>::get_string() const {
+        if (constant()) {
+            return std::format("<{}>", value());
+        }
+
         std::string str(ndim, '[');
         std::vector<iint> indices(ndim, 0);
 
         // dfs traversal from left to right of the buffer
         while (!indices.empty()) {
-            str += std::to_string((*this)[indices]);
+            str += std::to_string(get_element(indices));
             while (!indices.empty() && indices.back() == shape[indices.size() - 1] - 1) {
                 str += ']';
                 indices.pop_back();

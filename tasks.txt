@@ -7,6 +7,7 @@ TODO: view as_type? (convert to type only when needed, not the entire data)
 TODO: common case optim for shader
 
 TODO: matmul
+TODO: tests
 
 TODO: precompile shader?
 TODO: including files from the shader

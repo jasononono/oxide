@@ -16,10 +16,6 @@ namespace oxide {
             backend.log("tensor max dimensions exceeded");
             backend.abort();
         }
-        if (shape.size() == 0) {
-            backend.log("tensor shape must not be empty");
-            backend.abort();
-        }
         
         uint size = 1;
         for (uint i : shape) {
