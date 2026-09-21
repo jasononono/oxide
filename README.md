@@ -26,10 +26,10 @@ pip install mtl-oxide
 
 # Features
 
-- GPU accelerated *Tensor* class using MTL::ResourceStorageModeShared
-- automatic Tensor memory management (alloc, free, and optimization)
-- memory safe c++ backend (no leaks detected)
-- GPU pseudo-random generator (xorshift currently a little scuffed, ill replace it soon)
+- **GPU accelerated** *Tensor* class, using "shared buffers" to **reduce data transfer across CPU and GPU**
+- Tensor *view* system that **minimizes data copying** when performing shape operations on the Tensors
+- **automatic Tensor memory management** (alloc, free, and optimization)
+- **memory safe** c++ backend (no leaks detected via the *leaks -atExit* tool)
 
 # Language Specifications
 - C++23
