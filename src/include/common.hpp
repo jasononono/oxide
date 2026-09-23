@@ -44,4 +44,9 @@ namespace oxide {
     std::string ansi(iint code, const std::string& str);
 
 
+    // reshape options flags (keep as separate bits for now)
+    const iint AVOID = 0x01;
+    const iint FORCED = 0x10;
+
+
 }

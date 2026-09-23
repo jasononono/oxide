@@ -74,21 +74,22 @@ namespace oxide {
 
         public:
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base);
+            TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset);
             TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset, const std::vector<iint>& _strides);
 
             // rule of five
             ~TensorView();
             TensorView(const TensorView& other);
             TensorView(TensorView&& other);
-            TensorView& operator=(const TensorView& other);
-            TensorView& operator=(TensorView&& other);
+            TensorView& operator=(const TensorView& other) &; // copy constructor, called when view is an lvalue (e.g. view = other;)
+            TensorView& operator=(TensorView&& other) &; // move constructor, called when view is an lvalue (e.g. view = other;)
 
             // indexing
             const dtype& get_element(const std::vector<iint>& indices) const; // get a singular element (length of indices must match ndim)
             void set_element(const std::vector<iint>& indices, dtype value); // set a singular element (length of indices must match ndim)
 
-            const dtype& operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
-            dtype& operator[](const std::vector<iint>& indices); // set a subarray with another TensorView
+            TensorView operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
+            TensorView& operator=(const TensorView& other) const&&; // copy data only, called when view is an rvalue (e.g. view[{}] = other;)
 
             iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
 
@@ -97,8 +98,9 @@ namespace oxide {
             const dtype& value() const;
 
             // reshape with size checking
-            void set_shape(const std::vector<uint>& _shape);
+            void set_shape(const std::vector<uint>& _shape); // this function will recalculate all strides (won't generate the correct reshaped view if the tensor is non-contiguous)
             void set_shape(const std::vector<uint>& _shape, const std::vector<iint>& _strides, uint _offset);
+            bool contiguous() const; // returns true if the view occupies a contiguous chunk of buffer memory
 
             // getter functions
             Backend* get_backend() const;

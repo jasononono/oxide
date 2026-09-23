@@ -212,27 +212,51 @@ namespace oxide {
 
 
     template <typename dtype>
-    TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape) {
+    TensorView<dtype> reshape(Dispatcher& dispatcher, const TensorView<dtype>& view, const std::vector<uint>& shape, iint copy) {
+        if ((copy & AVOID) && (copy & FORCED)) {
+            view.get_backend()->log("AVOID and FORCED flags cannot be used together");
+            view.get_backend()->abort();
+        }
+        if (dispatcher.get_backend() != view.get_backend()) {
+            dispatcher.get_backend()->log("backend mismatch");
+            dispatcher.get_backend()->abort();
+        }
+
         uint size = parse_shape(*view.get_backend(), shape);
         if (size != parse_shape(*view.get_backend(), view.get_shape())) {
             view.get_backend()->log("reshaped total size must be the same");
             view.get_backend()->abort();
         }
 
-        return TensorView<dtype>(*view.get_backend(), shape, view.get_base());
+        if ((copy & FORCED) || !(view.contiguous() || (copy & AVOID))) {
+            TensorData<dtype>* data = new TensorData<dtype>(*view.get_backend(), size, dtype());
+            TensorView<dtype> out(*view.get_backend(), shape, data);
+
+            dispatcher.memcpy(size, view.get_base()->get_buffer(), out.get_base()->get_buffer(), out.get_ndim(), view.get_strides(), view.get_offset(), out.get_strides(), out.get_offset());
+
+            return out;
+        } else if (!view.contiguous() && (copy & AVOID)) {
+            view.get_backend()->log("cannot reshape a non-contiguous view without copying (AVOID flag specified)");
+            view.get_backend()->abort();
+        }
+        return TensorView<dtype>(*view.get_backend(), shape, view.get_base(), view.get_offset());
     }
-    #define TEMPLATE(dtype) template TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape);
+    #define TEMPLATE(dtype) template TensorView<dtype> reshape(Dispatcher& dispatcher, const TensorView<dtype>& view, const std::vector<uint>& shape, iint copy);
     #include "specialize/all.h"
 
     template <typename dtype>
-    TensorView<dtype> ravel(const TensorView<dtype>& view) {
-        return TensorView<dtype>(*view.get_backend(), {view.get_size()}, view.get_base());
+    TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy) {
+        return reshape(dispatcher, view, {view.get_size()}, copy);
     }
-    #define TEMPLATE(dtype) template TensorView<dtype> ravel(const TensorView<dtype>& view);
+    #define TEMPLATE(dtype) template TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy);
     #include "specialize/all.h"
 
     template <typename dtype>
     TensorView<dtype>& flatten(TensorView<dtype>& view) {
+        if (!view.contiguous()) {
+            view.get_backend()->log("cannot flatten non-contiguous view");
+            view.get_backend()->abort();
+        }
         view.set_shape({view.get_size()});
         return view;
     }

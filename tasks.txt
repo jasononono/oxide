@@ -1,6 +1,6 @@
 TODO: xorshift -> some better rand function idk (research philox)
-TODO: slicing
-TODO: indexing helper in python
+    TODO: slicing
+    TODO: indexing helper in python
 
 TODO: change cpp header structure? (functions.xpp -> operand.xpp, create.xpp etc.)
 TODO: view as_type? (convert to type only when needed, not the entire data)
@@ -12,6 +12,7 @@ TODO: tests
 TODO: precompile shader?
 TODO: including files from the shader
 TODO: refactor parse_iterable()
+TODO: move docs/ to a website or smt
 
 
 TODO: delayed execution (dispatch gpu & let cpu cook on its own until results are needed again)

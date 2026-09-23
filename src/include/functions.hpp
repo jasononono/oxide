@@ -82,17 +82,17 @@ namespace oxide {
     TensorView<dtype> constview(Backend& backend, dtype value);
 
 
-    // these functions below do not modify the underlying data
+    // these functions below do not modify the underlying data (most of the time)
     // a.k.a. they're fast
 
     template <typename dtype>
-    TensorView<dtype> reshape(const TensorView<dtype>& view, const std::vector<uint>& shape); // returns a reshaped view without modifying the data
+    TensorView<dtype> reshape(Dispatcher& dispatcher, const TensorView<dtype>& view, const std::vector<uint>& shape, iint copy = 0); // returns a reshaped view without modifying the data (whenever possible). AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
-    TensorView<dtype> ravel(const TensorView<dtype>& view); // returns a flattened 1D view
+    TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy = 0); // returns a flattened 1D view. AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
-    TensorView<dtype>& flatten(TensorView<dtype>& view); // what ravel() does, but modifies the view in-place
+    TensorView<dtype>& flatten(TensorView<dtype>& view); // what ravel() does, but modifies the view in-place. AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
     TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order); // reorder the axes

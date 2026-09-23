@@ -5,10 +5,11 @@ namespace ox = oxide;
 
 
 void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
-    auto a = ox::constview<ox::float32>(backend, 3);
-    auto b = ox::filled<ox::float32>(backend, {5, 2}, 1);
-
-    std::cout << ox::add(dispatcher, a, b).get_string() << std::endl;
+    auto a = ox::ones<ox::int32>(backend, {3, 4});
+    std::cout << a.get_string() << std::endl;
+    std::cout << a.contiguous() << std::endl;
+    // auto b = ox::reshape<ox::int32>(dispatcher, a, {2, 6}, ox::AVOID);
+    // std::cout << b.get_string() << std::endl;
 }
 
 

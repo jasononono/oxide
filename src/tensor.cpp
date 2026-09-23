@@ -163,6 +163,21 @@ namespace oxide {
     }
 
     template <typename dtype>
+    TensorView<dtype>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset):
+    backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(ndim) {
+        if (backend != base->get_backend()) {
+            backend->log("backend mismatch");
+            backend->abort();
+        }
+
+        set_shape(_shape);
+
+        if (base) {
+            mem = backend->mem_register(base->get_mem(), this, typeid(TensorView<dtype>));
+        }
+    }
+
+    template <typename dtype>
     TensorView<dtype>::TensorView(Backend& _backend, const std::vector<uint>& _shape, TensorData<dtype>* _base, iint _offset, const std::vector<iint>& _strides):
     backend(&_backend), shape(_shape), base(_base), ndim(_shape.size()), offset(_offset), strides(_strides) {
         if (backend != base->get_backend()) {
@@ -203,7 +218,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) {
+    TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) & {
         if (this == &other) {return *this;}
         
         backend = other.backend;
@@ -222,7 +237,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorView<dtype>& TensorView<dtype>::operator=(TensorView<dtype>&& other) {
+    TensorView<dtype>& TensorView<dtype>::operator=(TensorView<dtype>&& other) & {
         if (this == &other) {return *this;}
 
         backend = other.backend;
@@ -243,15 +258,6 @@ namespace oxide {
         return *this;
     }
 
-    // dtype get_element(const std::vector<iint>& indices); // get a singular element (length of indices must match ndim)
-    // void set_element(const std::vector<iint>& indices, dtype value); // set a singular element (length of indices must match ndim)
-
-    // dtype operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
-    // dtype& operator[](const std::vector<iint>& indices); // set a subarray with another TensorView
-
-    // iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
-    // bool constant() const; // returns true if the shape is []
-
     template <typename dtype>
     const dtype& TensorView<dtype>::get_element(const std::vector<iint>& indices) const {
         return (*base)[get_buffer_idx(indices)];
@@ -263,13 +269,25 @@ namespace oxide {
     }
 
     template <typename dtype>
+    TensorView<dtype> TensorView<dtype>::operator[](const std::vector<iint>& indices) const {
+        iint idx = get_buffer_idx(indices); // check size of indices first
+        return TensorView<dtype>(*get_backend(), std::vector<uint>(shape.begin() + indices.size(), shape.end()), get_base(), idx, std::vector<iint>(strides.begin() + indices.size(), strides.end()));
+    }
+
+    // WORK ON SUPPORT FOR OFFSETS NOW
+
+    // template <typename dtype>
+    // TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) const&& {
+
+    // }
+
+    template <typename dtype>
     void TensorView<dtype>::set_shape(const std::vector<uint>& _shape) {
         size = parse_shape(*backend, _shape);
         shape = _shape;
         ndim = shape.size();
         strides = std::vector<iint>(ndim);
 
-        // calculate strides from shape (note: make sure this works with offset in the future)
         if (ndim != 0) {
             strides[ndim - 1] = 1;
             for (iint i = ndim - 2; i >= 0; i--) {
@@ -294,15 +312,28 @@ namespace oxide {
     }
 
     template <typename dtype>
+    bool TensorView<dtype>::contiguous() const {
+        if (constant()) {return true;}
+        if (strides.back() != 1) {return false;}
+
+        for (int i = ndim - 1; i > 0; i--) {
+            if (strides[i] / strides[i - 1] != shape[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename dtype>
     iint TensorView<dtype>::get_buffer_idx(const std::vector<iint>& indices) const {
         check_base();
-        if (indices.size() != ndim) {
-            backend->log("indexing dimensions does not match tensor dimensions");
+        if (indices.size() > ndim) {
+            backend->log("too many indices provided, must be less or equal to ndim");
             backend->abort();
         }
 
         iint buf_index = offset, idx;
-        for (iint i = 0; i < ndim; i++) {
+        for (uint i = 0; i < indices.size(); i++) {
             if (indices[i] >= 0) {
                 idx = indices[i];
             } else {
