@@ -83,6 +83,33 @@ kernel void name( \
     a[id + a_offset] op b[b_idx]; \
 }
 
+#define memcpy(dtype, name) \
+kernel void name( \
+    device dtype* a [[buffer(0)]], \
+    const device dtype* b [[buffer(1)]], \
+    constant uint& ndim [[buffer(2)]], \
+    constant int* a_strides [[buffer(3)]], \
+    constant uint& a_offset [[buffer(4)]], \
+    constant int* b_strides [[buffer(5)]], \
+    constant uint& b_offset [[buffer(6)]], \
+    uint id [[thread_position_in_grid]] \
+) { \
+    uint a_idx = id; \
+    uint b_idx = b_offset; \
+    uint coord; \
+\
+    /* broadcasting ensures that for every indices I = [i_1, i_2, ...] of a, a[I] = a[I] + b[I] */ \
+\
+    for (uint i = 0; i < ndim; i++) { \
+        /* convert buffer index (relative to offset) to view indices */ \
+        coord = a_idx / a_strides[i]; \
+        a_idx %= a_strides[i]; \
+        /* view indices to buffer index of b */ \
+        b_idx += coord * b_strides[i]; \
+    } \
+\
+    a[id + a_offset] = b[b_idx]; \
+}
 
 // NOT THE FINAL PRNG IMPLEMENTATION.
 // xorshift is being used as a placeholder function here
@@ -166,6 +193,9 @@ SPECIALIZE_ALL
 #define TEMPLATE(dtype) unary_op(dtype, umul_##dtype, *=)
 SPECIALIZE_ALL
 #define TEMPLATE(dtype) unary_op(dtype, udiv_##dtype, /=)
+SPECIALIZE_ALL
+
+#define TEMPLATE(dtype) memcpy(dtype, memcpy_##dtype)
 SPECIALIZE_ALL
 
 #define TEMPLATE(dtype) random_int(dtype, random_##dtype)

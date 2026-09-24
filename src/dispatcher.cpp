@@ -145,11 +145,6 @@ namespace oxide {
     }
     #define TEMPLATE(dtype) template void Dispatcher::random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, dtype a, dtype b);
     #include "specialize/numeric.h"
-
-
-    void Dispatcher::memcpy(uint size, MTL::Buffer* a, MTL::Buffer* b, uint ndim, const std::vector<iint>& a_strides, uint a_offset, const std::vector<iint>& b_strides, uint b_offset) {
-
-    }
     
 
 }

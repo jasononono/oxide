@@ -232,7 +232,7 @@ namespace oxide {
             TensorData<dtype>* data = new TensorData<dtype>(*view.get_backend(), size, dtype());
             TensorView<dtype> out(*view.get_backend(), shape, data);
 
-            dispatcher.memcpy(size, view.get_base()->get_buffer(), out.get_base()->get_buffer(), out.get_ndim(), view.get_strides(), view.get_offset(), out.get_strides(), out.get_offset());
+            dispatcher.unary_operation(with_type<dtype>("memcpy"), size, out.get_base()->get_buffer(), view.get_base()->get_buffer(), view.get_ndim(), out.get_strides(), out.get_offset(), view.get_strides(), view.get_offset());
 
             return out;
         } else if (!view.contiguous() && (copy & AVOID)) {

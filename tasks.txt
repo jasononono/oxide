@@ -3,6 +3,7 @@ TODO: xorshift -> some better rand function idk (research philox)
     TODO: indexing helper in python
 
 TODO: change cpp header structure? (functions.xpp -> operand.xpp, create.xpp etc.)
+TODO: make every functions.cpp function accept dispatcher to avoid confusion
 TODO: view as_type? (convert to type only when needed, not the entire data)
 TODO: common case optim for shader
 

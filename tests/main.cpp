@@ -5,11 +5,14 @@ namespace ox = oxide;
 
 
 void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
-    auto a = ox::ones<ox::int32>(backend, {3, 4});
+    auto a = ox::rand(dispatcher, {2, 2, 2});
     std::cout << a.get_string() << std::endl;
-    std::cout << a.contiguous() << std::endl;
-    // auto b = ox::reshape<ox::int32>(dispatcher, a, {2, 6}, ox::AVOID);
-    // std::cout << b.get_string() << std::endl;
+
+    auto b = ox::transpose(a, {2, 1, 0});
+    std::cout << b.get_string() << std::endl;
+
+    auto c = ox::reshape<ox::float32>(dispatcher, b, {8});
+    std::cout << c.get_string() << std::endl;
 }
 
 

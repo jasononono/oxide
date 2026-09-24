@@ -43,8 +43,8 @@ namespace oxide {
     std::string with_type(const std::string& name); // returns name_dtype
     std::string ansi(iint code, const std::string& str);
 
-
-    // reshape options flags (keep as separate bits for now)
+    // option flags (some are only present in this file for the cpp interface)
+    // keep as separate bits
     const iint AVOID = 0x01;
     const iint FORCED = 0x10;
 

@@ -32,8 +32,6 @@ namespace oxide {
             void rand(uint size, MTL::Buffer* buf, uint seed); // random float32 in [0, 1)
             template <typename dtype>
             void random(const std::string& function, uint size, MTL::Buffer* buf, uint seed, dtype a, dtype b); // random numeric in [a, b]
-            
-            void memcpy(uint size, MTL::Buffer* a, MTL::Buffer* b, uint ndim, const std::vector<iint>& a_strides, uint a_offset, const std::vector<iint>& b_strides, uint b_offset);
     };
 
 

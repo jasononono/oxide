@@ -274,8 +274,6 @@ namespace oxide {
         return TensorView<dtype>(*get_backend(), std::vector<uint>(shape.begin() + indices.size(), shape.end()), get_base(), idx, std::vector<iint>(strides.begin() + indices.size(), strides.end()));
     }
 
-    // WORK ON SUPPORT FOR OFFSETS NOW
-
     // template <typename dtype>
     // TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) const&& {
 
@@ -317,7 +315,7 @@ namespace oxide {
         if (strides.back() != 1) {return false;}
 
         for (int i = ndim - 1; i > 0; i--) {
-            if (strides[i] / strides[i - 1] != shape[i]) {
+            if (strides[i - 1] / strides[i] != shape[i]) {
                 return false;
             }
         }
