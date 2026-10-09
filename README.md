@@ -27,6 +27,7 @@ pip install mtl-oxide
 # Features
 
 - **GPU accelerated** *Tensor* class, using "shared buffers" to **reduce data transfer across CPU and GPU**
+- Multi-dimensional **broadcasting**, **indexing**, and **slicing**
 - Tensor *view* system that **minimizes data copying** when performing shape operations on the Tensors
 - **automatic Tensor memory management** (alloc, free, and optimization)
 - **memory safe** c++ backend (no leaks detected via the *leaks -atExit* tool)
