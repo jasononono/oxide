@@ -11,7 +11,7 @@ void run(ox::Backend& backend, ox::Dispatcher& dispatcher) {
     auto b = ox::transpose(a, {2, 1, 0});
     std::cout << b.get_string() << std::endl;
 
-    auto c = ox::reshape<ox::float32>(dispatcher, b, {8});
+    auto c = ox::reshape<ox::float32>(dispatcher, b, {8}, ox::FORCED);
     std::cout << c.get_string() << std::endl;
 }
 

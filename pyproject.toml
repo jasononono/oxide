@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mtl-oxide"
 version = "0.1.1"
-description = "An array computing library optimized natively with the MacOS GPU."
+description = "An array computing library optimized natively for the MacOS GPU."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

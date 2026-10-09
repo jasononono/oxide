@@ -61,6 +61,9 @@ namespace oxide {
     template <typename dtype>
     TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data); // shortcut for initing from data & shape
 
+    template <typename dtype>
+    TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b); // copy values from b to a for every index (functions like the unary operation a = b)
+
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape); // generate float32 tensor randomly filled with elements from range [0, 1)
 

@@ -218,7 +218,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) & {
+    TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) {
         if (this == &other) {return *this;}
         
         backend = other.backend;
@@ -237,7 +237,7 @@ namespace oxide {
     }
 
     template <typename dtype>
-    TensorView<dtype>& TensorView<dtype>::operator=(TensorView<dtype>&& other) & {
+    TensorView<dtype>& TensorView<dtype>::operator=(TensorView<dtype>&& other) {
         if (this == &other) {return *this;}
 
         backend = other.backend;
@@ -273,11 +273,6 @@ namespace oxide {
         iint idx = get_buffer_idx(indices); // check size of indices first
         return TensorView<dtype>(*get_backend(), std::vector<uint>(shape.begin() + indices.size(), shape.end()), get_base(), idx, std::vector<iint>(strides.begin() + indices.size(), strides.end()));
     }
-
-    // template <typename dtype>
-    // TensorView<dtype>& TensorView<dtype>::operator=(const TensorView<dtype>& other) const&& {
-
-    // }
 
     template <typename dtype>
     void TensorView<dtype>::set_shape(const std::vector<uint>& _shape) {

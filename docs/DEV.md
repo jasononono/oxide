@@ -94,6 +94,11 @@ When adding a new Oxide dtype, the following places must be modified:
 1. all "common variables" locations (see below)
 2. specialize headers
 
+# Memory of TensorData
+Tensor data memory is maintained through a system similar to *std::shared_ptr*s (I didn't know how to use shared pointers before, so I kinda just made a custom system).
+
+When a TensorData object loses all its view references, a *cache* parameter will be incremented; cached TensorData will be freed periodically when *cache* exceeds *CACHETHRESHOLD*. I don't know why I made it this complicated, but it sounds cool I guess.
+
 # Common variables
 When defining a global constant, dtype, or other "common" instances, the following places must all receive that change:
 

@@ -81,15 +81,14 @@ namespace oxide {
             ~TensorView();
             TensorView(const TensorView& other);
             TensorView(TensorView&& other);
-            TensorView& operator=(const TensorView& other) &; // copy constructor, called when view is an lvalue (e.g. view = other;)
-            TensorView& operator=(TensorView&& other) &; // move constructor, called when view is an lvalue (e.g. view = other;)
+            TensorView& operator=(const TensorView& other); // copy constructor
+            TensorView& operator=(TensorView&& other); // move constructor
 
             // indexing
             const dtype& get_element(const std::vector<iint>& indices) const; // get a singular element (length of indices must match ndim)
             void set_element(const std::vector<iint>& indices, dtype value); // set a singular element (length of indices must match ndim)
 
             TensorView operator[](const std::vector<iint>& indices) const; // get a subarray or element as a TensorView
-            TensorView& operator=(const TensorView& other) const&&; // copy data only, called when view is an rvalue (e.g. view[{}] = other;)
 
             iint get_buffer_idx(const std::vector<iint>& indices) const; // convert indices into buffer offset index
 

@@ -155,6 +155,19 @@ namespace oxide {
     #define TEMPLATE(dtype) template TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data);
     #include "specialize/all.h"
 
+    template <typename dtype>
+    TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) {
+        uint ndim = a.get_ndim();
+        std::vector<iint> b_strides(ndim);
+        uint size = a.get_size();
+        ubroadcast<dtype>(dispatcher, a, b, b_strides);
+        
+        dispatcher.unary_operation(with_type<dtype>("memcpy"), size, a.get_base()->get_buffer(), b.get_base()->get_buffer(), ndim, a.get_strides(), a.get_offset(), b_strides, b.get_offset());
+        return a;
+    }
+    #define TEMPLATE(dtype) template TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    #include "specialize/all.h"
+
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape) {
         uint size = parse_shape(*dispatcher.get_backend(), shape);
@@ -229,12 +242,13 @@ namespace oxide {
         }
 
         if ((copy & FORCED) || !(view.contiguous() || (copy & AVOID))) {
+            // create new TensorData and copy values
             TensorData<dtype>* data = new TensorData<dtype>(*view.get_backend(), size, dtype());
-            TensorView<dtype> out(*view.get_backend(), shape, data);
+            TensorView<dtype> out(*view.get_backend(), view.get_shape(), data);
 
-            dispatcher.unary_operation(with_type<dtype>("memcpy"), size, out.get_base()->get_buffer(), view.get_base()->get_buffer(), view.get_ndim(), out.get_strides(), out.get_offset(), view.get_strides(), view.get_offset());
+            copy_values(dispatcher, out, view);
+            return reshape(dispatcher, out, shape, AVOID);
 
-            return out;
         } else if (!view.contiguous() && (copy & AVOID)) {
             view.get_backend()->log("cannot reshape a non-contiguous view without copying (AVOID flag specified)");
             view.get_backend()->abort();
