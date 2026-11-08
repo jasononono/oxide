@@ -92,6 +92,7 @@ NB_MODULE(core, m) {
             c.def(nb::init<oxide::Backend&, const std::vector<uint>&,  oxide::TensorData<oxide::dtype>*, oxide::iint, const std::vector<oxide::iint>&>()); \
             c.def("get_element", &oxide::TensorView<oxide::dtype>::get_element, nb::arg("indices")); \
             c.def("set_element", &oxide::TensorView<oxide::dtype>::set_element, nb::arg("indices"), nb::arg("value")); \
+            /**/ \
             c.def("get_ndim", &oxide::TensorView<oxide::dtype>::get_ndim); \
             c.def("get_size", &oxide::TensorView<oxide::dtype>::get_size); \
             c.def("get_offset", &oxide::TensorView<oxide::dtype>::get_offset); \
