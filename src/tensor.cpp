@@ -292,16 +292,15 @@ namespace oxide {
 
     template <typename dtype>
     void TensorView<dtype>::set_shape(const std::vector<uint>& _shape, const std::vector<iint>& _strides, uint _offset) {
+        if (_strides.size() != _shape.size()) {
+            backend->log("tensor strides must have the same dimensions as shape");
+            backend->abort();
+        }
         size = parse_shape(*backend, _shape);
         shape = _shape;
         ndim = shape.size();
         strides = _strides;
         offset = _offset;
-
-        if (strides.size() != ndim) {
-            backend->log("tensor strides must have the same dimensions as shape");
-            backend->abort();
-        }
     }
 
     template <typename dtype>

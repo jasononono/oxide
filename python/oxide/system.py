@@ -13,7 +13,7 @@ import atexit
 backend = core.Backend()
 dispatcher = core.Dispatcher(backend)
 
-operand_module = None # reference assigned at runtime to avoid circular import
+arithmetic_module = None # reference assigned at runtime to avoid circular import
 
 
 # run cpp function by name
@@ -39,7 +39,8 @@ def flush(): # log all cached warnings from the c++ side
     print(backend.flush(False), end = "")
 
 def throw(msg): # throw error immediately
-    raise OxideError(msg)
+    # use from None to prevent displaying the stderr message
+    raise OxideError(msg) from None
     
 
 @atexit.register # free backend upon program exit

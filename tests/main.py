@@ -4,7 +4,8 @@ sys.path.append(os.getcwd())
 from python import oxide as ox
 
 
-a = ox.random([3, 3, 3], 0, 9, ox.int32)
-b = ox.random([3, 3, 3], 0, 9, ox.int32)
+a = ox.rand([3, 5])
+b = ox.reshape(a, [5, 4])
 
-a+b
+print(a)
+print(b)

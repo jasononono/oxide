@@ -62,7 +62,7 @@ namespace oxide {
     TensorView<dtype> make_view(Backend& backend, const std::vector<uint>& shape, const std::vector<dtype>& data); // shortcut for initing from data & shape
 
     template <typename dtype>
-    TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b); // copy values from b to a for every index (functions like the unary operation a = b)
+    TensorView<dtype>& set_view(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b); // copy values from b to a for every index (functions like the unary operation a = b)
 
 
     TensorView<float32> rand(Dispatcher& dispatcher, const std::vector<uint>& shape); // generate float32 tensor randomly filled with elements from range [0, 1)
@@ -82,10 +82,10 @@ namespace oxide {
 
 
     template <typename dtype>
-    TensorView<dtype> constview(Backend& backend, dtype value);
+    TensorView<dtype> constview(Backend& backend, dtype value); // convert value into 0d tensor
 
 
-    // these functions below do not modify the underlying data (most of the time)
+    // these functions below do not modify the underlying data (whenever possible)
     // a.k.a. they're fast
 
     template <typename dtype>
@@ -95,7 +95,7 @@ namespace oxide {
     TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy = 0); // returns a flattened 1D view. AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
-    TensorView<dtype>& flatten(TensorView<dtype>& view); // what ravel() does, but modifies the view in-place. AVOID and FORCED flags are used as copy options
+    TensorView<dtype>& flatten(TensorView<dtype>& view); // what ravel() does, but modifies the view in-place (if possible)
 
     template <typename dtype>
     TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order); // reorder the axes

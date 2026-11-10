@@ -156,7 +156,7 @@ namespace oxide {
     #include "specialize/all.h"
 
     template <typename dtype>
-    TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) {
+    TensorView<dtype>& set_view(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b) {
         uint ndim = a.get_ndim();
         std::vector<iint> b_strides(ndim);
         uint size = a.get_size();
@@ -165,7 +165,7 @@ namespace oxide {
         dispatcher.unary_operation(with_type<dtype>("memcpy"), size, a.get_base()->get_buffer(), b.get_base()->get_buffer(), ndim, a.get_strides(), a.get_offset(), b_strides, b.get_offset());
         return a;
     }
-    #define TEMPLATE(dtype) template TensorView<dtype>& copy_values(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
+    #define TEMPLATE(dtype) template TensorView<dtype>& set_view(Dispatcher& dispatcher, TensorView<dtype>& a, const TensorView<dtype>& b);
     #include "specialize/all.h"
 
 
@@ -246,7 +246,7 @@ namespace oxide {
             TensorData<dtype>* data = new TensorData<dtype>(*view.get_backend(), size, dtype());
             TensorView<dtype> out(*view.get_backend(), view.get_shape(), data);
 
-            copy_values(dispatcher, out, view);
+            set_view(dispatcher, out, view);
             return reshape(dispatcher, out, shape, AVOID);
 
         } else if (!view.contiguous() && (copy & AVOID)) {
@@ -307,14 +307,6 @@ namespace oxide {
     }
     #define TEMPLATE(dtype) template TensorView<dtype> transpose(const TensorView<dtype>& view, const std::vector<uint>& order);
     #include "specialize/all.h"
-
-
-    // try using gpu for as_type???
-
-    // template <typename dtype_old, typename dtype_new>
-    // TensorView<dtype_new> as_type(const TensorView<dtype_old>& view) {
-    //     return view;
-    // }
 
 
 }

@@ -10,9 +10,11 @@ from . import system
 from . import util
 from .tensorclass import *
 from .arithmetic import *
-from .create import *
+from .viewdata import *
+from .viewmanip import *
 from . import core
 
 
 # these module references are stored at runtime to avoid circular import
-system.operand_module = arithmetic
+system.arithmetic_module = arithmetic
+system.viewdata_module = viewdata

@@ -42,3 +42,8 @@ OX_T = { # corresponding python type of oxide dtypes (if a tuple is provided, dt
     int32: int,
     float32: (float, int)
 }
+
+
+# option flags (corresponds to common.hpp)
+AVOID = 0b01
+FORCED = 0b10

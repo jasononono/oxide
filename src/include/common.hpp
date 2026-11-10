@@ -45,8 +45,9 @@ namespace oxide {
 
     // option flags (some are only present in this file for the cpp interface)
     // keep as separate bits
-    const iint AVOID = 0x01;
-    const iint FORCED = 0x10;
+    // might replace with enums in the future
+    const iint AVOID = 0b01;
+    const iint FORCED = 0b10;
 
 
 }

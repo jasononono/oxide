@@ -1,7 +1,7 @@
 """
-ARITHMETIC.PY
+VIEWDATA.PY
 
-tensor initialization, creation, and randomize functions
+tensor initialization and randomize functions
 """
 
 
@@ -27,7 +27,7 @@ def random(shape, a = 0, b = 1, dtype = float32):
 # generate tensor filled with value
 def filled(shape, value, dtype = float32):
     shape = util.check_shape(shape)
-    util.check_dtype(dtype, oxide_t)
+    util.check_dtype(dtype)
     util.check_args(dtype, value)
 
     return Tensor(system.run(with_type(dtype, "filled"), system.backend, shape, value))
@@ -46,8 +46,8 @@ def ones(shape, dtype = float32):
 
     return Tensor(system.run(with_type(dtype, "ones"), system.backend, shape))
 
-
-# move this to viewmanip.py when implemented
-
-    # def transpose(view, order):
-    #     return Tensor(system.run(core.transpose, view.ctensor, order))
+# convert value into 0d tensor
+def constview(value, dtype = float32):
+    util.check_dtype(dtype)
+    util.check_args(dtype, value)
+    return Tensor(system.run(with_type(dtype, "ones"), system.backend, value))

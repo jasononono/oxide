@@ -33,17 +33,21 @@ def div(a, b):
 # in-place unary operations (e.g. a += b)
 
 def uadd(a, b):
+    a, b = util.check_nonconst(a), util.check_nonconst(b)
     dtype = util.check_tensors(a, b)
     return Tensor(system.run(with_type(dtype, "uadd"), system.dispatcher, a.ctensor, b.ctensor))
 
 def usub(a, b):
+    a, b = util.check_nonconst(a), util.check_nonconst(b)
     dtype = util.check_tensors(a, b)
     return Tensor(system.run(with_type(dtype, "usub"), system.dispatcher, a.ctensor, b.ctensor))
 
 def umul(a, b):
+    a, b = util.check_nonconst(a), util.check_nonconst(b)
     dtype = util.check_tensors(a, b)
     return Tensor(system.run(with_type(dtype, "umul"), system.dispatcher, a.ctensor, b.ctensor))
 
 def udiv(a, b):
+    a, b = util.check_nonconst(a), util.check_nonconst(b)
     dtype = util.check_tensors(a, b)
     return Tensor(system.run(with_type(dtype, "udiv"), system.dispatcher, a.ctensor, b.ctensor))

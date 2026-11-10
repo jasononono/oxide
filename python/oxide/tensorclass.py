@@ -7,6 +7,7 @@ tensor class definition and conversion functions
 
 from .common import *
 from . import system
+from . import util
 from . import core
 import typing
 
@@ -26,19 +27,23 @@ class Tensor:
 
     def __getitem__(self, key):
         if isinstance(key, int):
-            return self.ctensor.get_element([key])
+            key = [key]
         elif isinstance(key, typing.Iterable):
-            return self.ctensor.get_element(list(key))
+            key = list(key)
         else:
             system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
 
+        return self.ctensor.get_subtensor(key)
+            
     def __setitem__(self, key, value):
         if isinstance(key, int):
-            self.ctensor.set_element([key], value)
+            key = [key]
         elif isinstance(key, typing.Iterable):
-            self.ctensor.set_element(list(key), value)
+            key = list(key)
         else:
             system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
+
+        system.run(with_type(self.dtype, "set_view"), self.ctensor.get_subtensor(key), util.check_nonconst(value))
 
     def __getattr__(self, key):
         if key == "ndim":
@@ -53,6 +58,8 @@ class Tensor:
             return self.ctensor.get_strides().copy()
         if key == "dtype":
             return self.dtype
+        if key == "contiguous":
+            return self.ctensor.contiguous()
         
         system.throw(f"tensor attribute '{key}' does not exist")
         
@@ -63,16 +70,16 @@ class Tensor:
         return self.ctensor.get_string()
 
     def __add__(self, other):
-        return system.operand_module.add(self, other)
+        return system.arithmetic_module.add(self, other)
 
     def __sub__(self, other):
-        return system.operand_module.sub(self, other)
+        return system.arithmetic_module.sub(self, other)
 
     def __mul__(self, other):
-        return system.operand_module.mul(self, other)
+        return system.arithmetic_module.mul(self, other)
 
     def __truediv__(self, other):
-        return system.operand_module.div(self, other)
+        return system.arithmetic_module.div(self, other)
 
 
 # convert oxide tensor into python list
