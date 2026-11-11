@@ -14,40 +14,36 @@ from .tensorclass import *
 # binary operations (e.g. out = a + b)
 
 def add(a, b):
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "add"), system.dispatcher, a.ctensor, b.ctensor))
 
 def sub(a, b):
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "sub"), system.dispatcher, a.ctensor, b.ctensor))
 
 def mul(a, b):
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "mul"), system.dispatcher, a.ctensor, b.ctensor))
 
 def div(a, b):
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "div"), system.dispatcher, a.ctensor, b.ctensor))
 
 
 # in-place unary operations (e.g. a += b)
 
 def uadd(a, b):
-    a, b = util.check_nonconst(a), util.check_nonconst(b)
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "uadd"), system.dispatcher, a.ctensor, b.ctensor))
 
 def usub(a, b):
-    a, b = util.check_nonconst(a), util.check_nonconst(b)
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "usub"), system.dispatcher, a.ctensor, b.ctensor))
 
 def umul(a, b):
-    a, b = util.check_nonconst(a), util.check_nonconst(b)
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "umul"), system.dispatcher, a.ctensor, b.ctensor))
 
 def udiv(a, b):
-    a, b = util.check_nonconst(a), util.check_nonconst(b)
-    dtype = util.check_tensors(a, b)
+    dtype, (a, b) = util.check_tensors(a, b, cast_consts = True)
     return Tensor(system.run(with_type(dtype, "udiv"), system.dispatcher, a.ctensor, b.ctensor))

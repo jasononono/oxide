@@ -92,7 +92,7 @@ namespace oxide {
     TensorView<dtype> reshape(Dispatcher& dispatcher, const TensorView<dtype>& view, const std::vector<uint>& shape, iint copy = 0); // returns a reshaped view without modifying the data (whenever possible). AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
-    TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy = 0); // returns a flattened 1D view. AVOID and FORCED flags are used as copy options
+    TensorView<dtype> ravel(Dispatcher& dispatcher, const TensorView<dtype>& view, iint copy = 0); // returns a flattened 1d view. AVOID and FORCED flags are used as copy options
 
     template <typename dtype>
     TensorView<dtype>& flatten(TensorView<dtype>& view); // what ravel() does, but modifies the view in-place (if possible)

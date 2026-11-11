@@ -9,7 +9,7 @@ from .common import *
 from . import system
 from . import util
 from . import core
-import typing
+import collections
 
 
 class Tensor:
@@ -28,22 +28,22 @@ class Tensor:
     def __getitem__(self, key):
         if isinstance(key, int):
             key = [key]
-        elif isinstance(key, typing.Iterable):
+        elif isinstance(key, collections.abc.Sequence):
             key = list(key)
         else:
             system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
 
-        return self.ctensor.get_subtensor(key)
+        return Tensor(self.ctensor.get_subtensor(key))
             
     def __setitem__(self, key, value):
         if isinstance(key, int):
             key = [key]
-        elif isinstance(key, typing.Iterable):
+        elif isinstance(key, collections.abc.Sequence):
             key = list(key)
         else:
             system.throw(f"tensor cannot be indexed with '{type(key).__name__}'")
 
-        system.run(with_type(self.dtype, "set_view"), self.ctensor.get_subtensor(key), util.check_nonconst(value))
+        system.viewdata_module.set_view(Tensor(self.ctensor.get_subtensor(key)), value)
 
     def __getattr__(self, key):
         if key == "ndim":
@@ -80,6 +80,22 @@ class Tensor:
 
     def __truediv__(self, other):
         return system.arithmetic_module.div(self, other)
+
+    def __iadd__(self, other):
+        system.arithmetic_module.uadd(self, other)
+        return self
+    
+    def __isub__(self, other):
+        system.arithmetic_module.usub(self, other)
+        return self
+
+    def __imul__(self, other):
+        system.arithmetic_module.umul(self, other)
+        return self
+
+    def __itruediv__(self, other):
+        system.arithmetic_module.udiv(self, other)
+        return self
 
 
 # convert oxide tensor into python list
@@ -128,7 +144,7 @@ def topy(tensor):
 
 # dfs helper function
 def parse_iterable(depth, first, shape, stack, iterable, result):
-    if not isinstance(iterable, typing.Iterable):
+    if not isinstance(iterable, collections.abc.Sequence):
         # constant must be able to be convert into a valid oxide dtype
         for t in PY_T.keys():
             if isinstance(iterable, t):
