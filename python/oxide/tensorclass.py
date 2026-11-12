@@ -97,6 +97,12 @@ class Tensor:
         system.arithmetic_module.udiv(self, other)
         return self
 
+    def value(self):
+        return self.ctensor.value()
+
+    def copy(): # TODO
+        return None
+
 
 # convert oxide tensor into python list
 def topy(tensor):
